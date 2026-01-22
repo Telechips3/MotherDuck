@@ -1,0 +1,38 @@
+# === Executables & Objects ===
+*.o
+*.ko
+*.obj
+*.elf
+*.so
+*.a
+*.la
+*.lo
+
+# === Build Directories ===
+build/
+bin/
+out/
+dist/
+
+# === Linux Kernel / Modules ===
+*.mod
+*.mod.c
+*.symvers
+*.order
+.tmp_versions/
+.*.cmd
+.cache.mk
+
+# === Debug & Temp Files ===
+*.gch
+*.d
+*.swp
+*~
+core
+vgcore.*
+
+# === IDEs (VS Code, Vim, etc.) ===
+.vscode/
+.idea/
+.tags
+tags
