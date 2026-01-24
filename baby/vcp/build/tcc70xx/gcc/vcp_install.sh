@@ -1,0 +1,1 @@
+sudo ../../../tools/fwdn_vcp/fwdn --fwdn ../../../tools/fwdn_vcp/vcp_fwdn.rom -w output/tcc70xx_pflash_boot_2M_ECC.rom
