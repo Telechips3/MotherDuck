@@ -1,23 +1,7 @@
 # === Project & IDE Specific ===
 # IAR
-Debug/
-Release/
-*.dep
-*.ewp
-*.eww
-*.ps1
-
-# Keil MDK
-Listings/
-Objects/
-*.uvoptx
-*.uvprojx
-*.uvguix.*
-
-# STM32CubeIDE / Eclipse
-.settings/
-.project
-.cproject
+output/
+tcc70xx-freertos-debug/
 
 # === Build Artifacts ===
 *.bin
