@@ -39,7 +39,6 @@
 #define DUTY_STOP_NS        0                // 정지
 #define MOTOR_PWM_CH        0                // PDM 채널 0 (GPIO A10)
 #define PERIOD_NS           1000000          // 주기: 1ms (1kHz)
-#define DUTY_SLOW_NS        300000           // 느린 속도: 30% (300,000ns)
 #define DUTY_STOP_NS        0                // 정지: 0%
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
