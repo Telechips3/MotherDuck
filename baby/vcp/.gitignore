@@ -4,7 +4,6 @@ output/
 tcc70xx-freertos-debug/
 
 # === Build Artifacts ===
-*.bin
 *.hex
 *.map
 *.out
