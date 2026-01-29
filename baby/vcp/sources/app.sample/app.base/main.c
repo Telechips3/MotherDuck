@@ -22,7 +22,7 @@
 #include <app_cfg.h>
 #include <debug.h>
 #include <bsp.h>
-
+#include "encoder.h"
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
     #include <spi_eccp.h>
@@ -168,11 +168,14 @@ void cmain (void)
 */
 static void Main_StartTask(void * pArg)
 {
+    static uint32 encTaskID;
+    static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
     (void)pArg;
     (void)SAL_OsInitFuncs();
+    mcu_printf(">>> Main_StartTask start\n");
 
-    hello_world();
-    speed_pwm();
+    // hello_world();
+    // speed_pwm();
 
     /* Create application tasks */
     // AppTaskCreate();
@@ -183,6 +186,20 @@ static void Main_StartTask(void * pArg)
     //     //mcu_printf("\n MCU Idle !!!");
     //     (void)SAL_TaskSleep(5000);
     // }
+    /*  Encoder Task  */
+    SAL_TaskCreate(&encTaskID,
+                   (const uint8 *)"Encoder Task",
+                   EncoderTask,
+                   encTaskStk,
+                   ACFG_TASK_NORMAL_STK_SIZE,
+                   SAL_PRIO_APP_CFG,
+                   NULL);
+
+    /* Main task는 여기서 끝 */
+    while (1)
+    {
+        SAL_TaskSleep(5000);
+    }
 }
 
 static void AppTaskCreate(void)
