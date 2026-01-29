@@ -10,6 +10,8 @@ tcc70xx-freertos-debug/
 *.axf
 *.srec
 *.rom
+*.signed
+
 
 # === FreeRTOS Specific ===
 # RTOS 관련 부산물 (필요한 경우만 제외)
