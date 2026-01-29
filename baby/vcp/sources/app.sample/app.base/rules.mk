@@ -38,3 +38,4 @@ INCLUDES += -I$(TEAM2_INC_PATH)         # 향후 include 폴더에 넣을 헤더
 
 SRCS += speed.c
 SRCS += hello.c
+SRCS += encoder.c
