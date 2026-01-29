@@ -16,6 +16,9 @@
 #ifndef MCU_BSP_MAIN_HEADER
 #define MCU_BSP_MAIN_HEADER
 
+
+#define MCU_BSP_SUPPORT_APP_BASE 1
+
 #if ( MCU_BSP_SUPPORT_APP_BASE == 1 )
 
 /*
@@ -50,6 +53,15 @@ extern void cmain
 (
     void
 );
+
+/* Team 2
+*
+*
+*
+*/
+
+#include "speed.h"
+#include "hello.h"
 
 #endif  // ( MCU_BSP_SUPPORT_APP_BASE == 1 )
 
