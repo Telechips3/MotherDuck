@@ -61,7 +61,7 @@ extern void cmain
 */
 
 #include "speed.h"
-#include "hello.h"
+#include "interrupt_example.h"
 #include "encoder.h"
 
 #endif  // ( MCU_BSP_SUPPORT_APP_BASE == 1 )
