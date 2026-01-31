@@ -15,6 +15,7 @@ MCU_BSP_APP_SAMPLE_PATH := $(MCU_BSP_BUILD_CURDIR)
 
 # Main
 include $(MCU_BSP_APP_SAMPLE_PATH)/app.base/rules.mk
+# include $(MCU_BSP_APP_SAMPLE_PATH)/test.app.gpio/rules.mk
 
 # CAN Demo Application
 ifeq ($(MCU_BSP_BUILD_FLAGS_APP_CAN_DEMO), 1)

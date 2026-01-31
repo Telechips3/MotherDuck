@@ -952,4 +952,3 @@ void GPIO_Scan
 #endif
 
 #endif  // ( MCU_BSP_SUPPORT_DRIVER_GPIO == 1 )
-

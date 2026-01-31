@@ -2385,4 +2385,3 @@ void GPIO_StartGpioTest(int32 ucMode)
 }
 
 #endif  // ( MCU_BSP_SUPPORT_TEST_APP_GPIO == 1 )
-
