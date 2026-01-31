@@ -1290,4 +1290,3 @@ static void PMIO_NotiTask
 }
 
 #endif  // ( MCU_BSP_SUPPORT_DRIVER_PMIO == 1 )
-

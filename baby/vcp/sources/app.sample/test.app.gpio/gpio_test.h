@@ -109,4 +109,3 @@ void GPIO_StartGpioTest
 #endif  // ( MCU_BSP_SUPPORT_TEST_APP_GPIO == 1 )
 
 #endif  // MCU_BSP_GPIO_TEST_HEADER
-

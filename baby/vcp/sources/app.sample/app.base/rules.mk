@@ -31,11 +31,15 @@ TEAM2_ROOT_PATH := $(MCU_BSP_APP_SAMPLE_BASE_PATH)/Team2
 TEAM2_INC_PATH  := $(TEAM2_ROOT_PATH)/include
 TEAM2_SRC_PATH  := $(TEAM2_ROOT_PATH)/source
 
+INT_PATH := ../test.app.gpio/
+
 VPATH += $(TEAM2_SRC_PATH)
 
 INCLUDES += -I$(TEAM2_ROOT_PATH)
-INCLUDES += -I$(TEAM2_INC_PATH)         # 향후 include 폴더에 넣을 헤더 대비
+INCLUDES += -I$(TEAM2_INC_PATH)
+# INCLUDES += -I$(INT_PATH)          # 향후 include 폴더에 넣을 헤더 대비
 
 SRCS += speed.c
 SRCS += hello.c
 SRCS += encoder.c
+# SRCS += gpio_test.c

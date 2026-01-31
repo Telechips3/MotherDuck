@@ -174,7 +174,7 @@ static void Main_StartTask(void * pArg)
     (void)SAL_OsInitFuncs();
     mcu_printf(">>> Main_StartTask start\n");
 
-    // hello_world();
+    hello_world();
     // speed_pwm();
 
     /* Create application tasks */
@@ -186,14 +186,15 @@ static void Main_StartTask(void * pArg)
     //     //mcu_printf("\n MCU Idle !!!");
     //     (void)SAL_TaskSleep(5000);
     // }
+    
     /*  Encoder Task  */
-    SAL_TaskCreate(&encTaskID,
-                   (const uint8 *)"Encoder Task",
-                   EncoderTask,
-                   encTaskStk,
-                   ACFG_TASK_NORMAL_STK_SIZE,
-                   SAL_PRIO_APP_CFG,
-                   NULL);
+    // SAL_TaskCreate(&encTaskID,
+    //                (const uint8 *)"Encoder Task",
+    //                EncoderTask,
+    //                encTaskStk,
+    //                ACFG_TASK_NORMAL_STK_SIZE,
+    //                SAL_PRIO_APP_CFG,
+    //                NULL);
 
     /* Main task는 여기서 끝 */
     while (1)
