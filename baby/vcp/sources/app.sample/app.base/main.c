@@ -13,6 +13,7 @@
 ***************************************************************************************************
 */
 
+#define MCU_BSP_SUPPORT_APP_BASE 1
 
 #if ( MCU_BSP_SUPPORT_APP_BASE == 1 )
 
@@ -22,7 +23,6 @@
 #include <app_cfg.h>
 #include <debug.h>
 #include <bsp.h>
-#include "encoder.h"
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
     #include <spi_eccp.h>
@@ -172,10 +172,13 @@ static void Main_StartTask(void * pArg)
     static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
     (void)pArg;
     (void)SAL_OsInitFuncs();
+
+    PDM_Init();
     mcu_printf(">>> Main_StartTask start\n");
 
-    hello_world();
-    // speed_pwm();
+    //hello_world();
+    //speed_pwm();
+    SPI_Init();
 
     /* Create application tasks */
     // AppTaskCreate();
