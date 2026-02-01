@@ -777,30 +777,14 @@ static SALRetCode_t GPSB_SetPort(
         }
     }
 
-    if (gpsb[uiCh].dIsSlave == TRUE)
-    {
-        // 1. uiSdo(MOSI 핀)를 INPUT으로 설정 (마스터가 쏘는 데이터를 받아야 함)
-        ret = (SALRetCode_t)GPIO_Config((uint32)uiSdo, (uint32)((GPIO_FUNC(gpsbport[port][GPSB_FUNC]) | GPIO_INPUT) | GPIO_INPUTBUF_EN));
-        if (ret != SAL_RET_SUCCESS)
-            return SAL_RET_FAILED;
+    ret = (SALRetCode_t)GPIO_Config((uint32)uiSdo, (uint32)(GPIO_FUNC(gpsbport[port][GPSB_FUNC]) | GPIO_OUTPUT));
+    if (ret != SAL_RET_SUCCESS)
+        return SAL_RET_FAILED;
 
-        // 2. uiSdi(MISO 핀)를 OUTPUT으로 설정 (마스터한테 데이터를 보내줘야 함)
-        ret = (SALRetCode_t)GPIO_Config((uint32)uiSdi, (uint32)(GPIO_FUNC(gpsbport[port][GPSB_FUNC]) | GPIO_OUTPUT));
-        if (ret != SAL_RET_SUCCESS)
-            return SAL_RET_FAILED;
-    }
-    else
-    {
-        // 1. uiSdo(MOSI 핀)를 OUTPUT으로 설정 (마스터한테 데이터를 보내줘야 함)
-        ret = (SALRetCode_t)GPIO_Config((uint32)uiSdo, (uint32)(GPIO_FUNC(gpsbport[port][GPSB_FUNC]) | GPIO_OUTPUT));
-        if (ret != SAL_RET_SUCCESS)
-            return SAL_RET_FAILED;
-
-        // 2. uiSdi(MISO 핀)를 INPUT으로 설정 (마스터가 쏘는 데이터를 받아야 함)
-        ret = (SALRetCode_t)GPIO_Config((uint32)uiSdi, (uint32)((GPIO_FUNC(gpsbport[port][GPSB_FUNC]) | GPIO_INPUT) | GPIO_INPUTBUF_EN));
-        if (ret != SAL_RET_SUCCESS)
-            return SAL_RET_FAILED;
-    }
+    // 2. uiSdi(MISO 핀)를 INPUT으로 설정 (마스터가 쏘는 데이터를 받아야 함)
+    ret = (SALRetCode_t)GPIO_Config((uint32)uiSdi, (uint32)((GPIO_FUNC(gpsbport[port][GPSB_FUNC]) | GPIO_INPUT) | GPIO_INPUTBUF_EN));
+    if (ret != SAL_RET_SUCCESS)
+        return SAL_RET_FAILED;
 
     if (gpsb[uiCh].dIsSlave == TRUE)
     {
@@ -1048,7 +1032,9 @@ static uint32 GPSB_FifoRead(
         {
             if (word_size <= (uint32)1UL)
             {
-                rx[0] = (uint32)(read_data & 0xFFUL);
+                rx[0] = (uint32)(read_data);
+                // rx[0] = (uint32)(read_data & 0xFFUL);
+                GPSB_D("%s: read value %d\n", __func__, rx[0]);
             }
             else if (word_size <= (uint32)2UL)
             {
