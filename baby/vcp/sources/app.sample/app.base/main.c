@@ -177,7 +177,8 @@ static void Main_StartTask(void * pArg)
     mcu_printf(">>> Main_StartTask start\n");
 
     //hello_world();
-    speed_pwm();
+    //speed_pwm();
+    SPI_Init();
 
     /* Create application tasks */
     // AppTaskCreate();
