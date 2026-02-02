@@ -16,7 +16,7 @@ typedef enum {
 
 typedef struct {
   uint32_t seq;
-  uint32_t cpu_time_ms; // CPU monotonic ms -> 메시지 자체의 timestamp를 확인해서 VCP에서 핸들링할 수 있게
+  uint32_t cpu_time_ms;  // CPU monotonic ms -> 메시지 자체의 timestamp를 확인해서 VCP에서 핸들링할 수 있게
 
   ctrl_mode_t mode;
   leader_state_t leader_state;

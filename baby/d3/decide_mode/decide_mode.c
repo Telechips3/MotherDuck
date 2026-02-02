@@ -117,7 +117,7 @@ void decide_mode_step(to_vcp_msg_t *msg, uint32_t now_ms)
     msg->reason = (uint8_t)REASON_LEADER_ESTOP;
     return;
   }
-
+  
   // ---- 2) freshness 판단 ----
   const uint8_t wp_fresh    = is_fresh(msg->wp_valid,    msg->wp_age_ms,    P.wp_timeout_ms);
   const uint8_t arc_fresh    = is_fresh(msg->aruco_valid, msg->aruco_age_ms, P.aruco_timeout_ms);
