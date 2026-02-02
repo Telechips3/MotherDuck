@@ -1,31 +1,16 @@
 # === Project & IDE Specific ===
 # IAR
-Debug/
-Release/
-*.dep
-*.ewp
-*.eww
-*.ps1
-
-# Keil MDK
-Listings/
-Objects/
-*.uvoptx
-*.uvprojx
-*.uvguix.*
-
-# STM32CubeIDE / Eclipse
-.settings/
-.project
-.cproject
+output/
+tcc70xx-freertos-debug/
 
 # === Build Artifacts ===
-*.bin
 *.hex
 *.map
 *.out
 *.axf
 *.srec
+*.rom
+*.signed
 
 # === FreeRTOS Specific ===
 # RTOS 관련 부산물 (필요한 경우만 제외)
