@@ -64,6 +64,8 @@ extern void cmain
 #include "interrupt_example.h"
 #include "encoder.h"
 #include "spi.h"
+#include "ipc.h"
+#include "steer.h"
 
 #endif  // ( MCU_BSP_SUPPORT_APP_BASE == 1 )
 
