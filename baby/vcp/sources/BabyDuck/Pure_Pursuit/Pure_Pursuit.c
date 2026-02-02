@@ -1,5 +1,5 @@
-// pp.c
-#include "pp.h"
+// Pure_Pursuit.c
+#include "Pure_Pursuit.h"
 #include <math.h>
 
 #ifndef M_PI

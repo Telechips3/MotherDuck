@@ -1,4 +1,4 @@
-// pp.h
+// Pure_Pursuit.h
 #pragma once
 #include <stddef.h>
 
