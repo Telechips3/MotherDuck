@@ -3,7 +3,7 @@
 static PDMModeConfig_t g_pwm_cfg;
 static uint8 g_motor_initialized = 0;
 
-static void motor_init()
+static void motor_init(void)
 {
     // 1. GPIO 설정
     GPIO_Config(MOTOR_IN1, (GPIO_FUNC(0) | GPIO_OUTPUT));

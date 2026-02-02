@@ -168,15 +168,20 @@ void cmain (void)
 */
 static void Main_StartTask(void * pArg)
 {
-    static uint32 encTaskID;
-    static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
+    // static uint32 encTaskID;
+    // static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
     (void)pArg;
     (void)SAL_OsInitFuncs();
 
     PDM_Init();
     mcu_printf(">>> Main_StartTask start\n");
     
+    ipc_init();
+
+    mcu_printf(">>> ipc_StartTask start\n");
     SPI_Init();
+
+
     //hello_world();
     //speed_pwm();
 
