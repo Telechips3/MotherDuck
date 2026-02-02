@@ -75,4 +75,8 @@ void control_motor_drive(uint32 cmd)
     {
         PDM_Enable(MOTOR_PWM_CH, PMM_ON);
     }
+    else
+    {
+        mcu_printf("Speed failed in control_motor_drive\n");
+    }
 }

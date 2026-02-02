@@ -1,5 +1,6 @@
 #include "ipc.h"
 #include "speed.h" // control_motor_drive 함수 호출용
+#include "steer.h" // control_steering_step 함수 호출용
 
 /* 전역 변수 */
 uint32 g_motor_queue_id = 0;
@@ -28,7 +29,13 @@ static void vMotorControlTask(void *pParam)
         if (ret == SAL_RET_SUCCESS)
         {
             // 명령 수신 성공: 전진/후진 등 실행
-            control_motor_drive(received_cmd);
+            if(received_cmd == 0 || received_cmd == 2)
+            {
+                control_motor_drive(received_cmd);
+            }
+            else{
+                control_steering_step(received_cmd);
+            }
         }
         else
         {
