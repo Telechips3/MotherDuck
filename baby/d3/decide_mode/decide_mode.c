@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "decide_mode.h"   // 너가 to_vcp_msg_t, enums를 선언한 헤더
 
-// ===== reason code (debug) =====
+// ====== reason code (debug) =====
 typedef enum {
   REASON_NONE = 0,
   REASON_CPU_STALE,
