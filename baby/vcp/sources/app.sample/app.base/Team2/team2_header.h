@@ -5,12 +5,12 @@
 #include <gpio.h>
 #include <pdm.h>
 #include <gpsb.h>
-#include "gic.h"
 #include <stdint.h>
+#include "gic.h"
 
 //speed.h
-#define MOTOR_IN1           GPIO_GPB(2)      // L298N IN1
-#define MOTOR_IN2           GPIO_GPB(3)      // L298N IN2
+#define MOTOR_IN1           GPIO_GPA(4)      // L298N IN1
+#define MOTOR_IN2           GPIO_GPA(8)      // L298N IN2
 #define MOTOR_ENA_CH        0                // L298N ENA (PDM CH0 - GPIO A10)
 
 
