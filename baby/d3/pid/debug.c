@@ -14,6 +14,7 @@
 // --- [리더님 요청 1: 전역 배열 선언] ---
 // 1바이트만 쓰더라도 배열로 관리하면 추후 프로토콜 확장이 유리합니다.
 static uint8_t tx_buf[1] = {0x00};
+static uint8_t rx_buf[1] = {0x00};
 
 static uint8_t mode = 0;
 static uint8_t bits = 8;
@@ -38,13 +39,22 @@ int spi_init(const char *device)
 void spi_send_byte(int fd, uint8_t val)
 {
     tx_buf[0] = val; // 전역 배열의 첫 번째 칸에 값 대입
+    struct spi_ioc_transfer tr = {
+        .tx_buf = (unsigned long)tx_buf,
+        .rx_buf = (unsigned long)rx_buf,
+        .len = 1,
+        .delay_usecs = 0,
+        .speed_hz = speed,
+        .bits_per_word = bits,
+    };
+
     printf("[SPI 송신] tx_buf[0] = %u\n", tx_buf[0]);
-    
-    // 배열의 시작 주소를 넘기고, 길이를 1바이트로 지정합니다.
-    if (write(fd, tx_buf, 1) != 1)
-    {
-        perror("SPI write 실패");
+
+    if (ioctl(fd, SPI_IOC_MESSAGE(1), &tr) < 1) {
+        perror("[Linux Master] SPI Transfer Failed");
     }
+
+    printf("[SPI] 수신] rx_buf[0] = %u\n", rx_buf[0]);
 }
 
 int main()
