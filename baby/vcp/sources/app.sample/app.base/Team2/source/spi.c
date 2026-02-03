@@ -10,11 +10,16 @@ static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
     mcu_printf("[SPI] PIO Received: %d\n", spi_rx_buf[0]);
     
     (void)SAL_QueuePut(g_motor_queue_id, (void *)&spi_rx_buf[0], sizeof(uint32), 0, SAL_OPT_NON_BLOCKING);
-
+    
     GPSB_AsyncXfer(SPI_CHANNEL, (uint32 *)spi_tx_buf, (uint32 *)spi_rx_buf, 1,
                    GPSB_XFER_MODE_WITH_INTERRUPT | GPSB_XFER_MODE_WITHOUT_CTF);
+}
 
+uint32_t spi_send(void* arg)
+{
+    uint32_t ret = -1;
 
+    return ret;
 }
 
 void SPI_Init(void)
