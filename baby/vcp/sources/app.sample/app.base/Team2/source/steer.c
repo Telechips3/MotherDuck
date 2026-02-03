@@ -1,4 +1,5 @@
 #include "steer.h"
+#include "../team2_header.h"
 
 static PDMModeConfig_t g_steer_pwm_cfg;
 static uint8 g_steer_initialized = 0;

@@ -1,4 +1,5 @@
 #include "speed.h"
+#include "../team2_header.h"
 
 static PDMModeConfig_t g_pwm_cfg;
 static uint8 g_motor_initialized = 0;
