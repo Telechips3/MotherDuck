@@ -20,6 +20,14 @@
 /* Buzzer */
 #define BUZZER_GPIO           GPIO_GPA(19)
 
+#define ENABLE_IPC_TEST         1
+#define ENABLE_SPI_TEST         1          
+#define ENABLE_IMU_TEMP_TEST    1
+#define ENABLE_IMU_TEST         1       
+#define ENABLE_ENCODER_TASK     1   
+#define ENABLE_ULTRASONIC_TASK  1 
+#define ENABLE_BUZZER_TASK      1   
+
 #ifndef MCU_BSP_MAIN_HEADER
 #define MCU_BSP_MAIN_HEADER
 
@@ -66,16 +74,7 @@ extern void cmain
 *
 *
 */
-
-#include "speed.h"
-#include "interrupt_example.h"
-#include "encoder.h"
-#include "spi.h"
-
-#include "ultrasonic.h"
-#include "buzzer.h"
-#include "ipc.h"
-#include "steer.h"
+ 
 
 
 #endif  // ( MCU_BSP_SUPPORT_APP_BASE == 1 )

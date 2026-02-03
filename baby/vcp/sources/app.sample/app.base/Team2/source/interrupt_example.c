@@ -1,4 +1,6 @@
 #include "interrupt_example.h"
+#include "../team2_header.h"
+#include "gpio_test.h"
 
 void My_ISR_Handler(void* args);
 

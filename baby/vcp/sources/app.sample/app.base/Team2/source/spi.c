@@ -2,6 +2,8 @@
 #include "speed.h"
 #include "ipc.h"
 #include "encoder.h"
+#include "../team2_header.h"
+
 
 static volatile uint32_t spi_rx_buf[1] = {0};
 static uint32_t spi_tx_buf[1] = {0};
