@@ -1,30 +1,22 @@
 #include "spi.h"
 #include "speed.h"
 #include <stdint.h>
+#include "ipc.h"
 
 static volatile uint32_t spi_rx_buf[1] = {0};
 static uint32_t spi_tx_buf[1] = {0};
 
-extern uint32_t g_motor_queue_id;
-volatile uint32_t g_motor_cmd = 0xFF;
 
 static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 {
-    // ⭐ 명령만 저장 (극도로 빠름)
-    g_motor_cmd = spi_rx_buf[0];
+    mcu_printf("[SPI] PIO Received: %d\n", spi_rx_buf[0]);
+    
+    (void)SAL_QueuePut(g_motor_queue_id, (void *)&spi_rx_buf[0], sizeof(uint32), 0, SAL_OPT_NON_BLOCKING);
 
-    if (g_motor_queue_id != 0U) {
-        // 인터럽트 컨텍스트이므로 Timeout은 0으로 설정
-        (void)SAL_QueuePut(g_motor_queue_id, 
-                           (uint32 *)&g_motor_cmd, 
-                           sizeof(uint32), // 3번째: 보낼 크기 (값)
-                           0U,              // 4번째: 타임아웃
-                           0U);             // 5번째: 옵션
-    }
-
-    // ⭐ 즉시 다음 수신 준비 (로그보다 먼저!)
-    GPSB_AsyncXfer(SPI_CHANNEL, (uint32 *)spi_tx_buf, (uint32 *)spi_rx_buf, 1, 
+    GPSB_AsyncXfer(SPI_CHANNEL, (uint32 *)spi_tx_buf, (uint32 *)spi_rx_buf, 1,
                    GPSB_XFER_MODE_WITH_INTERRUPT | GPSB_XFER_MODE_WITHOUT_CTF);
+
+
 }
 
 void SPI_Init(void)

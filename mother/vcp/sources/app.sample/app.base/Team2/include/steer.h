@@ -12,10 +12,11 @@
 
 // [추가] 한 번의 입력으로 변화시킬 펄스 폭 (조향 감도)
 // 이 값을 키우면 조향이 민감해지고, 줄이면 아주 부드러워집니다.
-#define STEER_STEP_NS         30000     
+#define STEER_STEP_NS         40000     
 
-#define STEER_PWM_CH          PDM_CHANNEL_4         // PDM CH1
+#define STEER_PWM_CH          PDM_CHANNEL_7         // team2_header.h의 SERVO_STEER_CH와 일치
 
 void control_steering_step(uint32 cmd);
+
 
 #endif

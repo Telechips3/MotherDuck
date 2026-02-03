@@ -8,9 +8,9 @@ static uint32 g_current_steer_ns = STEER_NEUTRAL_NS;
 
 static void steer_init(void)
 {
-    //GPIO_Config(MOTOR_STEER_PIN, (GPIO_FUNC(1) | GPIO_OUTPUT)); // 조향 핀 설정 확인 필요
+    // GPIO는 PDM이 자동으로 설정하므로 별도 설정 불필요
 
-    g_steer_pwm_cfg.mcPortNumber = GPIO_PERICH_CH1;
+    g_steer_pwm_cfg.mcPortNumber = GPIO_PERICH_CH0;
     g_steer_pwm_cfg.mcOperationMode = PDM_OUTPUT_MODE_PHASE_1;
     g_steer_pwm_cfg.mcInversedSignal = 0;
     g_steer_pwm_cfg.mcOutSignalInIdle = 0;
@@ -18,6 +18,18 @@ static void steer_init(void)
     g_steer_pwm_cfg.mcOutputCtrl = 0;
     g_steer_pwm_cfg.mcPeriodNanoSec1 = STEER_PERIOD_NS;
     g_steer_pwm_cfg.mcPeriodNanoSec2 = 0;
+    g_steer_pwm_cfg.mcDutyNanoSec1 = STEER_NEUTRAL_NS;  // 초기 중립 위치
+
+    // [핵심] PDM 채널 초기화 및 활성화
+    if (PDM_SetConfig(STEER_PWM_CH, &g_steer_pwm_cfg) == SAL_RET_SUCCESS)
+    {
+        PDM_Enable(STEER_PWM_CH, PMM_ON);
+        mcu_printf("[STEER] Initialized at neutral position\n");
+    }
+    else
+    {
+        mcu_printf("[STEER] Init FAILED!\n");
+    }
 
     g_steer_initialized = 1;
 }
