@@ -1,0 +1,4 @@
+# local EULA acceptance
+baby/.eula_accepted
+
+# vcpSignTool build artifacts
