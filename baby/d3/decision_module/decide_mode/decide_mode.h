@@ -14,6 +14,21 @@ typedef enum {
 	LEADER_ESTOP = 3
 } leader_state_t;
 
+typedef enum {
+    REASON_NONE = 0,
+    REASON_CPU_STALE = 1,
+    REASON_LEADER_ESTOP = 2,
+    REASON_LEADER_FAULT = 3,
+    REASON_WP_TIMEOUT = 4,
+    REASON_ARUCO_TIMEOUT = 5,
+    REASON_WP_RECOVERED = 6,
+    REASON_ARUCO_RECOVERED = 7,
+    REASON_BOTH_LOST = 8,
+    REASON_INIT = 9,
+    REASON_TRANSMITION = 10,
+    REASON_NULL = 11
+} mode_reason_t;
+
 typedef struct {
 	uint32_t seq;
 	uint32_t cpu_time_ms;  // CPU monotonic ms -> 메시지 자체의 timestamp를 확인해서 VCP에서 핸들링할 수 있게
@@ -38,4 +53,4 @@ typedef struct {
 } to_vcp_msg_t;
 
 // msg로 핸들링, now_ms 필요시 사용
-void decide_mode_step(to_vcp_msg_t* msg/*, uint32_t now_ms*/);
+uint8_t decide_mode_step(to_vcp_msg_t* msg/*, uint32_t now_ms*/);

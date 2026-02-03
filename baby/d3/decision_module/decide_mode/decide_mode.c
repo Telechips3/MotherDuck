@@ -11,21 +11,6 @@
 #define ARC_LOST_TO_DROP_CNT_DEFAULT 3
 #define LATCH_ESTOP_DEFAULT 1
 
-// ====== reason code (debug) =====
-typedef enum {
-    REASON_NONE = 0,
-    REASON_CPU_STALE = 1,
-    REASON_LEADER_ESTOP = 2,
-    REASON_LEADER_FAULT = 3,
-    REASON_WP_TIMEOUT = 4,
-    REASON_ARUCO_TIMEOUT = 5,
-    REASON_WP_RECOVERED = 6,
-    REASON_ARUCO_RECOVERED = 7,
-    REASON_BOTH_LOST = 8,
-    REASON_INIT = 9,
-    REASON_TRANSMITION = 10
-} mode_reason_t;
-
 // ===== parameters (tune these) =====
 typedef struct {
     uint16_t wp_timeout_ms;
@@ -80,7 +65,7 @@ static ctrl_mode_t guard_mode(ctrl_mode_t mode, uint8_t wp_fresh, uint8_t arc_fr
  * @param msg[in,out]  to_vcp_msg_t. 입력(valid/age/leader_state 등)은 채워져 있어야 함.
  * @param now_ms[in]   CPU monotonic ms (현재 시각). msg->cpu_time_ms와 별개로 “지금”이 필요하면 사용.
  */
-void decide_mode_step(to_vcp_msg_t* msg/*, uint32_t now_ms*/)
+uint8_t decide_mode_step(to_vcp_msg_t* msg/*, uint32_t now_ms*/)
 {
     // ---- 튜닝 파라미터(일단 고정값으로 박아두고 나중에 config로 빼도 됨) ----
     static const decide_params_t P = {
@@ -96,7 +81,7 @@ void decide_mode_step(to_vcp_msg_t* msg/*, uint32_t now_ms*/)
       .latch_estop = LATCH_ESTOP_DEFAULT
     };
 
-    if (msg == 0) return;
+    if (msg == 0) return REASON_NULL;
 
     // ---- init ----
     if (!g_decide_st.initialized) {
@@ -113,20 +98,20 @@ void decide_mode_step(to_vcp_msg_t* msg/*, uint32_t now_ms*/)
         if (P.latch_estop) g_decide_st.estop_latched = 1;
         msg->mode = MODE_ESTOP;
         msg->reason = (uint8_t)REASON_LEADER_ESTOP;
-        return;
+        return msg->reason;
     }
 
     if (msg->leader_state == LEADER_FAULT) {
         // fault는 정책에 따라 ESTOP/STOP 선택 가능. 일단 STOP으로.
         msg->mode = MODE_STOP_AND_HOLD;
         msg->reason = (uint8_t)REASON_LEADER_FAULT;
-        return;
+        return msg->reason;
     }
 
     if (g_decide_st.estop_latched) {
         msg->mode = MODE_ESTOP;
         msg->reason = (uint8_t)REASON_LEADER_ESTOP;
-        return;
+        return msg->reason;
     }
 
     // ---- 2) freshness 판단 ----
@@ -221,4 +206,6 @@ void decide_mode_step(to_vcp_msg_t* msg/*, uint32_t now_ms*/)
     msg->mode = next;
 
     //(void)now_ms; // 지금은 미사용. 필요 시 cpu_time_ms stale 로직 확장 가능
+
+    return msg->reason;
 }
