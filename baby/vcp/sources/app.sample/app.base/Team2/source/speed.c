@@ -50,6 +50,7 @@ void control_motor_drive(uint32 cmd)
         GPIO_Set(MOTOR_IN2, 0);
         target_duty = DUTY_STOP_NS;
     }
+    
 
     // --- [PWM 업데이트] ---
     // TCC70xx의 PDM은 설정을 바꿀 때 Disable -> Config -> Enable 과정을 거쳐야 안전합니다.
