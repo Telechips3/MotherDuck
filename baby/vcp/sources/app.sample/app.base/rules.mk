@@ -45,4 +45,5 @@ SRCS += encoder.c
 SRCS += spi.c
 SRCS += ipc.c
 SRCS += steer.c
+SRCS += mpu_driver.c
 # SRCS += gpio_test.c
