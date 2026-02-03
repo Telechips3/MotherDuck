@@ -23,6 +23,8 @@
 #include <app_cfg.h>
 #include <debug.h>
 #include <bsp.h>
+#include "Team2/include/spi.h"
+#include "Team2/include/speed.h"
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
     #include <spi_eccp.h>
@@ -166,43 +168,28 @@ void cmain (void)
 *
 ***************************************************************************************************
 */
+
+
 static void Main_StartTask(void * pArg)
 {
-    static uint32 encTaskID;
-    static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
+    
+    
     (void)pArg;
     (void)SAL_OsInitFuncs();
 
     PDM_Init();
     mcu_printf(">>> Main_StartTask start\n");
     
+    ipc_init();
+
+    mcu_printf(">>> ipc_StartTask start\n");
     SPI_Init();
-    //hello_world();
-    //speed_pwm();
 
-    /* Create application tasks */
-    // AppTaskCreate();
-
-    // while (1)
-    // {  /* Task body, always written as an infinite loop.       */
-    //     DisplayAliveLog();
-    //     //mcu_printf("\n MCU Idle !!!");
-    //     (void)SAL_TaskSleep(5000);
-    // }
-    
-    /*  Encoder Task  */
-    // SAL_TaskCreate(&encTaskID,
-    //                (const uint8 *)"Encoder Task",
-    //                EncoderTask,
-    //                encTaskStk,
-    //                ACFG_TASK_NORMAL_STK_SIZE,
-    //                SAL_PRIO_APP_CFG,
-    //                NULL);
-
-    /* Main task는 여기서 끝 */
+    /* ⭐ 메인 루프: 모터 제어 + 로그 출력 */
     while (1)
     {
-        SAL_TaskSleep(5000);
+        
+        SAL_TaskSleep(20);  // 50Hz 체크 (충분히 빠름)
     }
 }
 

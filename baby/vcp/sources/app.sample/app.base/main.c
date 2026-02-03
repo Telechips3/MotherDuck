@@ -180,7 +180,12 @@ static void Main_StartTask(void * pArg)
     PDM_Init();
     mcu_printf(">>> Main_StartTask start\n");
     
+    ipc_init();
+
+    mcu_printf(">>> ipc_StartTask start\n");
     SPI_Init();
+
+
     //hello_world();
     //speed_pwm();
 
