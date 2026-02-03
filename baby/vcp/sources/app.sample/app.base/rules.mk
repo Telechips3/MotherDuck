@@ -49,5 +49,4 @@ SRCS += ultrasonic.c
 
 SRCS += ipc.c
 SRCS += steer.c
-
-# SRCS += gpio_test.c
+SRCS += mpu_driver.c
