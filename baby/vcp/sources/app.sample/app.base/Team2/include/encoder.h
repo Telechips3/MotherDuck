@@ -14,8 +14,6 @@
 #define MOTOR_IN1_GPIO   GPIO_GPA(5)
 #define MOTOR_IN2_GPIO   GPIO_GPA(4)
 
-extern volatile int32 g_enc_count;
-
 /* API */
 void Encoder_Init(void);
 void Encoder_Update(void);
