@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "buzzer.h"
+#include <app_cfg.h>
 
 /* ultrasonic task에서 갱신 */
 extern volatile uint32 g_ultraDistanceCm;
@@ -52,4 +53,17 @@ void BuzzerTask(void *pArg)
 
         vTaskDelay(pdMS_TO_TICKS(20));
     }
+}
+
+SALRetCode_t BuzzerTaskCreate(void)
+{
+    static uint32 buzzerTaskID;
+    static uint32 buzzerTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
+    return SAL_TaskCreate(&buzzerTaskID,
+                          (const uint8 *)"Buzzer Task",
+                          BuzzerTask,
+                          buzzerTaskStk,
+                          ACFG_TASK_NORMAL_STK_SIZE,
+                          SAL_PRIO_APP_CFG,
+                          NULL);
 }

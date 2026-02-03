@@ -19,6 +19,7 @@ void Encoder_Init(void);
 void Encoder_Update(void);
 void Encoder_CalcSpeed(void);
 void EncoderTask(void *pArg);
+SALRetCode_t EncoderTaskCreate(void);
 int32 Encoder_GetCount(void);
 float Encoder_GetDistanceCm(void);
 float Encoder_GetSpeedCms(void);

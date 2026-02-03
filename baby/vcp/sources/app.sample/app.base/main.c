@@ -174,15 +174,6 @@ void cmain (void)
 */
 static void Main_StartTask(void * pArg)
 {
-    static uint32 encTaskID;
-    static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
-
-    static uint32 ultraTaskID;
-    static uint32 ultraTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
-
-    static uint32 buzzerTaskID;
-    static uint32 buzzerTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
-
     (void)pArg;
     (void)SAL_OsInitFuncs();
 
@@ -203,30 +194,10 @@ static void Main_StartTask(void * pArg)
     //     (void)SAL_TaskSleep(5000);
     // }
     
-    /*  Encoder Task  */
-    SALRetCode_t enc_err = SAL_TaskCreate(&encTaskID,
-                   (const uint8 *)"Encoder Task",
-                   EncoderTask,
-                   encTaskStk,
-                   ACFG_TASK_NORMAL_STK_SIZE,
-                   SAL_PRIO_APP_CFG,
-                   NULL);
-    mcu_printf("Encoder task create: %d\n", (int)enc_err);
-    SAL_TaskCreate(&ultraTaskID,
-                   (const uint8 *)"Ultrasonic Task",
-                   UltrasonicTask,
-                   ultraTaskStk,
-                   ACFG_TASK_NORMAL_STK_SIZE,
-                   SAL_PRIO_APP_CFG,
-                   NULL);
-
-    SAL_TaskCreate(&buzzerTaskID,
-                   (const uint8 *)"Buzzer Task",
-                   BuzzerTask,
-                   buzzerTaskStk,
-                   ACFG_TASK_NORMAL_STK_SIZE,
-                   SAL_PRIO_APP_CFG,
-                   NULL);               
+    /*  Tasks  */
+    (void)EncoderTaskCreate();
+    (void)UltrasonicTaskCreate();
+    (void)BuzzerTaskCreate();
 
     /* Main task는 여기서 끝 */
     while (1)

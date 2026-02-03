@@ -14,5 +14,6 @@
 #define ULTRA_CNT_TO_US_K  1.0f
 
 void UltrasonicTask(void *pArg);
+SALRetCode_t UltrasonicTaskCreate(void);
 
 #endif

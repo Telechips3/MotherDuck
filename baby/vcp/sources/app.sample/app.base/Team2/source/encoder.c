@@ -9,6 +9,7 @@
 
 #include "encoder.h"
 #include <gpio.h>
+#include <app_cfg.h>
 #include <debug.h>
 
 extern volatile uint32 g_ultraDistanceCm;
@@ -138,6 +139,21 @@ void EncoderTask(void *pArg)
 
         SAL_TaskSleep(1);
     }
+}
+
+SALRetCode_t EncoderTaskCreate(void)
+{
+    static uint32 encTaskID;
+    static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
+    SALRetCode_t err = SAL_TaskCreate(&encTaskID,
+                                      (const uint8 *)"Encoder Task",
+                                      EncoderTask,
+                                      encTaskStk,
+                                      ACFG_TASK_NORMAL_STK_SIZE,
+                                      SAL_PRIO_APP_CFG,
+                                      NULL);
+    mcu_printf("Encoder task create: %d\n", (int)err);
+    return err;
 }
 
 /* ===== Getter ===== */

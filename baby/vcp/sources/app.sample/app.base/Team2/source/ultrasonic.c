@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "ultrasonic.h"
+#include <app_cfg.h>
 #include <debug.h>
 
 /* main.c에 있는 전역 변수 사용 */
@@ -61,4 +62,17 @@ void UltrasonicTask(void *pArg)
         g_ultraDistanceCm = Ultrasonic_GetDistance_cm();
         vTaskDelay(pdMS_TO_TICKS(50));
     }
+}
+
+SALRetCode_t UltrasonicTaskCreate(void)
+{
+    static uint32 ultraTaskID;
+    static uint32 ultraTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
+    return SAL_TaskCreate(&ultraTaskID,
+                          (const uint8 *)"Ultrasonic Task",
+                          UltrasonicTask,
+                          ultraTaskStk,
+                          ACFG_TASK_NORMAL_STK_SIZE,
+                          SAL_PRIO_APP_CFG,
+                          NULL);
 }
