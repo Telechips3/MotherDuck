@@ -14,7 +14,6 @@
 #define MOTOR_ENA_CH        0                // L298N ENA (PDM CH0 - GPIO A10)
 
 
-
 //Interrupt Example
 #define EIT (GIC_EXT4)
 #define MY_GPIO (GPIO_GPB(2))

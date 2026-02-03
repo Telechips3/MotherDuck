@@ -23,6 +23,12 @@
 #include <app_cfg.h>
 #include <debug.h>
 #include <bsp.h>
+#include "ultrasonic.h"
+#include "buzzer.h"
+#include "encoder.h"
+
+volatile uint32 g_ultraDistanceCm = 0;
+
 
 #define I2C_CH_0            0
 #define I2C_PORT_0          0
@@ -177,8 +183,6 @@ void cmain (void)
 */
 static void Main_StartTask(void * pArg)
 {
-    // static uint32 encTaskID;
-    // static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
     (void)pArg;
     (void)SAL_OsInitFuncs();
 
@@ -236,14 +240,10 @@ static void Main_StartTask(void * pArg)
     //     (void)SAL_TaskSleep(5000);
     // }
     
-    /*  Encoder Task  */
-    // SAL_TaskCreate(&encTaskID,
-    //                (const uint8 *)"Encoder Task",
-    //                EncoderTask,
-    //                encTaskStk,
-    //                ACFG_TASK_NORMAL_STK_SIZE,
-    //                SAL_PRIO_APP_CFG,
-    //                NULL);
+    /*  Tasks  */
+    (void)EncoderTaskCreate();
+    (void)UltrasonicTaskCreate();
+    (void)BuzzerTaskCreate();
 
     /* Main task는 여기서 끝 */
     while (1)
@@ -388,4 +388,3 @@ static void DisplayOTPInfo(void)
 }
 
 #endif  // ( MCU_BSP_SUPPORT_APP_BASE == 1 )
-

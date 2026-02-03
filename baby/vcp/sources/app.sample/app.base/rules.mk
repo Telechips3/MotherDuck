@@ -43,7 +43,10 @@ SRCS += speed.c
 SRCS += interrupt_example.c
 SRCS += encoder.c
 SRCS += spi.c
+
+SRCS += buzzer.c
+SRCS += ultrasonic.c
+
 SRCS += ipc.c
 SRCS += steer.c
 SRCS += mpu_driver.c
-# SRCS += gpio_test.c
