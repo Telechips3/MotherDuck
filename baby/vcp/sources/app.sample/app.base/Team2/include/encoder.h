@@ -25,4 +25,5 @@ float Encoder_GetDistanceCm(void);
 float Encoder_GetSpeedCms(void);
 void Encoder_ResetCount(void);
 
+
 #endif /* _ENCODER_H_ */
