@@ -23,6 +23,21 @@
 #include <app_cfg.h>
 #include <debug.h>
 #include <bsp.h>
+#include "ultrasonic.h"
+#include "buzzer.h"
+#include "encoder.h"
+
+volatile uint32 g_ultraDistanceCm = 0;
+
+
+#define I2C_CH_0            0
+#define I2C_PORT_0          0
+#define I2C_SPEED           100
+#define ENABLE_IMU_TEMP_TEST 0  // 1: 테스트 모드 활성화, 0: 일반 모드
+#if (ENABLE_IMU_TEMP_TEST == 1)
+    #include "mpu_driver.h"
+    static MPU6050_Filter_t gMpuTest = {0};
+#endif
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
     #include <spi_eccp.h>
@@ -168,8 +183,6 @@ void cmain (void)
 */
 static void Main_StartTask(void * pArg)
 {
-    // static uint32 encTaskID;
-    // static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
     (void)pArg;
     (void)SAL_OsInitFuncs();
 
@@ -181,7 +194,39 @@ static void Main_StartTask(void * pArg)
     mcu_printf(">>> ipc_StartTask start\n");
     SPI_Init();
 
+#if (ENABLE_IMU_TEMP_TEST == 1)
+    /* --- 리더님의 기존 테스트 로직 이식 --- */
+    I2C_Init();
+    I2C_Open(I2C_CH_0, I2C_PORT_0, I2C_SPEED, NULL, NULL);
 
+    if (MPU6050_Init(I2C_CH_0, MPU6050_ADDR_7BIT) == 0) 
+    {
+        mcu_printf("[SUCCESS] MPU6050 Detected!\n");
+        
+        // 3. MPU6050_Calibrate(채널, 주소, 구조체포인터) 형식으로 수정
+        MPU6050_Calibrate(I2C_CH_0, MPU6050_ADDR_7BIT, &gMpuTest);
+        
+        while (1) 
+        {
+            int16 ax, ay, az, gx, gy, gz;
+            uint32 now;
+            SAL_GetTickCount(&now);
+            float dt = (gMpuTest.last_tick == 0) ? 0.02f : (float)(now - gMpuTest.last_tick) / 1000.0f;
+            gMpuTest.last_tick = now;
+
+            // 4. MPU6050_Read_Raw(채널, 주소, 데이터들...) 형식으로 수정
+            if (MPU6050_Read_Raw(I2C_CH_0, MPU6050_ADDR_7BIT, &ax, &ay, &az, &gx, &gy, &gz) == 0) 
+            {
+                MPU6050_Update_Filter(&gMpuTest, ax, ay, az, gx, gy, gz, dt);
+                mcu_printf("ACC[%6d %6d %6d] | P:%4d R:%4d Y:%4d\r\n", 
+                          ax, ay, az, (int)gMpuTest.pitch, (int)gMpuTest.roll, (int)gMpuTest.yaw);
+            }
+            SAL_TaskSleep(20);
+        }
+    } else {
+        mcu_printf("MPU6050 Detection Failed!\n");
+    }
+#endif
     //hello_world();
     //speed_pwm();
 
@@ -195,14 +240,10 @@ static void Main_StartTask(void * pArg)
     //     (void)SAL_TaskSleep(5000);
     // }
     
-    /*  Encoder Task  */
-    // SAL_TaskCreate(&encTaskID,
-    //                (const uint8 *)"Encoder Task",
-    //                EncoderTask,
-    //                encTaskStk,
-    //                ACFG_TASK_NORMAL_STK_SIZE,
-    //                SAL_PRIO_APP_CFG,
-    //                NULL);
+    /*  Tasks  */
+    (void)EncoderTaskCreate();
+    (void)UltrasonicTaskCreate();
+    (void)BuzzerTaskCreate();
 
     /* Main task는 여기서 끝 */
     while (1)
@@ -347,4 +388,3 @@ static void DisplayOTPInfo(void)
 }
 
 #endif  // ( MCU_BSP_SUPPORT_APP_BASE == 1 )
-
