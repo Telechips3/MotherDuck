@@ -13,7 +13,6 @@
 ***************************************************************************************************
 */
 
-#include "Team2/include/ipc.h"
 #define MCU_BSP_SUPPORT_APP_BASE 1
 
 #if ( MCU_BSP_SUPPORT_APP_BASE == 1 )
@@ -182,6 +181,8 @@ static void Main_StartTask(void * pArg)
     mcu_printf(">>> Main_StartTask start\n");
     
     ipc_init();
+
+    mcu_printf(">>> ipc_StartTask start\n");
     SPI_Init();
 
     /* ⭐ 메인 루프: 모터 제어 + 로그 출력 */

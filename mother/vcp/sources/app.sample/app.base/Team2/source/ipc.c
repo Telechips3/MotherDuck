@@ -24,15 +24,19 @@ static void vMotorControlTask(void *pParam)
          * - 데이터가 오면 SAL_RET_SUCCESS
          * - 200ms 동안 데이터가 안 오면 SAL_ERR_FAIL_GET_DATA (타임아웃) 반환
          */
-        ret = SAL_QueueGet(g_motor_queue_id, 
-                           &received_cmd, 
-                           &copied_size, // 3번째: 크기 저장용 포인터
-                           200,          // 4번째: 타임아웃
-                           SAL_OPT_BLOCKING); // 5번째: 블로킹 옵션
+        ret = SAL_QueueGet(g_motor_queue_id, &received_cmd, &copied_size, 200, SAL_OPT_BLOCKING);
 
         if (ret == SAL_RET_SUCCESS)
         {
-            control_motor_drive(received_cmd);
+            // 명령 수신 성공: 전진/후진 등 실행
+            if(received_cmd == 0 || received_cmd == 2)
+            {
+                control_motor_drive(received_cmd);
+            }
+            else
+            {
+                control_steering_step(received_cmd);
+            }
         }
         else
         {
@@ -40,7 +44,7 @@ static void vMotorControlTask(void *pParam)
             // control_motor_drive 내부의 else(정지) 로직을 타게 함
             control_motor_drive(0xFF); 
         }
-        SAL_TaskSleep(10);
+        SAL_TaskSleep(1);
     }
 }
 

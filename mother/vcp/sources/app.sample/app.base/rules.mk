@@ -44,4 +44,5 @@ SRCS += interrupt_example.c
 SRCS += encoder.c
 SRCS += spi.c
 SRCS += ipc.c
+SRCS += steer.c
 # SRCS += gpio_test.c
