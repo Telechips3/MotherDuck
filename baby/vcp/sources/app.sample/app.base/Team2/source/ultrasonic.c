@@ -59,7 +59,6 @@ void UltrasonicTask(void *pArg)
     while (1)
     {
         g_ultraDistanceCm = Ultrasonic_GetDistance_cm();
-        mcu_printf("[ULTRA] %d cm\n", g_ultraDistanceCm);
         vTaskDelay(pdMS_TO_TICKS(50));
     }
 }

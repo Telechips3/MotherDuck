@@ -25,6 +25,7 @@
 #include <bsp.h>
 #include "ultrasonic.h"
 #include "buzzer.h"
+#include "encoder.h"
 
 volatile uint32 g_ultraDistanceCm = 0;
 
@@ -203,13 +204,14 @@ static void Main_StartTask(void * pArg)
     // }
     
     /*  Encoder Task  */
-    // SAL_TaskCreate(&encTaskID,
-    //                (const uint8 *)"Encoder Task",
-    //                EncoderTask,
-    //                encTaskStk,
-    //                ACFG_TASK_NORMAL_STK_SIZE,
-    //                SAL_PRIO_APP_CFG,
-    //                NULL);
+    SALRetCode_t enc_err = SAL_TaskCreate(&encTaskID,
+                   (const uint8 *)"Encoder Task",
+                   EncoderTask,
+                   encTaskStk,
+                   ACFG_TASK_NORMAL_STK_SIZE,
+                   SAL_PRIO_APP_CFG,
+                   NULL);
+    mcu_printf("Encoder task create: %d\n", (int)enc_err);
     SAL_TaskCreate(&ultraTaskID,
                    (const uint8 *)"Ultrasonic Task",
                    UltrasonicTask,
@@ -369,4 +371,3 @@ static void DisplayOTPInfo(void)
 }
 
 #endif  // ( MCU_BSP_SUPPORT_APP_BASE == 1 )
-

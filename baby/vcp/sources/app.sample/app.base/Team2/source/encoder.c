@@ -1,81 +1,165 @@
 // SPDX-License-Identifier: Apache-2.0
+/*
+***************************************************************************************************
+*
+*   FileName : encoder.c
+*
+***************************************************************************************************
+*/
+
 #include "encoder.h"
-#include <gpio.h>     
-#include <bsp.h> 
+#include <gpio.h>
 #include <debug.h>
 
-/* ===== Internal Variable ===== */
-static volatile int32 g_enc_count = 0;
+extern volatile uint32 g_ultraDistanceCm;
 
-/* ===== Encoder Init ===== */
-void Encoder_Init(void)
+/* ===== Encoder → Distance / Speed ===== */
+#define WHEEL_DIAMETER_CM   6.5f           // Wheel diameter (cm)
+#define ENCODER_CPR         20.0f          // Pulses per rev (A phase)
+#define PI                  3.141592f
+
+/* ===== Internal State ===== */
+static int32 s_encCnt = 0;
+static int32 s_prevCnt = 0;
+static uint32 s_prevTickMs = 0;
+
+static float s_distanceCm = 0.0f;
+static float s_speedCms = 0.0f;
+
+static uint8 s_lastA = 0;
+static uint8 s_lastB = 0;
+static uint32 s_lastTransMs = 0;
+static uint8 s_prevA = 0;
+static uint32 s_lastCountMs = 0;
+
+#define ENC_MIN_PULSE_MS 5
+
+static inline uint32 get_tick_ms(void)
 {
-    GPIO_Config(ENC_A_GPIO,
-        GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
-
-    GPIO_Config(ENC_B_GPIO,
-        GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
-
+    return (uint32)(xTaskGetTickCount() * portTICK_PERIOD_MS);
 }
 
-/* ===== Encoder Task ===== */
+/* ===== Init ===== */
+void Encoder_Init(void)
+{
+    GPIO_Config(ENC_A_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
+    GPIO_Config(ENC_B_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
+
+    // Motor GPIO init (always forward)
+    GPIO_Config(MOTOR_IN1_GPIO, (GPIO_FUNC(0) | GPIO_OUTPUT));
+    GPIO_Config(MOTOR_IN2_GPIO, (GPIO_FUNC(0) | GPIO_OUTPUT));
+    GPIO_Set(MOTOR_IN1_GPIO, 1);
+    GPIO_Set(MOTOR_IN2_GPIO, 0);
+
+    s_encCnt = 0;
+    s_prevCnt = 0;
+    s_prevTickMs = get_tick_ms();
+    s_lastA = GPIO_Get(ENC_A_GPIO);
+    s_lastB = GPIO_Get(ENC_B_GPIO);
+    s_lastTransMs = get_tick_ms();
+    s_prevA = s_lastA;
+    s_lastCountMs = s_lastTransMs;
+
+    mcu_printf("[ENC] Init done\n");
+}
+
+/* ===== Update (call frequently, e.g. 1ms~10ms) ===== */
+void Encoder_Update(void)
+{
+    uint8 curA = GPIO_Get(ENC_A_GPIO);
+    uint8 curB = GPIO_Get(ENC_B_GPIO);
+    uint32 nowMs = get_tick_ms();
+    if ((nowMs - s_lastTransMs) >= 2)
+    {
+        // Count only A rising edges (slower, less sensitive)
+        if (s_prevA == 0 && curA == 1)
+        {
+            if ((nowMs - s_lastCountMs) >= ENC_MIN_PULSE_MS)
+            {
+                s_encCnt++;
+                s_lastCountMs = nowMs;
+            }
+            s_lastTransMs = nowMs;
+        }
+    }
+
+    s_lastA = curA;
+    s_lastB = curB;
+    s_prevA = curA;
+}
+
+/* ===== Speed / Distance calculation (recommend 1s period) ===== */
+void Encoder_CalcSpeed(void)
+{
+    uint32 nowMs = get_tick_ms();
+    uint32 dtMs = nowMs - s_prevTickMs;
+    int32 diffCnt = s_encCnt - s_prevCnt;
+
+    if (dtMs == 0)
+        return;
+
+    // Count on A rising edges => 1 count per pulse
+    float cm_per_count = (PI * WHEEL_DIAMETER_CM) / ENCODER_CPR;
+
+    s_distanceCm += diffCnt * cm_per_count;
+    s_speedCms = (diffCnt * cm_per_count) / ((float)dtMs / 1000.0f);
+
+    s_prevCnt = s_encCnt;
+    s_prevTickMs = nowMs;
+
+    int dist_x10 = (int)(s_distanceCm * 10.0f);
+    int speed_x10 = (int)(s_speedCms * 10.0f);
+    mcu_printf("[ENC] CNT=%d DIST=%d.%d cm SPEED=%d.%d cm/s A=%d B=%d    [ULTRA] %d cm\n",
+               s_encCnt,
+               dist_x10 / 10, dist_x10 % 10,
+               speed_x10 / 10, speed_x10 % 10,
+               s_lastA, s_lastB,
+               (int)g_ultraDistanceCm);
+}
+
+/* ===== Task ===== */
 void EncoderTask(void *pArg)
 {
     (void)pArg;
     Encoder_Init();
 
-    int prev_a = GPIO_Get(ENC_A_GPIO);
-    int prev_b = GPIO_Get(ENC_B_GPIO);
-    int prev_state = (prev_a << 1) | prev_b;
+    uint32 lastCalcMs = get_tick_ms();
 
     while (1)
     {
-        int a = GPIO_Get(ENC_A_GPIO);
-        int b = GPIO_Get(ENC_B_GPIO);
-        int state = (a << 1) | b;
+        Encoder_Update();
 
-        if (state != prev_state)
+        uint32 nowMs = get_tick_ms();
+        if ((nowMs - lastCalcMs) >= 500)
         {
-            int diff = (prev_state << 2) | state;
-
-            switch (diff)
-            {
-                // CW
-                case 0b0001:
-                case 0b0111:
-                case 0b1110:
-                case 0b1000:
-                    g_enc_count++;
-                    break;
-
-                // CCW
-                case 0b0010:
-                case 0b1011:
-                case 0b1101:
-                case 0b0100:
-                    g_enc_count--;
-                    break;
-
-                default:
-                    // invalid transition
-                    break;
-            }
-
-            prev_state = state;
+            Encoder_CalcSpeed();
+            lastCalcMs = nowMs;
         }
 
-        mcu_printf("[ENC] A=%d B=%d CNT=%d\n", a, b, (int)g_enc_count);
-        SAL_TaskSleep(5);
+        SAL_TaskSleep(1);
     }
 }
 
-/* ===== Getter / Setter ===== */
+/* ===== Getter ===== */
 int32 Encoder_GetCount(void)
 {
-    return g_enc_count;
+    return s_encCnt;
+}
+
+float Encoder_GetDistanceCm(void)
+{
+    return s_distanceCm;
+}
+
+float Encoder_GetSpeedCms(void)
+{
+    return s_speedCms;
 }
 
 void Encoder_ResetCount(void)
 {
-    g_enc_count = 0;
+    s_encCnt = 0;
+    s_prevCnt = 0;
+    s_distanceCm = 0.0f;
+    s_speedCms = 0.0f;
 }
