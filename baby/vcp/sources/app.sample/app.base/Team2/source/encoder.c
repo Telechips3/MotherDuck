@@ -127,6 +127,7 @@ void EncoderTask(void *pArg)
     uint32 lastCalcMs = get_tick_ms();
 
     while (1)
+    
     {
         Encoder_Update();
 

@@ -7,12 +7,12 @@
 #include "task.h"
 
 /* ===== Encoder GPIO ===== */
-#define ENC_A_GPIO   GPIO_GPA(8)
-#define ENC_B_GPIO   GPIO_GPA(9)
+#define ENC_A_GPIO   GPIO_GPA(22)
+#define ENC_B_GPIO   GPIO_GPA(21)
 
 /* ===== Motor GPIO ===== */
 #define MOTOR_IN1_GPIO   GPIO_GPA(5)
-#define MOTOR_IN2_GPIO   GPIO_GPA(4)
+#define MOTOR_IN2_GPIO   GPIO_GPA(9)
 
 /* API */
 void Encoder_Init(void);
