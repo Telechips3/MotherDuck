@@ -10,7 +10,7 @@ LIBS = -lm
 TARGET = PP_test
 
 # 3. 소스 파일 목록
-SRCS = PP_test.c Pure_Pursuit.c
+SRCS = PP_test.c Pure_Pursuit.c update_pose_test.c follow_steer_module.c imu.c
 
 # 4. 소스 파일(.c)을 목적 파일(.o)로 변환한다고 정의
 OBJS = $(SRCS:.c=.o)
