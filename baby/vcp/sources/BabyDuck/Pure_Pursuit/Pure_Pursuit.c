@@ -1,6 +1,10 @@
 // Pure_Pursuit.c
+
 #include "Pure_Pursuit.h"
+#include "imu.h"
 #include <math.h>
+#include <debug.h>
+#include <app_cfg.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

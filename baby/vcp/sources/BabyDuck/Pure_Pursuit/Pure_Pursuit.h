@@ -2,7 +2,6 @@
 #pragma once
 #include <stddef.h>
 
-
 typedef struct {
     float x;    // meters (global frame)
     float y;    // meters (global frame)
@@ -43,7 +42,6 @@ int   pp_compute_steer(
           const PP_Waypoint* wps, size_t n,
           float* out_steer_rad  // output
       );
-
 
 
 
