@@ -8,7 +8,7 @@ INCLUDES = -I./decide_mode
 TARGET = run_test
 
 # 3. 소스 파일 목록 (경로까지 정확히 적어야 함!)
-SRCS = main.c decide_mode/decide_mode.c
+SRCS = decision_module_V1.c decide_mode/decide_mode.c
 
 # 4. 소스 파일(.c)을 목적 파일(.o)로 변환한다고 정의
 OBJS = $(SRCS:.c=.o)
