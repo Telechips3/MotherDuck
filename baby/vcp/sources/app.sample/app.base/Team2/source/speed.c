@@ -1,9 +1,10 @@
 #include "speed.h"
+#include "../team2_header.h"
 
 static PDMModeConfig_t g_pwm_cfg;
 static uint8 g_motor_initialized = 0;
 
-static void motor_init()
+static void motor_init(void)
 {
     // 1. GPIO 설정
     GPIO_Config(MOTOR_IN1, (GPIO_FUNC(0) | GPIO_OUTPUT));
@@ -50,6 +51,7 @@ void control_motor_drive(uint32 cmd)
         GPIO_Set(MOTOR_IN2, 0);
         target_duty = DUTY_STOP_NS;
     }
+    
 
     // --- [PWM 업데이트] ---
     // TCC70xx의 PDM은 설정을 바꿀 때 Disable -> Config -> Enable 과정을 거쳐야 안전합니다.
@@ -74,5 +76,9 @@ void control_motor_drive(uint32 cmd)
     if (PDM_SetConfig(MOTOR_PWM_CH, &g_pwm_cfg) == SAL_RET_SUCCESS)
     {
         PDM_Enable(MOTOR_PWM_CH, PMM_ON);
+    }
+    else
+    {
+        mcu_printf("Speed failed in control_motor_drive\n");
     }
 }

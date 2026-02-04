@@ -1,5 +1,9 @@
 #include "spi.h"
 #include "speed.h"
+#include "ipc.h"
+#include "encoder.h"
+#include "../team2_header.h"
+
 
 static volatile uint32_t spi_rx_buf[1] = {0};
 static uint32_t spi_tx_buf[1] = {0};
@@ -7,9 +11,22 @@ static uint32_t spi_tx_buf[1] = {0};
 static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 {
     mcu_printf("[SPI] PIO Received: %d\n", spi_rx_buf[0]);
-    control_motor_drive(spi_rx_buf[0]);
-    GPSB_AsyncXfer(SPI_CHANNEL, (uint32 *)spi_tx_buf, (uint32 *)spi_rx_buf, 1, 
+    
+    (void)SAL_QueuePut(g_motor_queue_id, (void *)&spi_rx_buf[0], sizeof(uint32), 0, SAL_OPT_NON_BLOCKING);
+    
+    SAL_CoreCriticalEnter();
+    spi_tx_buf[0] = s_encCnt;
+    SAL_CoreCriticalExit();
+    
+    GPSB_AsyncXfer(SPI_CHANNEL, (uint32 *)spi_tx_buf, (uint32 *)spi_rx_buf, 1,
                    GPSB_XFER_MODE_WITH_INTERRUPT | GPSB_XFER_MODE_WITHOUT_CTF);
+}
+
+uint32_t spi_send(void* arg)
+{
+    uint32_t ret = -1;
+
+    return ret;
 }
 
 void SPI_Init(void)

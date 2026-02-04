@@ -811,110 +811,124 @@ static SALRetCode_t I2C_XferSyncWrite
 
 static SALRetCode_t I2C_XferSync
 (
-    const uint8                         ucCh,
-    const uint8                         ucSlaveAddr,
-    I2CXfer_t                           XferArg
+    const uint8 ucCh,
+    const uint8 ucSlaveAddr,
+    I2CXfer_t   XferArg
 )
 {
-    SALRetCode_t    ret;
-    uint32          i;
-    const uint8                         ucCmdLen = XferArg.xCmdLen;
-    const uint8                         ucOutLen = XferArg.xOutLen;
-    const uint8                         ucInLen = XferArg.xInLen;
-    uint8 *                             ucpInBuf = XferArg.xInBuf;
-    uint32                              uiOpt = XferArg.xOpt;
+    SALRetCode_t ret = SAL_RET_SUCCESS;
+    uint32 i;
 
-    ret = SAL_RET_SUCCESS;
+    const uint8  ucCmdLen = XferArg.xCmdLen;
+    const uint8  ucOutLen = XferArg.xOutLen;
+    const uint8  ucInLen  = XferArg.xInLen;
+    uint8 *      ucpInBuf = XferArg.xInBuf;
+    uint32       uiOpt    = XferArg.xOpt;
 
-    /* Write*/
-    if((ucOutLen > (uint8)NULL) || (ucCmdLen > (uint8)NULL))
+    /* 1) Write phase (cmd/out) */
+    if ((ucOutLen > (uint8)0U) || (ucCmdLen > (uint8)0U))
     {
-
         ret = I2C_XferSyncWrite(ucCh, ucSlaveAddr, XferArg);
     }
 
-    if(ret == SAL_RET_SUCCESS)
+    if (ret != SAL_RET_SUCCESS)
     {
-        /* Read */
-        if(ucInLen > (uint8)NULL)
+        /* write 단계에서 실패하면 정리 */
+        (void)I2C_ProcessAckFail(ucCh, ucSlaveAddr);
+        return ret;
+    }
+
+    /* 2) Read phase */
+    if (ucInLen > (uint8)0U)
+    {
+        /* Send START + slave|RD */
+        if (i2c[ucCh].dBase < (UINT_MAX_VALUE - I2C_TXR))
         {
+            SAL_WriteReg((ucSlaveAddr | I2C_RD), (uint32)(i2c[ucCh].dBase + I2C_TXR));
+        }
 
-            if(i2c[ucCh].dBase < (UINT_MAX_VALUE - I2C_TXR))
-            {
-                /* Send START condition and slave address with read flag*/
-                SAL_WriteReg((ucSlaveAddr | I2C_RD), (uint32)(i2c[ucCh].dBase + I2C_TXR));
-            }
+        if ((uiOpt & I2C_RD_WITHOUT_RPEAT_START) != 0UL)
+        {
+            /* repeated start 없이 이어서 읽는 옵션 */
+            SAL_WriteReg(I2C_CMD_WR, (uint32)(i2c[ucCh].dBase + I2C_CMD));
+        }
+        else
+        {
+            SAL_WriteReg(((uint32)I2C_CMD_STA | (uint32)I2C_CMD_WR),
+                         (uint32)(i2c[ucCh].dBase + I2C_CMD));
+        }
 
-            if(((uiOpt & I2C_RD_WITHOUT_RPEAT_START) != (uint32) NULL))
+        ret = I2C_Wait(ucCh);
+        if (ret != SAL_RET_SUCCESS)
+        {
+            (void)I2C_ProcessAckFail(ucCh, ucSlaveAddr);
+            return ret;
+        }
+
+        /* ACK check for address */
+        ret = I2C_CheckAck(ucCh);
+        if (ret != SAL_RET_SUCCESS)
+        {
+            (void)I2C_ProcessAckFail(ucCh, ucSlaveAddr);
+            return ret;
+        }
+
+        /* Read bytes */
+        for (i = 0UL; i < (uint32)ucInLen; i++)
+        {
+            if (i == ((uint32)ucInLen - 1UL))
             {
-                SAL_WriteReg(I2C_CMD_WR , (uint32)(i2c[ucCh].dBase + I2C_CMD));
+                /* last byte */
+                if ((uiOpt & I2C_RD_WITHOUT_ACK) != 0UL)
+                {
+                    /* last byte: RD only (send NACK) */
+                    SAL_WriteReg(I2C_CMD_RD, (uint32)(i2c[ucCh].dBase + I2C_CMD));
+                }
+                else
+                {
+                    /* last byte: RD + ACK bit (하드웨어 정의에 따라 ACK/NACK 의미가 다를 수 있음) */
+                    SAL_WriteReg(((uint32)I2C_CMD_RD | (uint32)I2C_CMD_ACK),
+                                 (uint32)(i2c[ucCh].dBase + I2C_CMD));
+                }
             }
             else
             {
-                SAL_WriteReg((uint32)I2C_CMD_STA | (uint32)I2C_CMD_WR , (uint32)(i2c[ucCh].dBase + I2C_CMD));
+                SAL_WriteReg(I2C_CMD_RD, (uint32)(i2c[ucCh].dBase + I2C_CMD));
             }
 
             ret = I2C_Wait(ucCh);
-
-            if(ret == SAL_RET_SUCCESS)
+            if (ret != SAL_RET_SUCCESS)
             {
-                ret = I2C_CheckAck(ucCh);
+                (void)I2C_ProcessAckFail(ucCh, ucSlaveAddr);
+                return ret;
+            }
 
-                if(ret == SAL_RET_SUCCESS)
+            if (ucpInBuf != NULL_PTR)
+            {
+                if (i2c[ucCh].dBase < (UINT_MAX_VALUE - I2C_RXR))
                 {
-                    for(i = 0 ; i < ucInLen ; i++)
-                    {
-                        if (i == (ucInLen - 1UL))
-                        {
-                            /* Last byte to read */
-                            if((uiOpt & I2C_RD_WITHOUT_ACK) != (uint32)NULL)
-                            {
-                                if(i2c[ucCh].dBase < (UINT_MAX_VALUE - I2C_CMD))
-                                {
-                                    SAL_WriteReg(I2C_CMD_RD, (uint32)(i2c[ucCh].dBase + I2C_CMD));
-                                }
-                            }
-                            else
-                            {
-                                SAL_WriteReg(((uint32)I2C_CMD_RD | (uint32)I2C_CMD_ACK), (uint32)(i2c[ucCh].dBase + I2C_CMD));
-                            }
-                        }
-                        else
-                        {
-                            SAL_WriteReg(I2C_CMD_RD , (uint32)(i2c[ucCh].dBase + I2C_CMD));
-                        }
-
-                        ret = I2C_Wait(ucCh);
-
-                        if(ret == SAL_RET_SUCCESS)
-                        {
-                            /* Store read data */
-                            if(ucpInBuf != NULL_PTR)
-                            {
-                                if(i2c[ucCh].dBase < (UINT_MAX_VALUE - I2C_CMD))
-                                {
-                                    ucpInBuf[i] = (uint8)(SAL_ReadReg((uint32)(i2c[ucCh].dBase + I2C_RXR)) & 0xffUL);
-                                }
-                            }
-                        }
-                    }
-
-                    if(ret == SAL_RET_SUCCESS)
-                    {
-                        if((uiOpt & I2C_RD_WITHOUT_STOP) != (uint32)NULL)
-                        {
-                            ret = SAL_RET_SUCCESS;
-                        }
-                    }
+                    ucpInBuf[i] = (uint8)(SAL_ReadReg((uint32)(i2c[ucCh].dBase + I2C_RXR)) & 0xFFUL);
                 }
+            }
+        }
+
+        /* ✅ STOP은 여기! (read 다 끝난 뒤) */
+        if ((uiOpt & I2C_RD_WITHOUT_STOP) == 0UL)
+        {
+            SAL_WriteReg(I2C_CMD_STO, (uint32)(i2c[ucCh].dBase + I2C_CMD));
+            ret = I2C_Wait(ucCh);
+            if (ret != SAL_RET_SUCCESS)
+            {
+                /* STOP 실패도 bus 상태 꼬일 수 있어서 처리 */
+                (void)I2C_ProcessAckFail(ucCh, ucSlaveAddr);
+                return ret;
             }
         }
     }
 
-    ret = I2C_ProcessAckFail(ucCh, ucSlaveAddr);
-
-    return ret;
+    return SAL_RET_SUCCESS;
 }
+
 
 /*
 ***************************************************************************************************
@@ -1059,49 +1073,56 @@ SALRetCode_t I2C_Xfer
 
 SALRetCode_t I2C_XferCmd
 (
-    const uint8                         ucCh,
-    const uint8                         ucSlaveAddr,
-    I2CXfer_t                           XferArg,
-    uint8                               ucAsync
+    const uint8 ucCh,
+    const uint8 ucSlaveAddr,
+    I2CXfer_t   XferArg,
+    uint8       ucAsync
 )
 {
-    SALRetCode_t    ret;
+    SALRetCode_t ret;
 
     ret = SAL_RET_SUCCESS;
     (void)SAL_CoreCriticalEnter();
 
-    if(i2c[ucCh].dState != I2C_STATE_IDLE)
+    if (i2c[ucCh].dState != I2C_STATE_IDLE)
     {
         (void)SAL_CoreCriticalExit();
-        ret = SAL_RET_FAILED;
+        return SAL_RET_FAILED;
+    }
+
+    i2c[ucCh].dState = I2C_STATE_RUNNING;
+    (void)SAL_CoreCriticalExit();
+
+    (void)I2C_BusyCheck(ucCh);
+
+    if (ucAsync != (uint8)0U)
+    {
+        ret = I2C_XferAsync(ucCh, ucSlaveAddr, XferArg);
     }
     else
     {
-        i2c[ucCh].dState = I2C_STATE_RUNNING;
+        ret = I2C_XferSync(ucCh, ucSlaveAddr, XferArg);
+
+        /* ✅ 여기서 "무조건 ACK" 체크를 하지 말자 */
+        if (ret == SAL_RET_SUCCESS)
+        {
+            /* write-only거나 address ACK 정도만 확인하고 싶으면:
+               - cmd/out만 있는 경우: 마지막에 ACK 체크해도 괜찮음
+               - read가 포함된 경우: 마지막 NACK이 정상일 수 있으니 체크하지 말기
+            */
+            if (XferArg.xInLen == (uint8)0U)
+            {
+                /* write-only */
+                if (I2C_CheckAck(ucCh) != SAL_RET_SUCCESS)
+                {
+                    ret = SAL_RET_FAILED;
+                }
+            }
+        }
+
+        (void)SAL_CoreCriticalEnter();
+        i2c[ucCh].dState = I2C_STATE_IDLE;
         (void)SAL_CoreCriticalExit();
-        (void)I2C_BusyCheck(ucCh);
-
-        if(ucAsync != (uint8)NULL)
-        {
-            ret = I2C_XferAsync(ucCh, ucSlaveAddr, XferArg);
-        }
-        else
-        {
-            ret = I2C_XferSync(ucCh, ucSlaveAddr, XferArg);
-
-            if(I2C_CheckAck(ucCh) == SAL_RET_SUCCESS)
-            {
-                //I2C_D("Receive ACK ! addr : %x \n", (ucSlaveAddr >> (uint8)1UL));
-            }
-            else
-            {
-                ret = SAL_RET_FAILED;
-            }
-
-            (void)SAL_CoreCriticalEnter();
-            i2c[ucCh].dState = I2C_STATE_IDLE;
-            (void)SAL_CoreCriticalExit();
-        }
     }
 
     return ret;
