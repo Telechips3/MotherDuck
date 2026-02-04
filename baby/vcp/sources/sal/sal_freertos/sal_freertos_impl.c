@@ -973,10 +973,12 @@ static SALRetCode_t FR_QueueGet
         }
         else
         {
-            retval = FR_ReportError(SAL_DRVID_SAL,
-                                    SAL_API_DATA_QUEUE_GET,
-                                    SAL_ERR_FAIL_GET_DATA,
-                                    __FUNCTION__);
+            // retval = FR_ReportError(SAL_DRVID_SAL,
+            //                         SAL_API_DATA_QUEUE_GET,
+            //                         SAL_ERR_FAIL_GET_DATA,
+            //                         __FUNCTION__);
+
+            retval = SAL_RET_FAILED;
         }
     }
     else

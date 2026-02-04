@@ -15,12 +15,13 @@
 extern volatile uint32 g_ultraDistanceCm;
 
 /* ===== Encoder → Distance / Speed ===== */
-#define WHEEL_DIAMETER_CM   6.5f           // Wheel diameter (cm)
-#define ENCODER_CPR         20.0f          // Pulses per rev (A phase)
-#define PI                  3.141592f
+#define WHEEL_DIAMETER_CM 6.5f // Wheel diameter (cm)
+#define ENCODER_CPR 20.0f      // Pulses per rev (A phase)
+#define PI 3.141592f
+#define ENC_MIN_PULSE_MS 5
 
 /* ===== Internal State ===== */
-static int32 s_encCnt = 0;
+volatile int32 s_encCnt = 0;
 static int32 s_prevCnt = 0;
 static uint32 s_prevTickMs = 0;
 
@@ -33,11 +34,11 @@ static uint32 s_lastTransMs = 0;
 static uint8 s_prevA = 0;
 static uint32 s_lastCountMs = 0;
 
-#define ENC_MIN_PULSE_MS 5
-
 static inline uint32 get_tick_ms(void)
 {
-    return (uint32)(xTaskGetTickCount() * portTICK_PERIOD_MS);
+    uint32 ret;
+    (uint32)(SAL_GetTickCount(&ret) * portTICK_PERIOD_MS);
+    return ret;
 }
 
 /* ===== Init ===== */
@@ -77,7 +78,9 @@ void Encoder_Update(void)
         {
             if ((nowMs - s_lastCountMs) >= ENC_MIN_PULSE_MS)
             {
+                (void)SAL_CoreCriticalEnter();
                 s_encCnt++;
+                (void)SAL_CoreCriticalExit();
                 s_lastCountMs = nowMs;
             }
             s_lastTransMs = nowMs;
@@ -94,7 +97,10 @@ void Encoder_CalcSpeed(void)
 {
     uint32 nowMs = get_tick_ms();
     uint32 dtMs = nowMs - s_prevTickMs;
+
+    (void)SAL_CoreCriticalEnter();
     int32 diffCnt = s_encCnt - s_prevCnt;
+    (void)SAL_CoreCriticalExit();
 
     if (dtMs == 0)
         return;
@@ -127,7 +133,7 @@ void EncoderTask(void *pArg)
     uint32 lastCalcMs = get_tick_ms();
 
     while (1)
-    
+
     {
         Encoder_Update();
 
@@ -160,23 +166,38 @@ SALRetCode_t EncoderTaskCreate(void)
 /* ===== Getter ===== */
 int32 Encoder_GetCount(void)
 {
-    return s_encCnt;
+    int32 ret;
+    (void)SAL_CoreCriticalEnter();
+    ret = s_encCnt;
+    (void)SAL_CoreCriticalExit();
+
+    return ret;
 }
 
 float Encoder_GetDistanceCm(void)
 {
-    return s_distanceCm;
+    float ret;
+    (void)SAL_CoreCriticalEnter();
+    ret = s_distanceCm;
+    (void)SAL_CoreCriticalExit();
+    return ret;
 }
 
 float Encoder_GetSpeedCms(void)
 {
-    return s_speedCms;
+    float ret;
+    (void)SAL_CoreCriticalEnter();
+    ret = s_speedCms;
+    (void)SAL_CoreCriticalExit();
+    return ret;
 }
 
 void Encoder_ResetCount(void)
 {
+    (void)SAL_CoreCriticalEnter();
     s_encCnt = 0;
     s_prevCnt = 0;
     s_distanceCm = 0.0f;
     s_speedCms = 0.0f;
+    (void)SAL_CoreCriticalExit();
 }
