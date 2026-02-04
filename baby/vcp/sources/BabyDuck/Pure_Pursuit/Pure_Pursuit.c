@@ -48,11 +48,11 @@ int pp_compute_steer(
     const PP_Waypoint* wps, size_t n,
     float* out_steer_rad
 ){
-    if(!h || !pose || !wps || n == 0 || !out_steer_rad) return -1;
+    if(!h || !pose || !wps || n == 0 || !out_steer_rad) return 1;
 
     // basic sanity
-    if(!isfinitef_safe(pose->x) || !isfinitef_safe(pose->y) || !isfinitef_safe(pose->yaw)) return -2;
-    if(h->cfg.wheelbase_m <= 0.0f) return -3;
+    if(!isfinitef_safe(pose->x) || !isfinitef_safe(pose->y) || !isfinitef_safe(pose->yaw)) return 2;
+    if(h->cfg.wheelbase_m <= 0.0f) return 3;
 
     float Ld = h->cfg.lookahead_m;
     if(Ld < h->cfg.min_ld_m) Ld = h->cfg.min_ld_m;
@@ -121,7 +121,7 @@ int pp_compute_steer(
     const float ld2 = x_t*x_t + y_t*y_t;
     if(ld2 < 1e-6f){
         *out_steer_rad = 0.0f;
-        return -4;
+        return 4;
     }
 
     // 3) pure pursuit steering
