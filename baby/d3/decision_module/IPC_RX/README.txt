@@ -1,0 +1,1 @@
+Wifi로 Waypoint 수신 받는 프로세스로부터  IPC 통신으로 현 프로세스에 Waypoint 정보 및 마더덕에서 보내는 정보 받음
