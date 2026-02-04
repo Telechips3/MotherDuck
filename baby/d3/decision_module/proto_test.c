@@ -8,19 +8,6 @@
 
 // decide_mode.c에 있는 reason code랑 숫자 맞춰서 복붙(테스트용)
 // (외부에 노출 안 한 상태라 테스트에서만 로컬로 둠)
-typedef enum {
-    REASON_NONE = 0,
-    REASON_CPU_STALE = 1,
-    REASON_LEADER_ESTOP = 2,
-    REASON_LEADER_FAULT = 3,
-    REASON_WP_TIMEOUT = 4,
-    REASON_ARUCO_TIMEOUT = 5,
-    REASON_WP_RECOVERED = 6,
-    REASON_ARUCO_RECOVERED = 7,
-    REASON_BOTH_LOST = 8,
-    REASON_INIT = 9,
-    REASON_TRANSMITION = 10
-} mode_reason_t;
 
 static const char* mode_str(uint8_t m) {
     switch ((ctrl_mode_t)m) {

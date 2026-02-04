@@ -88,11 +88,12 @@ int main(void){
     time_now = GetTickCount();
     printf("[seq : %u| time : %u] mode=%u reason=%u leader_state : %u\n", 
             msg.seq, time_now, msg.mode, msg.reason, msg.leader_state);
-    printf("[ArUco status] aruco_valid : %u, aruco_age_ms : %u, aruco_dist_mm : %d, aruco_x_norm_q15 : %d",
+    printf("[ArUco status] aruco_valid : %u, aruco_age_ms : %u, aruco_dist_mm : %d, aruco_x_norm_q15 : %d\n",
           msg.aruco_valid, msg.aruco_age_ms, msg.aruco_dist_mm, msg.aruco_x_norm_q15);
-    printf("[Waypoint status] wp_valid: %u, wp_age_ms : %u, leader_x_mm : %d, leader_y_mm : %d",
+    printf("[Waypoint status] wp_valid: %u, wp_age_ms : %u, leader_x_mm : %d, leader_y_mm : %d\n",
           msg.wp_valid, msg.wp_age_ms, msg.leader_x_mm, msg.leader_y_mm);
     
+    // 실제 통신 인터페이스 모듈
     usleep(50000); // 50ms delay
     }
 
