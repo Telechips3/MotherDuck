@@ -8,6 +8,7 @@
 */
 
 #include "encoder.h"
+#include "../team2_header.h"
 #include <gpio.h>
 #include <app_cfg.h>
 #include <debug.h>

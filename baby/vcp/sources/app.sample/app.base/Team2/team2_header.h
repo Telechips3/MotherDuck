@@ -20,6 +20,17 @@
 #define MOTOR_IN2           GPIO_GPA(8)      // L298N IN2
 #define MOTOR_ENA_CH        0                // L298N ENA (PDM CH0 - GPIO A10)
 
+// GPIO
+/* ===== Encoder GPIO ===== */
+#define ENC_A_GPIO          GPIO_GPA(22)
+#define ENC_B_GPIO          GPIO_GPA(21)
+
+/* ===== Motor GPIO ===== */
+#define MOTOR_IN1_GPIO      GPIO_GPA(5)
+#define MOTOR_IN2_GPIO      GPIO_GPA(9)
+
+#define BUZZER_GPIO         GPIO_GPA(19)
+
 //spi.h
 #define SPI_CS_GPIO     GPIO_GPB(5)
 #define SPI_SCLK_GPIO   GPIO_GPB(4)
