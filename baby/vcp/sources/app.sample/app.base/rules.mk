@@ -50,3 +50,4 @@ SRCS += ultrasonic.c
 SRCS += ipc.c
 SRCS += steer.c
 SRCS += mpu_driver.c
+SRCS += imu.c

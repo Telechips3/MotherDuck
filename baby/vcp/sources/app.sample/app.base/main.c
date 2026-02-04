@@ -27,6 +27,7 @@
 #include "buzzer.h"
 #include "ipc.h"
 #include "steer.h"
+#include "imu.h"
 
 volatile uint32 g_ultraDistanceCm = 0;
 
