@@ -123,12 +123,12 @@ void Encoder_CalcSpeed(void)
 
     int dist_x10 = (int)(s_distanceCm * 10.0f);
     int speed_x10 = (int)(s_speedCms * 10.0f);
-    mcu_printf("[ENC] CNT=%d DIST=%d.%d cm SPEED=%d.%d cm/s A=%d B=%d    [ULTRA] %d cm\n",
-               s_encCnt,
-               dist_x10 / 10, dist_x10 % 10,
-               speed_x10 / 10, speed_x10 % 10,
-               s_lastA, s_lastB,
-               (int)g_ultraDistanceCm);
+    // mcu_printf("[ENC] CNT=%d DIST=%d.%d cm SPEED=%d.%d cm/s A=%d B=%d    [ULTRA] %d cm\n",
+    //            s_encCnt,
+    //            dist_x10 / 10, dist_x10 % 10,
+    //            speed_x10 / 10, speed_x10 % 10,
+    //            s_lastA, s_lastB,
+    //            (int)g_ultraDistanceCm);
 }
 
 /* ===== Task ===== */
