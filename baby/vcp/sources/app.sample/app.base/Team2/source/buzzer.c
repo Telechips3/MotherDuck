@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "buzzer.h"
+#include "../team2_header.h"
 #include <app_cfg.h>
 
 /* ultrasonic task에서 갱신 */

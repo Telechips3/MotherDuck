@@ -8,7 +8,7 @@
 #include <task.h>
 
 // GPIO
-#define BUZZER_GPIO GPIO_GPA(19)
+// #define BUZZER_GPIO GPIO_GPA(19)
 
 void BuzzerTask(void *pArg);
 SALRetCode_t BuzzerTaskCreate(void);
