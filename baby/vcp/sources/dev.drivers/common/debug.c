@@ -20,7 +20,7 @@
 #endif  // ( MCU_BSP_SUPPORT_DRIVER_UART == 1 )
 
 //uint32                                  gDebugOption = 0xC0000001UL |(1<<DBG_TAG_GPSB) | (1<<DBG_TAG_GIC) | (1<<DBG_TAG_GPIO);
-uint32                                  gDebugOption = 0xC0000001UL;
+uint32                                  gDebugOption = 0xC0000001UL | (1 << DBG_TAG_GPSB);
 
 DbgTag_t                                dbgTags[DBG_MAX_TAGS] =
 {

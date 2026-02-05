@@ -50,7 +50,7 @@ static void vMotorControlTask(void *pParam)
 void ipc_init(void)
 {
     /* 1. 큐 생성 (깊이 10, 데이터 크기 uint32) */
-    (void)SAL_QueueCreate(&g_motor_queue_id, (const uint8 *)"MotorQ", 10, sizeof(uint32));
+    (void)SAL_QueueCreate(&g_motor_queue_id, (const uint8 *)"MotorQ", QUEUE_LENGTH, sizeof(uint32));
 
     /* 2. 태스크 생성 */
     /* SAL_TaskCreate(ID, 이름, 함수, 스택, 스택크기, 우선순위, 파라미터) */
