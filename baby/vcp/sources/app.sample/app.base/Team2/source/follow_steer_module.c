@@ -14,7 +14,7 @@
 #define NUM_WAYPOINTS            (10)
 #define SAL_TASK_SLEEP_MS        (50) 
 #define SAL_TASK_EXCEPTION_SLEEP (5)
-
+#define TEST                       0
 // IMU 데이터 저장용 전역 변수
 //static IMU_Data_t imu_data;
 
@@ -23,12 +23,12 @@ static PP_Pose pose;
 static PP_Waypoint wps[NUM_WAYPOINTS];
 static PP_Handle pp_handler;
 
-/*test
+#if (TEST == 1)
 static float dx_base = 0.05f;   // 시작 간격(5cm)
 static float dx_step = 0.02f;   // 루프마다 간격 변화(2cm)
 static float dx_min  = 0.03f;   // 3cm
 static float dx_max  = 0.40f;   // 40cm
-*/
+#endif
 // 정보 받아올 구조체 포인터 및 핸들러 선언
 static float steer_angle_rad;
 
@@ -64,14 +64,15 @@ static void follow_steer_Task(void* pArg)
         // wps는 패킷 넘겼을 때 이미 채워져 있고, 여기서는 wps큐를 넘기기만 하면 됨
         // for(int i=0;i<NUM_WAYPOINTS;i++){ ... }
        
-        /* testing
+        #if (TEST == 1)
         dx_base += dx_step;
         if (dx_base > dx_max || dx_base < dx_min) dx_step = -dx_step; // 왕복 스윕
         for(int i=0;i<NUM_WAYPOINTS;i++){
             float dx = dx_base * (float)(i+1);
             wps[i].x = pose.x + dx;
             wps[i].y = pose.y + 0.08f; // y는 고정 오프셋(직관적)
-        }*/
+        }
+        #endif
         ret = (uint8_t)pp_compute_steer(&pp_handler, &pose, wps, NUM_WAYPOINTS, &steer_angle_rad);
         if(ret != 0){
             mcu_printf("[follow_steer] pp_compute_steer error: %d\n", ret);
