@@ -192,6 +192,7 @@ static void Main_StartTask(void *pArg)
 
 #if (ENABLE_IMU_TASK == 1)
     (void)IMUTaskCreate();
+    mcu_printf(">>> IMU_task_init complete\n");
 #endif
 #if (ENABLE_POSE_TASK == 1)
     (void)PoseTaskCreate();
@@ -210,7 +211,7 @@ static void Main_StartTask(void *pArg)
 #if (ENABLE_BUZZER_TASK == 1)
     (void)BuzzerTaskCreate();
 #endif
-#if (ENABLE_FOLLOW_STEER_TASK)
+#if (ENABLE_FOLLOW_STEER_TASK == 1)
     (void)follow_steer_TaskCreate();
 #endif
     /* Main task는 여기서 끝 */

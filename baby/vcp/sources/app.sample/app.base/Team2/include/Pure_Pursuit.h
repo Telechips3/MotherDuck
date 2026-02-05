@@ -25,8 +25,10 @@ typedef struct {
 
     // last compute debug info
     int   last_target_idx; // waypoint index
-    float last_target_x_v; // vehicle-frame (vector value)
-    float last_target_y_v; // vehicle-frame (vector value)
+    float last_target_x;
+    float last_target_y;
+    float last_target_x_d; // vehicle-frame (vector value)
+    float last_target_y_d; // vehicle-frame (vector value)
     float last_ld2;
 } PP_Handle;
 

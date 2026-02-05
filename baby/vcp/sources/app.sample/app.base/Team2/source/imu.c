@@ -17,15 +17,17 @@
 static MPU6050_Filter_t s_mpu;
 static IMU_Data_t s_imu;
 
+
 /* ===== Task ===== */
 static void IMUTask(void *pArg)
 {
     (void)pArg;
 
+    mcu_printf("[IMU] task entered. \n");
     /* I2C 초기화 */
     I2C_Init();
     I2C_Open(IMU_I2C_CH, IMU_I2C_PORT, IMU_I2C_SPEED, NULL, NULL);
-
+    mcu_printf("[IMU] I2C opended. \n");
     if (MPU6050_Init(IMU_I2C_CH, MPU6050_ADDR_7BIT) != 0)
     {
         mcu_printf("[IMU] MPU6050 detection failed\n");
