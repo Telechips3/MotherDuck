@@ -1,0 +1,90 @@
+#include "speed.h"
+
+static PDMModeConfig_t g_pwm_cfg_r; // RPWM (Forward) 제어용
+static PDMModeConfig_t g_pwm_cfg_l; // LPWM (Backward) 제어용
+static uint8 g_motor_initialized = 0;
+
+/* ===== 내부 함수: BTS 7960 초기화 ===== */
+static void motor_init(void)
+{
+    // 1. INH (Inhibit) 핀 설정 
+    // 데이터시트 상 INH 핀을 High로 유지해야 장치가 활성화됩니다[cite: 610, 664].
+    GPIO_Config(MOTOR_EN_PIN, (GPIO_FUNC(0) | GPIO_OUTPUT)); 
+    GPIO_Set(MOTOR_EN_PIN, 1); // Enable (Active Mode) 
+
+    // 2. RPWM (Forward - PDM CH 0) 설정
+    g_pwm_cfg_r.mcPortNumber = GPIO_PERICH_CH0;
+    g_pwm_cfg_r.mcOperationMode = PDM_OUTPUT_MODE_PHASE_1;
+    g_pwm_cfg_r.mcInversedSignal = 0;
+    g_pwm_cfg_r.mcOutSignalInIdle = 0;
+    g_pwm_cfg_r.mcLoopCount = 0;
+    g_pwm_cfg_r.mcOutputCtrl = 0;
+    g_pwm_cfg_r.mcPeriodNanoSec1 = PERIOD_NS; // 1kHz 
+    g_pwm_cfg_r.mcDutyNanoSec1 = DUTY_STOP_NS;
+
+    // 3. LPWM (Backward - PDM CH 1) 설정
+    g_pwm_cfg_l = g_pwm_cfg_r; // 기본 설정 복사
+    g_pwm_cfg_l.mcPortNumber = GPIO_PERICH_CH1;
+
+    g_motor_initialized = 1;
+    mcu_printf("[BTS7960] 43A Driver Initialized (INH=High)\n");
+}
+
+/* ===== 내부 함수: 안전한 PWM 채널 업데이트 ===== */
+static void update_pwm(uint32 ch, PDMModeConfig_t *cfg, uint32 duty)
+{
+    uint32 wait_cnt = 0;
+
+    // 설정 변경 전 비활성화
+    PDM_Disable(ch, PMM_ON);
+
+    // 하드웨어 상태 확인 (Busy Wait)
+    while (PDM_GetChannelStatus(ch))
+    {
+        for (volatile int i = 0; i < 1000; i++); 
+        if (++wait_cnt > 1000) break;
+    }
+
+    cfg->mcDutyNanoSec1 = duty;
+
+    if (PDM_SetConfig(ch, &(*cfg)) == SAL_RET_SUCCESS)
+    {
+        PDM_Enable(ch, PMM_ON);
+    }
+}
+
+/* ===== 핵심 제어 함수: 데이터시트 진리표 기반 로직 [cite: 664] ===== */
+void control_motor_drive(uint32 cmd)
+{
+    if (!g_motor_initialized)
+        motor_init();
+
+    uint32 r_target_duty = DUTY_STOP_NS;
+    uint32 l_target_duty = DUTY_STOP_NS;
+
+    /* * 데이터시트 Truth Table (INH=1 기준)[cite: 664]:
+     * - IN=1: High-side ON (출력 High)
+     * - IN=0: Low-side ON (출력 Low)
+     */
+    switch(cmd)
+    {
+        case 0: // 전진 (W)
+            r_target_duty = DUTY_SLOW_NS; // RPWM에 PWM 인가
+            l_target_duty = 0;            // LPWM은 Low (0) 유지
+            break;
+
+        case 2: // 후진 (S)
+            r_target_duty = 0;            // RPWM은 Low (0) 유지
+            l_target_duty = DUTY_SLOW_NS; // LPWM에 PWM 인가
+            break;
+
+        default: // 정지 (기타)
+            r_target_duty = 0;
+            l_target_duty = 0;
+            break;
+    }
+
+    // 두 채널 업데이트 (동시 수행으로 쇼트 방지)
+    update_pwm(MOTOR_RPWM_CH, &g_pwm_cfg_r, r_target_duty);
+    update_pwm(MOTOR_LPWM_CH, &g_pwm_cfg_l, l_target_duty);
+}

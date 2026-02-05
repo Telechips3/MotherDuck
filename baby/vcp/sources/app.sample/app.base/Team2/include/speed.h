@@ -3,11 +3,6 @@
 
 #include "../team2_header.h"
 
-// 핀 및 속도 설정
-#define MOTOR_IN1           GPIO_GPB(2)      // L298N IN1
-#define MOTOR_IN2           GPIO_GPB(3)      // L298N IN2
-#define MOTOR_ENA_CH        0                // L298N ENA (PDM CH0 - GPIO A10)
-
 #define PERIOD_NS           1000000          // 1kHz
 #define DUTY_SLOW_NS        500000           // 30% 속도
 #define DUTY_STOP_NS        0                // 정지
@@ -15,6 +10,6 @@
 #define PERIOD_NS           1000000          // 주기: 1ms (1kHz)
 
 
-void speed_pwm(void);
+void control_motor_drive(uint32 cmd);
 
 #endif
