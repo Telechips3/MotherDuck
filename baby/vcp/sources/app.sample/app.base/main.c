@@ -176,8 +176,7 @@ static void Main_StartTask(void *pArg)
     PDM_Init(); // pwm 초기화 코드. 우리 코드가 아님.
 
     // Debug: force motor forward (remove after test)
-    /* pose module 실험용 코드 -> 윤서
-    control_motor_drive(0);     */
+    control_motor_drive(0);
 
 #if (ENABLE_IPC_TEST == 1)
     ipc_init();
