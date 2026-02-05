@@ -45,4 +45,46 @@
 #define EIT (GIC_EXT4)
 #define MY_GPIO (GPIO_GPB(2))
 
+#pragma pack(push, 1)
+
+// 제어 모드 정의
+typedef enum {
+    MODE_ESTOP = 0,
+    MODE_STOP_AND_HOLD = 1,
+    MODE_FOLLOW_WAYPOINT = 2,
+    MODE_FOLLOW_VISION = 3,
+} ctrl_mode_t;
+
+// 핵심 데이터 구조체 (29 byte)
+typedef struct {
+    uint32_t seq;
+    uint32_t cpu_time_ms;
+
+    uint8_t mode;
+    uint8_t leader_state;
+
+    // ArUco 데이터
+    uint8_t  aruco_valid;
+    uint16_t aruco_age_ms;
+    int16_t  aruco_dist_mm;
+    int16_t  aruco_x_norm_q15;
+
+    // Waypoint 데이터
+    uint8_t  wp_valid;
+    uint16_t wp_age_ms;
+    int32_t  leader_x_mm;
+    int32_t  leader_y_mm;
+
+    uint8_t  reason;
+} to_vcp_msg_t;
+
+// 전체 SPI 패킷 구조체
+typedef struct {
+    uint8_t magic;           // 0xA5
+    to_vcp_msg_t vcp_msg;    // 실제 메시지
+    uint16_t crc16;          // 체크섬
+} to_vcp_spi_msg_t;
+
+#pragma pack(pop)
+
 #endif // _TEAM2_COMMON_H_ 끝

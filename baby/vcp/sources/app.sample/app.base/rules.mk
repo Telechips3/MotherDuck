@@ -53,8 +53,12 @@ SRCS += ipc.c
 SRCS += steer.c
 SRCS += mpu_driver.c
 SRCS += imu.c
+
 SRCS += pose.c
 SRCS += pose_task.c
 
 SRCS += Pure_Pursuit.c
 SRCS += follow_steer_module.c
+
+SRCS += parsing.c
+

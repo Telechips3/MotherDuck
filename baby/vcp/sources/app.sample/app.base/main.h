@@ -14,7 +14,6 @@
 */
 /* Ultrasonic */
 
-
 #define ENABLE_IPC_TEST             0
 #define ENABLE_SPI_TEST             0          
 #define ENABLE_IMU_TASK             0       
