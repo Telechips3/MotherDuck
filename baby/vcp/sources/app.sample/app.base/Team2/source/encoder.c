@@ -48,17 +48,39 @@ static inline uint32 get_tick_ms(void)
     return tick * portTICK_PERIOD_MS;
 }
 
+void Encoder_ISR_Handler(void* args)
+{
+    uint8 curA = GPIO_Get(ENC_A_GPIO);
+    uint8 curB = GPIO_Get(ENC_B_GPIO);
+
+    // 3. 쿼드러처 방향 판별 로직
+    // A상 엣지에서 A == B 이면 정회전, A != B 이면 역회전 (2체배 기준)
+    if (curA == curB)
+    {
+        s_encCnt++;
+    }
+    else
+    {
+        s_encCnt--;
+    }
+}
+
+
 /* ===== Init ===== */
 void Encoder_Init(void)
 {
     GPIO_Config(ENC_A_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
     GPIO_Config(ENC_B_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
 
+    GPIO_IntExtSet(EIT_ENCODER, ENC_A_GPIO);
+    (void)GIC_IntVectSet(EIT_ENCODER, GIC_PRIORITY_NO_MEAN, GIC_INT_TYPE_EDGE_FALLING, (GICIsrFunc)(Encoder_ISR_Handler), (void *)0);
+    (void)GIC_IntSrcEn(EIT_ENCODER);
+
     // Motor GPIO init (always forward)
-    GPIO_Config(MOTOR_IN1_GPIO, (GPIO_FUNC(0) | GPIO_OUTPUT));
-    GPIO_Config(MOTOR_IN2_GPIO, (GPIO_FUNC(0) | GPIO_OUTPUT));
-    GPIO_Set(MOTOR_IN1_GPIO, 1);
-    GPIO_Set(MOTOR_IN2_GPIO, 0);
+    // GPIO_Config(MOTOR_IN1_GPIO, (GPIO_FUNC(0) | GPIO_OUTPUT));
+    // GPIO_Config(MOTOR_IN2_GPIO, (GPIO_FUNC(0) | GPIO_OUTPUT));
+    // GPIO_Set(MOTOR_IN1_GPIO, 1);
+    // GPIO_Set(MOTOR_IN2_GPIO, 0);
 
     s_encCnt = 0;
     s_prevCnt = 0;
@@ -139,20 +161,19 @@ void EncoderTask(void *pArg)
 
     uint32 lastCalcMs = get_tick_ms();
 
-    while (1)
+    // while (1)
+    // {
+    //     Encoder_Update();
 
-    {
-        Encoder_Update();
+    //     uint32 nowMs = get_tick_ms();
+    //     if ((nowMs - lastCalcMs) >= 500)
+    //     {
+    //         Encoder_CalcSpeed();
+    //         lastCalcMs = nowMs;
+    //     }
 
-        uint32 nowMs = get_tick_ms();
-        if ((nowMs - lastCalcMs) >= 500)
-        {
-            Encoder_CalcSpeed();
-            lastCalcMs = nowMs;
-        }
-
-        SAL_TaskSleep(1);
-    }
+    //     SAL_TaskSleep(1);
+    // }
 }
 
 SALRetCode_t EncoderTaskCreate(void)
