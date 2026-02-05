@@ -89,7 +89,8 @@ int main(void){
     printf("[Waypoint status] wp_valid: %u, wp_age_ms : %u, leader_x_mm : %d, leader_y_mm : %d\n",
           msg.wp_valid, msg.wp_age_ms, msg.leader_x_mm, msg.leader_y_mm);
     
-    // 실제 통신 인터페이스 모듈
+    // 실제 통신 인터페이스 모듈(SPI)
+
     usleep(50000); // 50ms delay
     }
 
