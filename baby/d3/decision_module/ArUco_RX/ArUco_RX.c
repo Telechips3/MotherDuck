@@ -32,6 +32,20 @@ static uint32_t mono_ms(void)
     return (uint32_t)((uint64_t)ts.tv_sec * 1000ull + (uint64_t)(ts.tv_nsec / 1000000ull));
 }
 
+static void fill_msg_from_pkt(to_vcp_msg_t* msg, const struct ArucoRawPacket* pkt, uint32_t age_ms)
+{
+    // 1. 거리 변환: Python(cm) -> C(mm)
+    msg->aruco_dist_mm = (int16_t)(pkt->dist_cm * 10.0f);
+
+    // 2. 오차 변환: Pixel(-320~320) -> Q15(-32768~32767)
+    float norm = pkt->error_px / IMG_HALF_WIDTH;
+    if (norm > 1.0f) norm = 1.0f;
+    if (norm < -1.0f) norm = -1.0f;
+    msg->aruco_x_norm_q15 = (int16_t)(norm * 32767.0f);
+
+    msg->aruco_age_ms = (uint16_t)age_ms;
+}
+
 // 소켓 초기화 및 비차단 설정
 void aruco_rx_init(void) {
     if (aruco_sock != -1) close(aruco_sock);
@@ -66,7 +80,7 @@ uint8_t RX_aruco_marker(to_vcp_msg_t *msg) {
         aruco_last_rx_ms = mono_ms();
         aruco_have_last = 1;
         msg->aruco_valid = 1;
-        msg->aruco_age_ms = 0;
+        fill_msg_from_pkt(msg, &aruco_last_pkt, 0);
         return 0; // 신규 데이터 수신
     }
 
@@ -83,16 +97,7 @@ uint8_t RX_aruco_marker(to_vcp_msg_t *msg) {
 
     if (!aruco_have_last) return 1;
 
-    // 1. 거리 변환: Python(cm) -> C(mm)
-    msg->aruco_dist_mm = (int16_t)(aruco_last_pkt.dist_cm * 10.0f);
-
-    // 2. 오차 변환: Pixel(-320~320) -> Q15(-32768~32767)
-    float norm = aruco_last_pkt.error_px / IMG_HALF_WIDTH;
-    if (norm > 1.0f) norm = 1.0f;
-    if (norm < -1.0f) norm = -1.0f;
-    msg->aruco_x_norm_q15 = (int16_t)(norm * 32767.0f);
-
-    msg->aruco_age_ms = (uint16_t)(mono_ms() - aruco_last_rx_ms);
+    fill_msg_from_pkt(msg, &aruco_last_pkt, mono_ms() - aruco_last_rx_ms);
 
     return 1; // 신규 데이터 없음
 }
