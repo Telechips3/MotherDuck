@@ -49,7 +49,7 @@ static inline uint32 get_tick_ms(void)
     return tick * portTICK_PERIOD_MS;
 }
 
-void Encoder_ISR_Handler(void* args)
+static void Encoder_ISR_Handler(void *args)
 {
     uint8 curA = GPIO_Get(ENC_A_GPIO);
     uint8 curB = GPIO_Get(ENC_B_GPIO);
@@ -64,8 +64,9 @@ void Encoder_ISR_Handler(void* args)
     {
         s_encCnt--;
     }
-}
 
+    mcu_printf("encoder Cnt: %d\n", s_encCnt);
+}
 
 /* ===== Init ===== */
 void Encoder_Init(void)
@@ -159,22 +160,22 @@ void EncoderTask(void *pArg)
 {
     (void)pArg;
     Encoder_Init();
-    control_motor_drive(0);
+    //control_motor_drive(0);
 
     uint32 lastCalcMs = get_tick_ms();
 
-    // while (1)
-    // {
-    //     Encoder_Update();
+    while (1)
+    {
+        // Encoder_Update();
 
-    //     uint32 nowMs = get_tick_ms();
-    //     if ((nowMs - lastCalcMs) >= 500)
-    //     {
-    //         Encoder_CalcSpeed();
-    //         lastCalcMs = nowMs;
-    //     }
-    //     SAL_TaskSleep(1);
-    // }
+        // uint32 nowMs = get_tick_ms();
+        // if ((nowMs - lastCalcMs) >= 500)
+        // {
+        //     Encoder_CalcSpeed();
+        //     lastCalcMs = nowMs;
+        // }
+        SAL_TaskSleep(1000);
+    }
 }
 
 SALRetCode_t EncoderTaskCreate(void)

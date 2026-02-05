@@ -13,12 +13,7 @@
 ***************************************************************************************************
 */
 /* Ultrasonic */
-#define ULTRA_TRIG_GPIO       GPIO_GPA(23)
-#define ULTRA_ECHO_GPIO       GPIO_GPA(24)
-#define ULTRA_ECHO_TIMEOUT    0xFFFFFFFF
 
-/* Buzzer */
-#define BUZZER_GPIO           GPIO_GPA(19)
 
 #define ENABLE_IPC_TEST             0
 #define ENABLE_SPI_TEST             0          

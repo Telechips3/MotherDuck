@@ -15,6 +15,11 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
+//울트라.h
+#define ULTRA_TRIG_GPIO       GPIO_GPA(23)
+#define ULTRA_ECHO_GPIO       GPIO_GPA(24)
+#define ULTRA_ECHO_TIMEOUT    0xFFFFFFFF
+
 //speed.h
 #define MOTOR_IN1           GPIO_GPA(4)      // L298N IN1
 #define MOTOR_IN2           GPIO_GPA(8)      // L298N IN2

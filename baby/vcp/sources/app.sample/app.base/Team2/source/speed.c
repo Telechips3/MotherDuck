@@ -11,7 +11,7 @@ static void motor_init(void)
     GPIO_Config(MOTOR_IN2, (GPIO_FUNC(0) | GPIO_OUTPUT));
 
     // 2. PWM 기본 환경 설정
-    g_pwm_cfg.mcPortNumber = GPIO_PERICH_CH1;
+    g_pwm_cfg.mcPortNumber = GPIO_PERICH_CH0;
     g_pwm_cfg.mcOperationMode = PDM_OUTPUT_MODE_PHASE_1;
     g_pwm_cfg.mcInversedSignal = 0;
     g_pwm_cfg.mcOutSignalInIdle = 0;
@@ -32,7 +32,7 @@ void control_motor_drive(uint32 cmd)
 
     uint32 target_duty = DUTY_STOP_NS;
     uint32 wait_cnt = 0;
-
+    
     // --- [입력에 따른 로직 판단] ---
     if (cmd == 0)
     { // 전진

@@ -2,6 +2,7 @@
 #include "ultrasonic.h"
 #include <app_cfg.h>
 #include <debug.h>
+#include "../team2_header.h"
 
 /* main.c에 있는 전역 변수 사용 */
 extern volatile uint32 g_ultraDistanceCm;
