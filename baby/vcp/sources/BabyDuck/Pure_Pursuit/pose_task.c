@@ -13,7 +13,7 @@ static void PoseTask(void *pArg)
     {
         Pose_Update();
         Pose_Get(&p);
-
+        
         // mcu_printf doesn't support float format on this platform
         int x_cm = (int)(p.x * 100.0f);
         int y_cm = (int)(p.y * 100.0f);

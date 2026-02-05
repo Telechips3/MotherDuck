@@ -30,6 +30,7 @@
 #include "imu.h"
 #include "pose.h"
 #include "pose_task.h"
+#include "follow_steer_module.h"
 
 volatile uint32 g_ultraDistanceCm = 0;
 
@@ -209,7 +210,9 @@ static void Main_StartTask(void *pArg)
 #if (ENABLE_BUZZER_TASK == 1)
     (void)BuzzerTaskCreate();
 #endif
-
+#if (ENABLE_FOLLOW_STEER_TASK)
+    (void)follow_steer_TaskCreate();
+#endif
     /* Main task는 여기서 끝 */
     while (1)
     {

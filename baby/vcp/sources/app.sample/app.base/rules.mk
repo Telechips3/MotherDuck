@@ -18,12 +18,12 @@ COMMON_FLAGS += -DMCU_BSP_SUPPORT_APP_BASE=1
 
 # Paths
 VPATH += $(MCU_BSP_APP_SAMPLE_BASE_PATH)
-VPATH += $(MCU_BSP_APP_SAMPLE_BASE_PATH)/../../BabyDuck/Pure_Pursuit
+#VPATH += $(MCU_BSP_APP_SAMPLE_BASE_PATH)/../../BabyDuck/Pure_Pursuit
 
 # Includes
 INCLUDES += -I$(MCU_BSP_APP_SAMPLE_BASE_PATH)
 INCLUDES += -I$(MCU_BSP_APP_SAMPLE_BASE_PATH)/$(MCU_BSP_CHIPSET_FAMILY_NAME)
-INCLUDES += -I$(MCU_BSP_APP_SAMPLE_BASE_PATH)/../../BabyDuck/Pure_Pursuit
+#INCLUDES += -I$(MCU_BSP_APP_SAMPLE_BASE_PATH)/../../BabyDuck/Pure_Pursuit
 
 # Sources
 SRCS += main.c
@@ -55,3 +55,6 @@ SRCS += mpu_driver.c
 SRCS += imu.c
 SRCS += pose.c
 SRCS += pose_task.c
+
+SRCS += Pure_Pursuit.c
+SRCS += follow_steer_module.c
