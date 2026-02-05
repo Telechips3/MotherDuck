@@ -1,7 +1,7 @@
 #include "speed.h"
 #include "steer.h"
 #include <math.h>
-#include "team2_header.h"
+#include "../team2_header.h"
 #include "parsing.h"
 
 // 제어 명령 처리 함수
@@ -9,9 +9,9 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
 {
     to_vcp_msg_t* msg = &(pkt->vcp_msg);
 
-    mcu_printf("\n[PARSING] ═══════════════════════════════════════\n");
-    mcu_printf("  Magic: 0x%02X | Seq: %u | Time: %u ms\n", 
-               pkt->magic, msg->seq, msg->cpu_time_ms);
+    mcu_printf("\n[SPI RX] ════════════════════════════════════════\n");
+    mcu_printf("  Seq: %u | Time: %u ms\n", 
+               msg->seq, msg->cpu_time_ms);
     mcu_printf("  Mode: %u ", msg->mode);
 
     switch(msg->mode)
