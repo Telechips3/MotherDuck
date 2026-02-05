@@ -8,6 +8,7 @@
 */
 
 #include "encoder.h"
+#include "../team2_header.h"
 #include <gpio.h>
 #include <app_cfg.h>
 #include <debug.h>
@@ -34,11 +35,17 @@ static uint32 s_lastTransMs = 0;
 static uint8 s_prevA = 0;
 static uint32 s_lastCountMs = 0;
 
+// static inline uint32 get_tick_ms(void)
+// {
+//     uint32 ret;
+//     (uint32)(SAL_GetTickCount(&ret) * portTICK_PERIOD_MS);
+//     return ret;
+// }
 static inline uint32 get_tick_ms(void)
 {
-    uint32 ret;
-    (uint32)(SAL_GetTickCount(&ret) * portTICK_PERIOD_MS);
-    return ret;
+    uint32 tick = 0;
+    (void)SAL_GetTickCount(&tick);
+    return tick * portTICK_PERIOD_MS;
 }
 
 /* ===== Init ===== */

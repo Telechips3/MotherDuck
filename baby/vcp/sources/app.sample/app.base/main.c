@@ -28,6 +28,9 @@
 #include "ipc.h"
 #include "steer.h"
 #include "imu.h"
+#include "pose.h"
+#include "pose_task.h"
+#include "follow_steer_module.h"
 
 volatile uint32 g_ultraDistanceCm = 0;
 
@@ -172,6 +175,10 @@ static void Main_StartTask(void *pArg)
 
     PDM_Init(); // pwm 초기화 코드. 우리 코드가 아님.
 
+    // Debug: force motor forward (remove after test)
+    /* pose module 실험용 코드 -> 윤서
+    control_motor_drive(0);     */
+
 #if (ENABLE_IPC_TEST == 1)
     ipc_init();
     mcu_printf(">>> ipc_init complete\n");
@@ -186,7 +193,12 @@ static void Main_StartTask(void *pArg)
 #if (ENABLE_IMU_TASK == 1)
     (void)IMUTaskCreate();
 #endif
+#if (ENABLE_POSE_TASK == 1)
+    (void)PoseTaskCreate();
 
+    // Debug: fixed yaw override (30 deg) for pose
+    Pose_DebugSetYawOverride(30.0f * 3.1415926535f / 180.0f, 1);
+#endif
 #if (ENABLE_ENCODER_TASK == 1)
     (void)EncoderTaskCreate();
 #endif
@@ -198,7 +210,9 @@ static void Main_StartTask(void *pArg)
 #if (ENABLE_BUZZER_TASK == 1)
     (void)BuzzerTaskCreate();
 #endif
-
+#if (ENABLE_FOLLOW_STEER_TASK)
+    (void)follow_steer_TaskCreate();
+#endif
     /* Main task는 여기서 끝 */
     while (1)
     {
