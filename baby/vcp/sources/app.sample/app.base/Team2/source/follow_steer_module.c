@@ -94,9 +94,11 @@ static void follow_steer_Task(void* pArg)
                 float dx = dx_base * (float)(i+1);
                 wps[i].x = dx;
                 wps[i].y = pose.y + 0.08f; // y는 고정 오프셋(직관적)
+            
 
-        }
-                #endif
+            }
+            #endif
+                
 
             ret = (uint8_t)pp_compute_steer(&pp_handler, &pose, wps, NUM_WAYPOINTS, &steer_angle_rad);
             if(ret != 0){
