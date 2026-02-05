@@ -14,14 +14,7 @@
 */
 /* Ultrasonic */
 
-#define ENABLE_IPC_TEST             0
-#define ENABLE_SPI_TEST             0          
-#define ENABLE_IMU_TASK             0       
-#define ENABLE_ENCODER_TASK         1   
-#define ENABLE_ULTRASONIC_TASK      0 
-#define ENABLE_BUZZER_TASK          0   
-#define ENABLE_POSE_TASK            0
-#define ENABLE_FOLLOW_STEER_TASK    0
+
 
 #ifndef MCU_BSP_MAIN_HEADER
 #define MCU_BSP_MAIN_HEADER

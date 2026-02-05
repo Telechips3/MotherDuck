@@ -58,7 +58,7 @@ static void follow_steer_Task(void* pArg)
         pose.x   = p.x;
         pose.y   = p.y;
         pose.yaw = p.yaw;
-        mcu_printf("[follow_steer] calculated pose (%d, %d, %d)\n ",(int)(1000*pose.x), (int)(1000*pose.y), (int)(1000*pose.yaw));
+        //mcu_printf("[follow_steer] calculated pose (%d, %d, %d)\n ",(int)(1000*pose.x), (int)(1000*pose.y), (int)(1000*pose.yaw));
         
         // TODO: wps 채우기 (없으면 PP 불가)
         // wps는 패킷 넘겼을 때 이미 채워져 있고, 여기서는 wps큐를 넘기기만 하면 됨
@@ -77,8 +77,8 @@ static void follow_steer_Task(void* pArg)
             mcu_printf("[follow_steer] pp_compute_steer error: %d\n", ret);
         }
 
-        mcu_printf("[follow_steer] yaw=%d steer=%d\n",
-                   (int)(pose.yaw * 1000), (int)((RAD2DEG(steer_angle_rad))*1000));
+        // mcu_printf("[follow_steer] yaw=%d steer=%d\n",
+        //            (int)(pose.yaw * 1000), (int)((RAD2DEG(steer_angle_rad))*1000));
 
         SAL_TaskSleep(SAL_TASK_SLEEP_MS);
     }
