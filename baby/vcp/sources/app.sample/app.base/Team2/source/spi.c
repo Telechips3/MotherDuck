@@ -16,13 +16,11 @@ static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 
     (void)SAL_QueuePut(g_motor_queue_id, (void *)&spi_rx_buf[0], sizeof(uint32), 0, SAL_OPT_NON_BLOCKING);
 
-    int x = 123456;
     SAL_CoreCriticalEnter();
     //x = 123456;
-    //spi_tx_buf[0] = spi_rx_buf[0];
+    spi_tx_buf[0] = s_encCnt;
     SAL_CoreCriticalExit();
     abcd(SPI_CHANNEL);
-    spi_tx_buf[0] = x;
     GPSB_SetSlaveDMAMode(SPI_CHANNEL, (const void *)spi_tx_buf, (void *)spi_rx_buf, SPI_BYTE);
 }
 

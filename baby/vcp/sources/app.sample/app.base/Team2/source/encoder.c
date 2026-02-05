@@ -12,6 +12,7 @@
 #include <gpio.h>
 #include <app_cfg.h>
 #include <debug.h>
+#include "../include/speed.h"
 
 extern volatile uint32 g_ultraDistanceCm;
 
@@ -145,12 +146,12 @@ void Encoder_CalcSpeed(void)
 
     int dist_x10 = (int)(s_distanceCm * 10.0f);
     int speed_x10 = (int)(s_speedCms * 10.0f);
-    // mcu_printf("[ENC] CNT=%d DIST=%d.%d cm SPEED=%d.%d cm/s A=%d B=%d    [ULTRA] %d cm\n",
-    //            s_encCnt,
-    //            dist_x10 / 10, dist_x10 % 10,
-    //            speed_x10 / 10, speed_x10 % 10,
-    //            s_lastA, s_lastB,
-    //            (int)g_ultraDistanceCm);
+    mcu_printf("[ENC] CNT=%d DIST=%d.%d cm SPEED=%d.%d cm/s A=%d B=%d    [ULTRA] %d cm\n",
+               s_encCnt,
+               dist_x10 / 10, dist_x10 % 10,
+               speed_x10 / 10, speed_x10 % 10,
+               s_lastA, s_lastB,
+               (int)g_ultraDistanceCm);
 }
 
 /* ===== Task ===== */
@@ -158,6 +159,7 @@ void EncoderTask(void *pArg)
 {
     (void)pArg;
     Encoder_Init();
+    control_motor_drive(0);
 
     uint32 lastCalcMs = get_tick_ms();
 
@@ -171,7 +173,6 @@ void EncoderTask(void *pArg)
     //         Encoder_CalcSpeed();
     //         lastCalcMs = nowMs;
     //     }
-
     //     SAL_TaskSleep(1);
     // }
 }

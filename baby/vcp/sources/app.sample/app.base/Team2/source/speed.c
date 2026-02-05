@@ -11,7 +11,7 @@ static void motor_init(void)
     GPIO_Config(MOTOR_IN2, (GPIO_FUNC(0) | GPIO_OUTPUT));
 
     // 2. PWM 기본 환경 설정
-    g_pwm_cfg.mcPortNumber = GPIO_PERICH_CH0;
+    g_pwm_cfg.mcPortNumber = GPIO_PERICH_CH1;
     g_pwm_cfg.mcOperationMode = PDM_OUTPUT_MODE_PHASE_1;
     g_pwm_cfg.mcInversedSignal = 0;
     g_pwm_cfg.mcOutSignalInIdle = 0;
@@ -21,6 +21,7 @@ static void motor_init(void)
     g_pwm_cfg.mcPeriodNanoSec2 = 0;
 
     g_motor_initialized = 1;
+    mcu_printf("motor_init Finish\n");
 }
 
 // 핵심 제어 함수: 외부에서 받은 cmd('w', 's' 등)에 따라 동작
@@ -52,7 +53,6 @@ void control_motor_drive(uint32 cmd)
         target_duty = DUTY_STOP_NS;
     }
     
-
     // --- [PWM 업데이트] ---
     // TCC70xx의 PDM은 설정을 바꿀 때 Disable -> Config -> Enable 과정을 거쳐야 안전합니다.
     PDM_Disable(MOTOR_PWM_CH, PMM_ON);
@@ -76,6 +76,7 @@ void control_motor_drive(uint32 cmd)
     if (PDM_SetConfig(MOTOR_PWM_CH, &g_pwm_cfg) == SAL_RET_SUCCESS)
     {
         PDM_Enable(MOTOR_PWM_CH, PMM_ON);
+        mcu_printf("motor Enable\n");
     }
     else
     {
