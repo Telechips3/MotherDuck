@@ -2887,6 +2887,7 @@ static void GPSB_Isr(
                 if (gpsb[uiCh].dBase < (UINT_MAX_VALUE - GPSB_DMAICR))
                 {
                     SAL_WriteReg(dmaicr, (uint32)(gpsb[uiCh].dBase + GPSB_DMAICR));
+                    GPSB_D("%s: ch %d GPSB_DMAICR Done===============\n", __func__, uiCh);
                 }
 
                 data_size = gpsb[uiCh].dAsyncTxDataSize;
@@ -2904,7 +2905,11 @@ static void GPSB_Isr(
                 {
                     //(void)SAL_MemCopy(gpsb[uiCh].dAsyncRxBuf, (void *)(gpsb[uiCh].dRxDma.dbAddr), copy_length);
                     (void)SAL_MemCopy(gpsb[uiCh].dAsyncRxBuf, buffaddr, copy_length);
+                    (void)SAL_MemCopy((void *)(gpsb[uiCh].dTxDma.dbAddr), gpsb[uiCh].dAsyncTxBuf, copy_length);
                 }
+
+                GPSB_D("%s: first remainder: %d copy_length: %d\n",
+                       __func__, gpsb[uiCh].dAsyncTxDataSize, copy_length);
 
                 if (gpsb[uiCh].dAsyncTxDataSize >= copy_length)
                 {
@@ -3833,8 +3838,8 @@ void GPSB_SetSlaveDMAMode(
     // GPSB_BitClear(gpsb[uiCh].dBase + GPSB_DMACTR, BSP_BIT_02);
 
     {
-        copy_length = gpsb[uiCh].dTxDma.dbSize;
-        // copy_length = 8;
+        //copy_length = gpsb[uiCh].dTxDma.dbSize;
+        copy_length = 1;
     }
 
     /* Set DMA TXBASE and RXBASE */
@@ -3902,4 +3907,21 @@ void GPSB_ClearDMABuffer(uint8 uiCh, uint32 size)
     SAL_MemSet(gpsb[uiCh].dRxDma.dbAddr, 0x0, size);
 }
 
-#endif // ( MCU_BSP_SUPPORT_DRIVER_GPSB == 1 )
+
+void abcd(uint8 uiCh)
+{
+        GPSB_D("abcd: read: %d write: %d\n",
+           ((SAL_ReadReg((uint32)(gpsb[uiCh].dBase + GPSB_STAT)) >> 16UL) & 0xFUL),
+           (SAL_ReadReg((uint32)(gpsb[uiCh].dBase + GPSB_STAT)) >> 24UL) & 0xFUL);
+}
+
+void zxcv(uint8 uiCh)
+{
+    GPSB_Disable(uiCh);
+    // RX FIFO 비우기 (하드웨어 리셋 후 잔여 데이터 제거)
+    while ((SAL_ReadReg(gpsb[uiCh].dBase + GPSB_STAT) & 0xF0000) != 0) {
+        (void)SAL_ReadReg(gpsb[uiCh].dBase + GPSB_PORT);
+    }
+    GPSB_Enable(uiCh);
+}
+#endif // ( MCU_BSP_SUPPORT_DRIVER_GPSB == 1 )33
