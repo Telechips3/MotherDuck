@@ -2887,6 +2887,7 @@ static void GPSB_Isr(
                 if (gpsb[uiCh].dBase < (UINT_MAX_VALUE - GPSB_DMAICR))
                 {
                     SAL_WriteReg(dmaicr, (uint32)(gpsb[uiCh].dBase + GPSB_DMAICR));
+                    GPSB_D("%s: ch %d GPSB_DMAICR Done===============\n", __func__, uiCh);
                 }
 
                 data_size = gpsb[uiCh].dAsyncTxDataSize;
@@ -2904,6 +2905,7 @@ static void GPSB_Isr(
                 {
                     //(void)SAL_MemCopy(gpsb[uiCh].dAsyncRxBuf, (void *)(gpsb[uiCh].dRxDma.dbAddr), copy_length);
                     (void)SAL_MemCopy(gpsb[uiCh].dAsyncRxBuf, buffaddr, copy_length);
+                    (void)SAL_MemCopy((void *)(gpsb[uiCh].dTxDma.dbAddr), gpsb[uiCh].dAsyncTxBuf, copy_length);
                 }
 
                 GPSB_D("%s: first remainder: %d copy_length: %d\n",

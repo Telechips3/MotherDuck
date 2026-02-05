@@ -5,7 +5,7 @@
 #include "../team2_header.h"
 
 static uint32 spi_rx_buf[SPI_BYTE] = {0};
-static uint32 spi_tx_buf[SPI_BYTE] = {-1};
+static uint32 spi_tx_buf[SPI_BYTE] = {100};
 
 static uint32 spi_dma_rx_buf[SPI_DMA_BYTE] = {0};
 static uint32 spi_dma_tx_buf[SPI_DMA_BYTE] = {0};
