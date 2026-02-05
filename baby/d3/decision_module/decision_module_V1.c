@@ -7,6 +7,7 @@
 #include <inttypes.h>
 
 #include "decide_mode.h"
+#include "ArUco_RX.h"
 
 
 // ===== Payload msg ==============
@@ -37,19 +38,14 @@ uint8_t RX_waypoint(to_vcp_msg_t *msg){
     return 0;
 }
 
-uint8_t RX_aruco_marker(to_vcp_msg_t *msg){
-
-
-    return 0;
-}
-
-
 
 int main(void){
     uint32_t seq = 0;
     init_decide_mode_msg();
     static uint32_t last_aruco_rx_time;
     static uint32_t last_wp_rx_time;
+
+    aruco_rx_init(); // ArUco 소켓 통신 초기화 호출
 
     while(1){
     uint8_t ret = 0;        // Handler
@@ -61,14 +57,14 @@ int main(void){
     msg.seq = seq++;
     
     //aruco marker input
-    ret = RX_aruco_marker(&msg);
-    if(ret){
-        fprintf(stderr,"[seq : %u| time : %u] Failed to receive aruco marker data\n",msg.seq, time_now);
-    }
-
-    if(!ret){
-        msg.aruco_valid = !ret;
+    uint8_t aruco_ret = RX_aruco_marker(&msg);
+    if (aruco_ret == 0) {
+        // 새로운 데이터를 성공적으로 받은 경우
+        msg.aruco_valid = 1;
         last_aruco_rx_time = time_now;
+    } else {
+        // 데이터를 못 받았거나 연결에 문제가 있는 경우
+        msg.aruco_valid = 0;
     }
     msg.aruco_age_ms = (uint16_t)(time_now - last_aruco_rx_time);   // timeout check , 16bit casting
     
