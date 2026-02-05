@@ -21,8 +21,8 @@ static void PoseTask(void *pArg)
         int yaw_deg = yaw_cdeg / 100;
         int yaw_frac = yaw_cdeg < 0 ? (-yaw_cdeg % 100) : (yaw_cdeg % 100);
 
-        mcu_printf("[POSE] x=%dcm y=%dcm yaw=%d.%02d deg\n",
-                   x_cm, y_cm, yaw_deg, yaw_frac);
+        // mcu_printf("[POSE] x=%dcm y=%dcm yaw=%d.%02d deg\n",
+        //            x_cm, y_cm, yaw_deg, yaw_frac);
 
         SAL_TaskSleep(500);
     }

@@ -73,9 +73,9 @@ static void follow_steer_Task(void* pArg)
             wps[i].y = pose.y + 0.08f; // y는 고정 오프셋(직관적)
         }*/
         ret = (uint8_t)pp_compute_steer(&pp_handler, &pose, wps, NUM_WAYPOINTS, &steer_angle_rad);
-        if(ret != 0){
-            mcu_printf("[follow_steer] pp_compute_steer error: %d\n", ret);
-        }
+        // if(ret != 0){
+        //     mcu_printf("[follow_steer] pp_compute_steer error: %d\n", ret);
+        // }
 
         // mcu_printf("[follow_steer] yaw=%d steer=%d\n",
         //            (int)(pose.yaw * 1000), (int)((RAD2DEG(steer_angle_rad))*1000));

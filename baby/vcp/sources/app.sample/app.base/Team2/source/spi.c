@@ -13,20 +13,33 @@ static uint32 spi_dma_tx_buf[SPI_DMA_BYTE] = {0};
 static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 {
     mcu_printf("[SPI] Interrupt received: Channel=%u Event=0x%08X\n", uiCh, iEvent);
-     to_vcp_spi_msg_t* pkt = (to_vcp_spi_msg_t*)spi_rx_buf;
-    
-    if (pkt->magic == 0xA5) {
-        mcu_printf("[SPI] Packet received: Magic=0x%02X Seq=%u\n", 
-                   pkt->magic, pkt->vcp_msg.seq);
-        
-        // 전체 패킷을 큐에 삽입
-        SALRetCode_t ret = SAL_QueuePut(g_motor_queue_id, (void *)pkt, 
-                                         sizeof(to_vcp_spi_msg_t), 0, SAL_OPT_NON_BLOCKING);
-        if (ret != SAL_RET_SUCCESS) {
-            mcu_printf("[SPI] Queue full! Packet dropped.\n");
-        }
-    } else {
-        mcu_printf("[SPI] Invalid magic: 0x%02X (expected 0xA5)\n", pkt->magic);
+    to_vcp_spi_msg_t *m = (to_vcp_spi_msg_t *)spi_rx_buf;
+
+    // A. Magic Byte 체크 (0xA5 = 10진수 165)
+    if (m->magic == 165) // 0xA5
+    {
+        // B. CRC16 계산
+        mcu_printf("SEQ:%d, TIME:%d, MODE:%d, STATE:%d\n",
+                   (int)m->vcp_msg.seq, (int)m->vcp_msg.cpu_time_ms, (int)m->vcp_msg.mode, (int)m->vcp_msg.leader_state);
+
+        // [5-8] ArUco 데이터
+        mcu_printf("ARUCO > VLD:%d, AGE:%d, DIST:%d, X:%d\n",
+                   (int)m->vcp_msg.aruco_valid, (int)m->vcp_msg.aruco_age_ms, (int)m->vcp_msg.aruco_dist_mm, (int)m->vcp_msg.aruco_x_norm_q15);
+
+        // [9-12] Waypoint 데이터
+        mcu_printf("WP    > VLD:%d, AGE:%d, X:%d, Y:%d\n",
+                   (int)m->vcp_msg.wp_valid, (int)m->vcp_msg.wp_age_ms, (int)m->vcp_msg.leader_x_mm, (int)m->vcp_msg.leader_y_mm);
+
+        // [13] 디버그 정보
+        mcu_printf("REASON:%d\n", (int)m->vcp_msg.reason);
+        SAL_QueuePut(g_motor_queue_id, (void *)m, sizeof(to_vcp_spi_msg_t), 0, SAL_OPT_NON_BLOCKING);
+    }
+    else
+    {
+        /* --- [검증 실패] CRC 불일치 (데이터 깨짐) --- */
+        // %d만 써야 하므로 10진수로 출력
+        mcu_printf("[SPI] CRC ERR - Recv:%d\n",
+                   (int32)m->crc16);
     }
 
     SAL_CoreCriticalEnter();
@@ -44,13 +57,13 @@ static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 // {
 //     // 패킷 시작 검증 (magic 바이트 확인)
 //     to_vcp_spi_msg_t* pkt = (to_vcp_spi_msg_t*)spi_rx_buf;
-    
+
 //     if (pkt->magic == 0xA5) {
-//         mcu_printf("[SPI] Packet received: Magic=0x%02X Seq=%u\n", 
+//         mcu_printf("[SPI] Packet received: Magic=0x%02X Seq=%u\n",
 //                    pkt->magic, pkt->vcp_msg.seq);
-        
+
 //         // 전체 패킷을 큐에 삽입
-//         SALRetCode_t ret = SAL_QueuePut(g_motor_queue_id, (void *)pkt, 
+//         SALRetCode_t ret = SAL_QueuePut(g_motor_queue_id, (void *)pkt,
 //                                          sizeof(to_vcp_spi_msg_t), 0, SAL_OPT_NON_BLOCKING);
 //         if (ret != SAL_RET_SUCCESS) {
 //             mcu_printf("[SPI] Queue full! Packet dropped.\n");
@@ -58,7 +71,7 @@ static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 //     } else {
 //         mcu_printf("[SPI] Invalid magic: 0x%02X (expected 0xA5)\n", pkt->magic);
 //     }
-    
+
 //     // 다음 수신 준비 (전체 패킷 크기로 수신)
 //     GPSB_AsyncXfer(SPI_CHANNEL, (uint32 *)spi_tx_buf, (uint32 *)spi_rx_buf, SPI_PKT_SIZE_WORDS,
 //                    GPSB_XFER_MODE_WITH_INTERRUPT | GPSB_XFER_MODE_WITHOUT_CTF);
