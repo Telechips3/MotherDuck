@@ -5,6 +5,7 @@
 #include <sys/un.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <time.h>
 
 #include "ArUco_RX.h"
 
@@ -20,6 +21,16 @@ struct ArucoRawPacket {
 } __attribute__((packed));
 
 static int aruco_sock = -1;
+static struct ArucoRawPacket aruco_last_pkt;
+static uint32_t aruco_last_rx_ms = 0;
+static int aruco_have_last = 0;
+
+static uint32_t mono_ms(void)
+{
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) return 0;
+    return (uint32_t)((uint64_t)ts.tv_sec * 1000ull + (uint64_t)(ts.tv_nsec / 1000000ull));
+}
 
 // 소켓 초기화 및 비차단 설정
 void aruco_rx_init(void) {
@@ -51,16 +62,12 @@ uint8_t RX_aruco_marker(to_vcp_msg_t *msg) {
     ssize_t len = read(aruco_sock, &packet, sizeof(packet));
 
     if (len == sizeof(packet)) {
-        // 1. 거리 변환: Python(cm) -> C(mm)
-        msg->aruco_dist_mm = (int16_t)(packet.dist_cm * 10.0f);
-
-        // 2. 오차 변환: Pixel(-320~320) -> Q15(-32768~32767)
-        float norm = packet.error_px / IMG_HALF_WIDTH;
-        if (norm > 1.0f) norm = 1.0f;
-        if (norm < -1.0f) norm = -1.0f;
-        msg->aruco_x_norm_q15 = (int16_t)(norm * 32767.0f);
-
-        return 0; // 성공적으로 수신 및 변환 완료
+        aruco_last_pkt = packet;
+        aruco_last_rx_ms = mono_ms();
+        aruco_have_last = 1;
+        msg->aruco_valid = 1;
+        msg->aruco_age_ms = 0;
+        return 0; // 신규 데이터 수신
     }
 
     // 소켓 에러 또는 서버 종료 시 소켓 닫기
@@ -69,5 +76,23 @@ uint8_t RX_aruco_marker(to_vcp_msg_t *msg) {
         aruco_sock = -1;
     }
 
-    return 1; // 유효한 데이터 없음
+    // 잘못된 패킷(길이 불일치)만 invalid 처리
+    if (len > 0 && len != (ssize_t)sizeof(packet)) {
+        msg->aruco_valid = 0;
+    }
+
+    if (!aruco_have_last) return 1;
+
+    // 1. 거리 변환: Python(cm) -> C(mm)
+    msg->aruco_dist_mm = (int16_t)(aruco_last_pkt.dist_cm * 10.0f);
+
+    // 2. 오차 변환: Pixel(-320~320) -> Q15(-32768~32767)
+    float norm = aruco_last_pkt.error_px / IMG_HALF_WIDTH;
+    if (norm > 1.0f) norm = 1.0f;
+    if (norm < -1.0f) norm = -1.0f;
+    msg->aruco_x_norm_q15 = (int16_t)(norm * 32767.0f);
+
+    msg->aruco_age_ms = (uint16_t)(mono_ms() - aruco_last_rx_ms);
+
+    return 1; // 신규 데이터 없음
 }

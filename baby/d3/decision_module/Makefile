@@ -2,7 +2,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g
 # 헤더 파일(.h)이 있는 폴더 위치를 알려줌 (-I 옵션)
-INCLUDES = -I./decide_mode -I./ArUco_RX
+INCLUDES = -I./decide_mode -I./ArUco_RX -I./Waypoint_RX
 
 # 2. 실행 파일 이름 (니 맘대로 바꿔)
 TARGET = run_test
@@ -10,7 +10,8 @@ TARGET = run_test
 # 3. 소스 파일 목록 (경로까지 정확히 적어야 함!)
 SRCS = decision_module_V1.c \
 		decide_mode/decide_mode.c \
-		ArUco_RX/ArUco_RX.c
+		ArUco_RX/ArUco_RX.c \
+		Waypoint_RX/Waypoint_RX.c
 
 # 4. 소스 파일(.c)을 목적 파일(.o)로 변환한다고 정의
 OBJS = $(SRCS:.c=.o)
