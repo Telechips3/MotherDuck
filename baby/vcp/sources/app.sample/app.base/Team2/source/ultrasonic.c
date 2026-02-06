@@ -4,6 +4,9 @@
 #include <app_cfg.h>
 #include <debug.h>
 
+static uint32 ultraTaskID;
+static uint32 ultraTaskStk[ULTRASONIC_TASK_STACK_SIZE];
+
 static void Buzzer_Init(void)
 {
     GPIO_Config(BUZZER_GPIO,
@@ -98,19 +101,17 @@ void UltrasonicTask(void *pArg)
             }
         }
 
-        SAL_TaskSleep(500);
+        SAL_TaskSleep(ULTRASONIC_TASK_SLEEP_MS);
     }
 }
 
 SALRetCode_t UltrasonicTaskCreate(void)
 {
-    static uint32 ultraTaskID;
-    static uint32 ultraTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
     return SAL_TaskCreate(&ultraTaskID,
                           (const uint8 *)"Ultrasonic Task",
                           UltrasonicTask,
                           ultraTaskStk,
-                          ACFG_TASK_NORMAL_STK_SIZE,
-                          SAL_PRIO_APP_CFG,
+                          ULTRASONIC_TASK_STACK_SIZE,
+                          ULTRASONIC_TASK_PRIORITY,
                           NULL);
 }

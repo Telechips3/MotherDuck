@@ -1,7 +1,7 @@
 #include "../include/spi.h"
 #include "../team2_header.h"
+#include "../include/ipc.h"
 #include "speed.h"
-#include "ipc.h"
 #include "encoder.h"
 
 static uint32_t spi_rx_buf[SPI_BYTE] = {0};

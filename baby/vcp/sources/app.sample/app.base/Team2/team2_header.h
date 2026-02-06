@@ -45,6 +45,30 @@
 #define EIT (GIC_EXT4)
 #define MY_GPIO (GPIO_GPB(2))
 
+//task delay
+#define IPC_TASK_SLEEP_MS           50
+#define IMU_TASK_SLEEP_MS           20
+#define POSE_TASK_SLEEP_MS          500
+#define ENCODER_TASK_SLEEP_MS       1000
+#define ULTRASONIC_TASK_SLEEP_MS    50
+#define FOLLOW_STEER_TASK_SLEEP_MS  50
+
+//task priorities 클수록 좋아요
+#define IPC_TASK_PRIORITY           SAL_PRIO_APP_CFG
+#define IMU_TASK_PRIORITY           SAL_PRIO_APP_CFG
+#define POSE_TASK_PRIORITY          SAL_PRIO_APP_CFG
+#define ENCODER_TASK_PRIORITY       SAL_PRIO_APP_CFG
+#define ULTRASONIC_TASK_PRIORITY    SAL_PRIO_APP_CFG
+#define FOLLOW_STEER_TASK_PRIORITY  SAL_PRIO_APP_CFG
+
+//task stack sizes
+#define IPC_TASK_STACK_SIZE           512
+#define IMU_TASK_STACK_SIZE           512
+#define POSE_TASK_STACK_SIZE          512
+#define ENCODER_TASK_STACK_SIZE       512
+#define ULTRASONIC_TASK_STACK_SIZE    512
+#define FOLLOW_STEER_TASK_STACK_SIZE  512
+
 // 제어 모드 정의
 typedef enum {
     MODE_ESTOP = 0,

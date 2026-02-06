@@ -1,4 +1,5 @@
 // pose_task.c
+#include <../team2_header.h>
 #include "pose.h"
 #include "pose_task.h"
 #include <debug.h>
@@ -24,20 +25,20 @@ static void PoseTask(void *pArg)
         // mcu_printf("[POSE] x=%dcm y=%dcm yaw=%d.%02d deg\n",
         //            x_cm, y_cm, yaw_deg, yaw_frac);
 
-        SAL_TaskSleep(500);
+        SAL_TaskSleep(POSE_TASK_SLEEP_MS);
     }
 }
 
 SALRetCode_t PoseTaskCreate(void)
 {
     static uint32 poseTaskID;
-    static uint32 poseTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
+    static uint32 poseTaskStk[POSE_TASK_STACK_SIZE];
 
     return SAL_TaskCreate(&poseTaskID,
                           (const uint8 *)"Pose Task",
                           PoseTask,
                           poseTaskStk,
-                          ACFG_TASK_NORMAL_STK_SIZE,
-                          SAL_PRIO_APP_CFG,
+                          POSE_TASK_STACK_SIZE,
+                          POSE_TASK_PRIORITY,
                           NULL);
 }

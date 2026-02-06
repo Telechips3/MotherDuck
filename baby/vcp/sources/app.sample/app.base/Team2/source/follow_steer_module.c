@@ -1,5 +1,6 @@
 // follow_steer_module.c
 
+#include "../team2_header.h"
 #include "Pure_Pursuit.h"
 #include "follow_steer_module.h"
 #include "pose.h"
@@ -14,8 +15,6 @@
 #define RAD2DEG(x) ((x) * 180.0f / 3.1415926535f)
 
 #define NUM_WAYPOINTS            (10)
-#define SAL_TASK_SLEEP_MS        (50) 
-#define SAL_TASK_EXCEPTION_SLEEP (5)
 #define TEST                      0
 
 // IMU 데이터 저장용 전역 변수
@@ -25,6 +24,11 @@
 static PP_Pose pose;
 static PP_Waypoint wps[NUM_WAYPOINTS];
 static PP_Handle pp_handler;
+
+
+static uint32 FollowsteerTaskID;
+static uint32 FollowsteerTaskStk[FOLLOW_STEER_TASK_STACK_SIZE];
+
 
 
 #if (TEST == 1)
@@ -68,7 +72,7 @@ static void follow_steer_Task(void* pArg)
         ret = (uint8_t)Pose_Get(&p);
         if(ret != 0){
             mcu_printf("[follow_steer] Get_pose error: %d\n", ret);
-            SAL_TaskSleep(SAL_TASK_SLEEP_MS);
+            SAL_TaskSleep(FOLLOW_STEER_TASK_SLEEP_MS);
             continue;
         }
         pose.x   = p.x;
@@ -117,20 +121,17 @@ static void follow_steer_Task(void* pArg)
         mcu_printf("[floow_steer] last_target_idx = %d , last_target_x_v = %d, last_target_y_v = %d, last_ld2 = %d\n",
                     pp_handler.last_target_idx, (int)(pp_handler.last_target_x_d*1000), (int)(pp_handler.last_target_y_d*1000), (int)(pp_handler.last_ld2*1000));
 
-        SAL_TaskSleep(SAL_TASK_SLEEP_MS);
+        SAL_TaskSleep(FOLLOW_STEER_TASK_SLEEP_MS);
     }
 }
 SALRetCode_t follow_steer_TaskCreate(void)
 {
-    static uint32 FollowsteerTaskID;
-    static uint32 FollowsteerTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
-
     SALRetCode_t err = SAL_TaskCreate(&FollowsteerTaskID,
                                       (const uint8 *)"follow Task",
                                       follow_steer_Task,
                                       FollowsteerTaskStk,
-                                      ACFG_TASK_NORMAL_STK_SIZE,
-                                      SAL_PRIO_APP_CFG,
+                                      FOLLOW_STEER_TASK_STACK_SIZE,
+                                      FOLLOW_STEER_TASK_PRIORITY,
                                       NULL);
 
     mcu_printf("Follow steer task create: %d\n", (int)err);

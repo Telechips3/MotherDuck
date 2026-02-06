@@ -17,7 +17,7 @@
 
 #if (MCU_BSP_SUPPORT_APP_BASE == 1)
 
-#include <main.h>
+#include "main.h"
 #include "team2_header.h"
 #include "speed.h"
 #include "interrupt_example.h"
@@ -191,7 +191,7 @@ static void Main_StartTask(void *pArg)
 
     /* --- 2. SPI 통신 설정 --- */
 #if (ENABLE_SPI_TEST == 1)
-    SPI_Init();
+    SPI_Init(); //이 친구는 task가 아닙니다. main task에 기생해서 사는 친구입니다. 밑에 while문을 살려주시죠.
     mcu_printf(">>> SPI_Init complete\n");
 #endif
     mcu_printf(">>>spi\n");

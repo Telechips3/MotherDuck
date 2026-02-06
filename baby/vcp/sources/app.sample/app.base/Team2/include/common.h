@@ -2,13 +2,6 @@
 #include <stdint.h>
 
 typedef enum {
-	MODE_ESTOP = 0,
-	MODE_STOP_AND_HOLD = 1,
-	MODE_FOLLOW_WAYPOINT = 2,
-	MODE_FOLLOW_VISION = 3,
-} ctrl_mode_t;
-
-typedef enum {
 	LEADER_OK = 0,
 	LEADER_DEGRADED = 1,
 	LEADER_FAULT = 2,

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+#include <../team2_header.h>
 #include "imu.h"
 #include "mpu_driver.h"
 #include <i2c.h>
@@ -11,12 +12,12 @@
 #define IMU_I2C_PORT   0
 #define IMU_I2C_SPEED  100
 
-#define IMU_TASK_PERIOD_MS  20
-
 /* ===== Internal State ===== */
 static MPU6050_Filter_t s_mpu;
 static IMU_Data_t s_imu;
 
+static uint32 imuTaskID;
+static uint32 imuTaskStk[IMU_TASK_STACK_SIZE];
 
 /* ===== Task ===== */
 static void IMUTask(void *pArg)
@@ -62,22 +63,19 @@ static void IMUTask(void *pArg)
             s_imu.yaw   = s_mpu.yaw;
         }
 
-        SAL_TaskSleep(IMU_TASK_PERIOD_MS);
+        SAL_TaskSleep(IMU_TASK_SLEEP_MS);
     }
 }
 
 /* ===== TaskCreate (main.c에서 호출) ===== */
 SALRetCode_t IMUTaskCreate(void)
 {
-    static uint32 imuTaskID;
-    static uint32 imuTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
-
     SALRetCode_t err = SAL_TaskCreate(&imuTaskID,
                                       (const uint8 *)"IMU Task",
                                       IMUTask,
                                       imuTaskStk,
-                                      ACFG_TASK_NORMAL_STK_SIZE,
-                                      SAL_PRIO_APP_CFG,
+                                      IMU_TASK_STACK_SIZE,
+                                      IMU_TASK_PRIORITY,
                                       NULL);
 
     mcu_printf("IMU task create: %d\n", (int)err);

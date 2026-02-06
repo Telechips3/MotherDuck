@@ -7,20 +7,12 @@
 ***************************************************************************************************
 */
 
-#include "encoder.h"
 #include "../team2_header.h"
+#include "../include/encoder.h"
 #include <gpio.h>
 #include <app_cfg.h>
 #include <debug.h>
 #include "../include/speed.h"
-
-extern volatile uint32 g_ultraDistanceCm;
-
-/* ===== Encoder → Distance / Speed ===== */
-#define WHEEL_DIAMETER_CM 6.5f // Wheel diameter (cm)
-#define ENCODER_CPR 20.0f      // Pulses per rev (A phase)
-#define PI 3.141592f
-#define ENC_MIN_PULSE_MS 5
 
 /* ===== Internal State ===== */
 volatile int32 s_encCnt = 0;
@@ -35,6 +27,9 @@ static uint8 s_lastB = 0;
 static uint32 s_lastTransMs = 0;
 static uint8 s_prevA = 0;
 static uint32 s_lastCountMs = 0;
+
+static uint32 encTaskID;
+static uint32 encTaskStk[ENCODER_TASK_STACK_SIZE];
 
 // static inline uint32 get_tick_ms(void)
 // {
@@ -141,12 +136,11 @@ void Encoder_CalcSpeed(void)
 
     int dist_x10 = (int)(s_distanceCm * 10.0f);
     int speed_x10 = (int)(s_speedCms * 10.0f);
-    mcu_printf("[ENC] CNT=%d DIST=%d.%d cm SPEED=%d.%d cm/s A=%d B=%d    [ULTRA] %d cm\n",
+    mcu_printf("[ENC] CNT=%d DIST=%d.%d cm SPEED=%d.%d cm/s A=%d B=%d\n",
                s_encCnt,
                dist_x10 / 10, dist_x10 % 10,
                speed_x10 / 10, speed_x10 % 10,
-               s_lastA, s_lastB,
-               (int)g_ultraDistanceCm);
+               s_lastA, s_lastB);
 }
 
 /* ===== Task ===== */
@@ -159,20 +153,18 @@ void EncoderTask(void *pArg)
 
     while (1)
     {
-        SAL_TaskSleep(1000);
+        SAL_TaskSleep(ENCODER_TASK_SLEEP_MS);
     }
 }
 
 SALRetCode_t EncoderTaskCreate(void)
 {
-    static uint32 encTaskID;
-    static uint32 encTaskStk[ACFG_TASK_NORMAL_STK_SIZE];
     SALRetCode_t err = SAL_TaskCreate(&encTaskID,
                                       (const uint8 *)"Encoder Task",
                                       EncoderTask,
                                       encTaskStk,
-                                      ACFG_TASK_NORMAL_STK_SIZE,
-                                      SAL_PRIO_APP_CFG,
+                                      ENCODER_TASK_STACK_SIZE,
+                                      ENCODER_TASK_PRIORITY,
                                       NULL);
     mcu_printf("Encoder task create: %d\n", (int)err);
     return err;

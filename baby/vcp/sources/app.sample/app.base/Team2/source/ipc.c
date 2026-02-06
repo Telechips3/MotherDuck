@@ -1,17 +1,17 @@
-#include "ipc.h"
+#include "../team2_header.h"
+#include "../include/ipc.h"
 #include "speed.h" // control_motor_drive 함수 호출용
 #include "steer.h" // control_steering_step 함수 호출용
 #include "parsing.h" // parse_and_excute_control 함수 호출용
-#include "team2_header.h"
 
 /* 전역 변수 */
 
-#define TASK_SLEEP_MS       (50)
+
 uint32 IPC_queue_id = 0;
 static uint32 IPC_task_id = 0;
 
 /* 태스크용 스택 배열 (SAL_TaskCreate는 정적 스택을 요구함) */
-#define IPC_TASK_STACK_SIZE 512
+
 static uint32 IPC_task_stack[IPC_TASK_STACK_SIZE];
 
 /* [소비자 태스크] 큐를 감시하다가 데이터가 없으면 멈춤 */
@@ -55,7 +55,7 @@ static void IPC_Task(void *pParam)
 
     while(1)
     {
-        ret = SAL_QueueGet(g_motor_queue_id, &received_pkt, &copied_size, 200, SAL_OPT_BLOCKING);
+        ret = SAL_QueueGet(IPC_queue_id, &received_pkt, &copied_size, 200, SAL_OPT_BLOCKING);
         mcu_printf("[ipc] loop entered\n");
         if(ret == SAL_RET_SUCCESS)
         {
@@ -71,7 +71,7 @@ static void IPC_Task(void *pParam)
             mcu_printf("[ipc] unknown magic number\n");
             control_motor_drive(0xFF);
         }
-        SAL_TaskSleep(TASK_SLEEP_MS);
+        SAL_TaskSleep(IPC_TASK_SLEEP_MS);
     }
 }
 //테스트 코드
@@ -377,7 +377,7 @@ void ipc_init(void)
                          (SALTaskFunc)IPC_Task, 
                          IPC_task_stack, 
                          IPC_TASK_STACK_SIZE, 
-                         SAL_PRIO_APP_CFG, // 우선순위 (0~15 중 적절히 선택)
+                         IPC_TASK_PRIORITY, // 우선순위 (0~15 중 적절히 선택)
                          NULL_PTR);
 
     /* 3. 테스트용 더미 생산자 태스크 생성 */
