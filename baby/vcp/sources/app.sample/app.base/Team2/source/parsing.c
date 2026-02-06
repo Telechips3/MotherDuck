@@ -4,32 +4,40 @@
 #include "../team2_header.h"
 #include "parsing.h"
 
+
+
 // 제어 명령 처리 함수
 void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
 {
     to_vcp_msg_t* msg = &(pkt->vcp_msg);
 
     mcu_printf("\n[SPI RX] ════════════════════════════════════════\n");
-    mcu_printf("  Magic : 0x%02X | Seq: %u | Time: %u ms\n", 
+    mcu_printf("  Magic : 0x%02X | Seq: %d | Time: %d ms\n", 
                pkt->magic, msg->seq, msg->cpu_time_ms);
-    mcu_printf("  Mode: %u ", msg->mode);
+    mcu_printf("  Mode: %d ", msg->mode);
 
     switch(msg->mode)
     {
         case MODE_ESTOP:
             mcu_printf("   [PARSING] MODE_ESTOP - Emergency Stop!\n");
+            //아예 exception 처리에서 처리하면 좋을듯
+            //정책 -> 긴급정지(pwm 출력 0)
+
             control_motor_drive(0); // 비상정지
             control_steering_absolute(0); // 중앙 정렬
             break;
 
         case MODE_STOP_AND_HOLD:
             mcu_printf("   [PARSING] MODE_STOP_AND_HOLD - Holding Position\n");
+            //아예 exception 처리에서 처리하면 좋을듯
+            //정책 -> 천천히 정지
             control_motor_drive(0); // 정지 및 유지
             control_steering_absolute(0); // 중앙 정렬
             break;
             
         case MODE_FOLLOW_WAYPOINT:
             // 웨이포인트 추종 로직
+
             if(msg->wp_valid)
             {
                 float tx = (float)msg->leader_x_mm / 10.0f;  // mm → cm
