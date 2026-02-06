@@ -1,6 +1,7 @@
 #include "speed.h"
 #include "steer.h"
 #include <math.h>
+#include <stdlib.h>
 #include "../team2_header.h"
 #include "parsing.h"
 

@@ -64,7 +64,6 @@
 #define SENSOR_TASK_TASK_PRIORITY   SAL_PRIO_APP_CFG
 
 //task stack sizes
-#define 
 #define IPC_TASK_STACK_SIZE           512
 #define IMU_TASK_STACK_SIZE           512
 #define POSE_TASK_STACK_SIZE          512

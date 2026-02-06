@@ -32,6 +32,6 @@ int32 Encoder_GetCount(void);
 float Encoder_GetDistanceCm(void);
 float Encoder_GetSpeedCms(void);
 void Encoder_ResetCount(void);
-
+float Encoder_GetDeltaDistanceCm(void);
 
 #endif /* _ENCODER_H_ */

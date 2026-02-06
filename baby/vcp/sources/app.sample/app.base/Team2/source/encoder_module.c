@@ -59,7 +59,6 @@ static void Encoder_ISR_Handler(void *args)
         s_encCnt--;
     }
 
-    mcu_printf("encoder Cnt: %d\n", s_encCnt);
 }
 
 /* ===== Init ===== */
@@ -105,7 +104,6 @@ void Encoder_Update(void)
             s_lastTransMs = nowMs;
         }
     }
-
     s_lastA = curA;
     s_lastB = curB;
     s_prevA = curA;

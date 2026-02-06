@@ -2,13 +2,13 @@
 #include "imu.h"
 #include "encoder.h"
 #include "pose.h"
+#include "../team2_header.h"
 #include <app_cfg.h>
 #include <debug.h>
 #include <FreeRTOS.h>
 #include <task.h>
 
-#define SENSOR_TASK_PERIOD_MS     20
-#define ENC_CALC_PERIOD_MS        100
+#define ENC_CALC_PERIOD_MS        500
 
 static Pose s_sensor_pose;
 
@@ -42,7 +42,6 @@ static void SensorTask(void *pArg)
 
         Pose_Update();
         (void)Pose_Get(&s_sensor_pose);
-
         SAL_TaskSleep(SENSOR_TASK_PERIOD_MS);
     }
 }

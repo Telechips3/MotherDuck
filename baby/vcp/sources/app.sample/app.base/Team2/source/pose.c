@@ -36,11 +36,12 @@ void Pose_Update(void)
     }
 
     // 2️⃣ 이번 루프 이동 거리 (Encoder, cm -> m)
-    float d_m = Encoder_GetDistanceCm() * 0.01f;
+    float d_m = Encoder_GetDeltaDistanceCm() * 0.01f;
 
     // 3️⃣ 좌표 적분 (핵심)
     s_pose.x += d_m * cosf(s_pose.yaw);
     s_pose.y += d_m * sinf(s_pose.yaw);
+
 }
 
 /**

@@ -28,8 +28,10 @@ static uint32 s_lastTransMs = 0;
 static uint8 s_prevA = 0;
 static uint32 s_lastCountMs = 0;
 
-static uint32 encTaskID;
-static uint32 encTaskStk[ENCODER_TASK_STACK_SIZE];
+/* task variables
+ static uint32 encTaskID;
+ static uint32 encTaskStk[ENCODER_TASK_STACK_SIZE];
+*/
 
 // static inline uint32 get_tick_ms(void)
 // {
@@ -144,6 +146,7 @@ void Encoder_CalcSpeed(void)
 }
 
 /* ===== Task ===== */
+/* not use Task in encoder (legecy)
 void EncoderTask(void *pArg)
 {
     (void)pArg;
@@ -169,6 +172,7 @@ SALRetCode_t EncoderTaskCreate(void)
     mcu_printf("Encoder task create: %d\n", (int)err);
     return err;
 }
+*/
 
 /* ===== Getter ===== */
 int32 Encoder_GetCount(void)
