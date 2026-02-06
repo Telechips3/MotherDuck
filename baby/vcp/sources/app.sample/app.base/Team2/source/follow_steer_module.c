@@ -16,7 +16,7 @@
 #define NUM_WAYPOINTS            (10)
 #define SAL_TASK_SLEEP_MS        (50) 
 #define SAL_TASK_EXCEPTION_SLEEP (5)
-#define TEST                      1
+#define TEST                      0
 
 // IMU 데이터 저장용 전역 변수
 //static IMU_Data_t imu_data;

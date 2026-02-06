@@ -38,7 +38,7 @@
 #define ENABLE_ENCODER_TASK         1   
 #define ENABLE_ULTRASONIC_TASK      1 
 #define ENABLE_BUZZER_TASK          1   
-#define ENABLE_POSE_TASK            1
+#define ENABLE_POSE_TASK            0
 #define ENABLE_FOLLOW_STEER_TASK    1
 
 volatile uint32 g_ultraDistanceCm = 0;
