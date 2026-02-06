@@ -33,7 +33,7 @@ static float dx_pose_base = 0.00f;
 static float dx_step = 0.02f;   // 루프마다 간격 변화(2cm)
 static float dx_min  = 0.03f;   // 3cm
 static float dx_max  = 0.40f;   // 40cm
-static rx_msg_t lc_rx = {0};
+static rx_msg_t lc_rx_t = {0};
 #endif
 // 정보 받아올 구조체 포인터 및 핸들러 선언
 static float steer_angle_rad;
@@ -43,6 +43,7 @@ static void follow_steer_Task(void* pArg)
 {
     (void)pArg;
 
+    rx_msg_t lc_rx = {0};
     pp_init(&pp_handler, NULL);
 
     Pose_Init(0.0f, 0.0f, 0.0f);  // ★ pose 모듈 초기화
@@ -88,18 +89,15 @@ static void follow_steer_Task(void* pArg)
         
         if(lc_rx.mode == MODE_FOLLOW_WAYPOINT){
             #if (TEST == 1)
-            
             if (dx_base > dx_max || dx_base < dx_min) dx_step = -dx_step; // 왕복 스윕
             for(int i=0;i<NUM_WAYPOINTS;i++){
                 float dx = dx_base * (float)(i+1);
                 wps[i].x = dx;
                 wps[i].y = pose.y + 0.08f; // y는 고정 오프셋(직관적)
-            
+             
 
             }
             #endif
-                
-
             ret = (uint8_t)pp_compute_steer(&pp_handler, &pose, wps, NUM_WAYPOINTS, &steer_angle_rad);
             if(ret != 0){
                 mcu_printf("[follow_steer] pp_compute_steer error: %d\n", ret);
