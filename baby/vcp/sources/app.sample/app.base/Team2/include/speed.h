@@ -3,8 +3,8 @@
 
 #include "../team2_header.h"
 
-#define PERIOD_NS           5000000          // 5ms 주기
-#define DUTY_SLOW_NS        500000           // 30% 속도
+#define PERIOD_NS           500000          // 5ms 주기
+#define DUTY_SLOW_NS        50000           // 30% 속도
 
 #define DUTY_STOP_NS        0                // 정지
 #define MOTOR_PWM_CH        0                // PDM 채널 0 (GPIO A10)

@@ -101,5 +101,5 @@ void control_steering_absolute(int16_t x_norm_q15)
         PDM_Enable(STEER_PWM_CH, PMM_ON);
     }
     
-    mcu_printf("[STEER] x_norm=%d -> PWM=%lu ns\n", x_norm_q15, g_current_steer_ns);
+    mcu_printf("[STEER] x_norm=%d -> PWM=%d ns\n", x_norm_q15, g_current_steer_ns);
 }

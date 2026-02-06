@@ -7,15 +7,15 @@
 /* 전역 변수 */
 
 #define TASK_SLEEP_MS       (50)
-uint32 g_motor_queue_id = 0;
-static uint32 g_motor_task_id = 0;
+uint32 IPC_queue_id = 0;
+static uint32 IPC_task_id = 0;
 
 /* 태스크용 스택 배열 (SAL_TaskCreate는 정적 스택을 요구함) */
-#define MOTOR_TASK_STACK_SIZE 512
-static uint32 g_motor_task_stack[MOTOR_TASK_STACK_SIZE];
+#define IPC_TASK_STACK_SIZE 512
+static uint32 IPC_task_stack[IPC_TASK_STACK_SIZE];
 
 /* [소비자 태스크] 큐를 감시하다가 데이터가 없으면 멈춤 */
-static void vMotorControlTask(void *pParam)
+static void IPC_Task(void *pParam)
 {
     // uint32 received_cmd = 0xFF;
     // uint32 copied_size = 0;
@@ -87,7 +87,7 @@ typedef struct {
     uint16_t duration_ms;           // 시나리오 지속 시간
 } test_scenario_t;
 
-// 📋 테스트 시나리오 배열 (실제 주행 상황 시뮬레이션)
+/* 📋 테스트 시나리오 배열 (실제 주행 상황 시뮬레이션)
 static const test_scenario_t test_scenarios[] = {
     // === 시나리오 1: ESTOP (비상정지) ===
     {
@@ -245,6 +245,7 @@ static const test_scenario_t test_scenarios[] = {
         .duration_ms = 5000     // 긴 시간 관찰
     }
 };
+===========================================================================
 
 #define NUM_SCENARIOS (sizeof(test_scenarios) / sizeof(test_scenario_t))
 
@@ -257,7 +258,7 @@ static void vDummyProducerTask(void *pParam)
     mcu_printf("\n");
     mcu_printf("╔════════════════════════════════════════════════════════════╗\n");
     mcu_printf("║     ACC System Comprehensive Test Started                 ║\n");
-    mcu_printf("║     Total Scenarios: %2u                                   ║\n", NUM_SCENARIOS);
+    mcu_printf("║     Total Scenarios: %d                                   ║\n", NUM_SCENARIOS);
     mcu_printf("╚════════════════════════════════════════════════════════════╝\n");
     mcu_printf("\n");
 
@@ -270,9 +271,9 @@ static void vDummyProducerTask(void *pParam)
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         mcu_printf("\n");
         mcu_printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
-        mcu_printf("┃ [Scenario %2u/%2u] %s\n", 
+        mcu_printf("┃ [Scenario %d/%d] %s\n", 
                    scenario_idx + 1, NUM_SCENARIOS, scenario->scenario_name);
-        mcu_printf("┃ Duration: %u ms\n", scenario->duration_ms);
+        mcu_printf("┃ Duration: %d ms\n", scenario->duration_ms);
         mcu_printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
         
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -363,20 +364,20 @@ static void vDummyProducerTask(void *pParam)
         }
     }
 }
-
+*/
 void ipc_init(void)
 {
     //(void)SAL_QueueCreate(&g_motor_queue_id, (const uint8 *)"MotorQ", QUEUE_LENGTH, sizeof(uint32));
 
-    (void)SAL_QueueCreate(&g_motor_queue_id, (const uint8 *)"MotorQ", 10, sizeof(to_vcp_spi_msg_t));
+    (void)SAL_QueueCreate(&IPC_queue_id, (const uint8 *)"IPCTask", QUEUE_LENGTH, sizeof(to_vcp_spi_msg_t));
     /* 2. 태스크 생성 */
     /* SAL_TaskCreate(ID, 이름, 함수, 스택, 스택크기, 우선순위, 파라미터) */
-    (void)SAL_TaskCreate(&g_motor_task_id, 
-                         (const uint8 *)"MotorTask", 
-                         (SALTaskFunc)vMotorControlTask, 
-                         g_motor_task_stack, 
-                         MOTOR_TASK_STACK_SIZE, 
-                         5, // 우선순위 (0~15 중 적절히 선택)
+    (void)SAL_TaskCreate(&IPC_task_id, 
+                         (const uint8 *)"IPCTask", 
+                         (SALTaskFunc)IPC_Task, 
+                         IPC_task_stack, 
+                         IPC_TASK_STACK_SIZE, 
+                         SAL_PRIO_APP_CFG, // 우선순위 (0~15 중 적절히 선택)
                          NULL_PTR);
 
     /* 3. 테스트용 더미 생산자 태스크 생성 */
