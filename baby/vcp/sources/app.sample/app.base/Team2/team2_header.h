@@ -45,8 +45,6 @@
 #define EIT (GIC_EXT4)
 #define MY_GPIO (GPIO_GPB(2))
 
-#pragma pack(push, 1)
-
 // 제어 모드 정의
 typedef enum {
     MODE_ESTOP = 0,
@@ -54,6 +52,8 @@ typedef enum {
     MODE_FOLLOW_WAYPOINT = 2,
     MODE_FOLLOW_VISION = 3,
 } ctrl_mode_t;
+
+#pragma pack(push, 1)
 
 // 핵심 데이터 구조체 (29 byte)
 typedef struct {

@@ -10,24 +10,47 @@ static uint32_t spi_tx_buf[SPI_BYTE] = {0};
 static uint32_t spi_dma_rx_buf[SPI_DMA_BYTE] = {0};
 static uint32_t spi_dma_tx_buf[SPI_DMA_BYTE] = {0};
 
+void Dump_Vcp_Hex(to_vcp_spi_msg_t* m)
+{
+    uint8_t* p = (uint8_t*)m;
+    int size = (int)sizeof(to_vcp_spi_msg_t);
+
+    mcu_printf("[SPI HEX DUMP] Size: %d\n", size);
+
+    for (int i = 0; i < size; i++)
+    {
+        // %02x: 2자리 확보하고 빈 곳은 0으로 채움 (0xA5 -> a5, 0x07 -> 07)
+        // 사용자님의 DBG_Printfi 내부 'fill'과 'fminString' 로직을 활용합니다.
+        mcu_printf("%02x ", (int)p[i]);
+
+        // 8바이트마다 줄바꿈해서 보기 편하게 출력
+        if ((i + 1) % 8 == 0) {
+            mcu_printf("\n");
+        }
+    }
+    mcu_printf("\n----------------------\n");
+}
+
 static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 {
     mcu_printf("[SPI] Interrupt received: Channel=%d Event=0x%08X\n", uiCh, iEvent);
     to_vcp_spi_msg_t *m = (to_vcp_spi_msg_t *)spi_rx_buf;
 
-    mcu_printf("SEQ:%d, TIME:%d, MODE:%d, STATE:%d\n",
-               (int)m->vcp_msg.seq, (int)m->vcp_msg.cpu_time_ms, (int)m->vcp_msg.mode, (int)m->vcp_msg.leader_state);
+    Dump_Vcp_Hex(m);
 
-    // [5-8] ArUco 데이터
-    mcu_printf("ARUCO > VLD:%d, AGE:%d, DIST:%d, X:%d\n",
-               (int)m->vcp_msg.aruco_valid, (int)m->vcp_msg.aruco_age_ms, (int)m->vcp_msg.aruco_dist_mm, (int)m->vcp_msg.aruco_x_norm_q15);
+    // mcu_printf("SEQ:%d, TIME:%d, MODE:%d, STATE:%d\n",
+    //            (int)m->vcp_msg.seq, (int)m->vcp_msg.cpu_time_ms, (int)m->vcp_msg.mode, (int)m->vcp_msg.leader_state);
 
-    // [9-12] Waypoint 데이터
-    mcu_printf("WP    > VLD:%d, AGE:%d, X:%d, Y:%d\n",
-               (int)m->vcp_msg.wp_valid, (int)m->vcp_msg.wp_age_ms, (int)m->vcp_msg.leader_x_mm, (int)m->vcp_msg.leader_y_mm);
+    // // [5-8] ArUco 데이터
+    // mcu_printf("ARUCO > VLD:%d, AGE:%d, DIST:%d, X:%d\n",
+    //            (int)m->vcp_msg.aruco_valid, (int)m->vcp_msg.aruco_age_ms, (int)m->vcp_msg.aruco_dist_mm, (int)m->vcp_msg.aruco_x_norm_q15);
 
-    // [13] 디버그 정보
-    mcu_printf("REASON:%d\n", (int)m->vcp_msg.reason);
+    // // [9-12] Waypoint 데이터
+    // mcu_printf("WP    > VLD:%d, AGE:%d, X:%d, Y:%d\n",
+    //            (int)m->vcp_msg.wp_valid, (int)m->vcp_msg.wp_age_ms, (int)m->vcp_msg.leader_x_mm, (int)m->vcp_msg.leader_y_mm);
+
+    // // [13] 디버그 정보
+    // mcu_printf("REASON:%d\n", (int)m->vcp_msg.reason);
 
     size_t payload_len = sizeof(to_vcp_spi_msg_t) - sizeof(uint16_t);
     uint16_t calculated_crc = crc16_ccitt_false((uint8_t *)&m->vcp_msg, payload_len);
@@ -48,6 +71,7 @@ static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
     abcd(SPI_CHANNEL);
     GPSB_SetSlaveDMAMode(SPI_CHANNEL, (const void *)spi_tx_buf, (void *)spi_rx_buf, SPI_BYTE);
 }
+
 
 // #define SPI_PKT_SIZE_WORDS 8  // 32바이트 = 8 x uint32_t
 // static volatile uint32_t spi_rx_buf[SPI_PKT_SIZE_WORDS] = {0};
