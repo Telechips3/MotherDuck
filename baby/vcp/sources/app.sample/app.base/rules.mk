@@ -61,4 +61,4 @@ SRCS += Pure_Pursuit.c
 SRCS += follow_steer_module.c
 
 SRCS += parsing.c
-
+SRCS += Vision_steer.c
