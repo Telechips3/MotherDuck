@@ -232,7 +232,7 @@ void process_acc_system(float current_dist_cm)
 }
 
 // 간단한 PI 제어기 (Proportional + Integral)
-#define KP_SPEED  0.12f    // 속도 오차 1cm/s당 12% duty 변화 (부하 고려)
+#define KP_SPEED  0.08f    // 속도 오차 1cm/s당 12% duty 변화 (부하 고려)
 #define KI_SPEED  0.015f   // 적분 게인
 #define MAX_INTEGRAL  50.0f  // 적분 포화 (부하 시 더 큰 적분 필요)
 
@@ -270,16 +270,16 @@ void process_acc_with_encoder(float current_dist_cm)
     direction = 1;
     
     if (current_dist_cm > 150.0f) {
-        target_speed_cms = 20.0f;  // 매우 멀면: 고속 (20cm/s)
+        target_speed_cms = 10.0f;  // 매우 멀면: 고속 (20cm/s)
     } else if (current_dist_cm > 100.0f) {
-        target_speed_cms = 15.0f;  // 멀면: 중속 (15cm/s)
+        target_speed_cms = 7.0f;  // 멀면: 중속 (15cm/s)
     } else if (current_dist_cm > 70.0f) {
-        target_speed_cms = 12.0f;  // 접근 중: 감속 시작 (12cm/s)
+        target_speed_cms = 5.0f;  // 접근 중: 감속 시작 (12cm/s)
     } else if (current_dist_cm > 55.0f) {
-        target_speed_cms = 8.0f;   // 목표 근처: 더 감속 (8cm/s)
+        target_speed_cms = 3.0f;   // 목표 근처: 더 감속 (8cm/s)
     } else {
         // 52~55cm: 마지막 접근 구간 (매우 느리게)
-        target_speed_cms = 4.0f;   // 저속 접근 (4cm/s)
+        target_speed_cms = 2.0f;   // 저속 접근 (4cm/s)
     }
 }
     else {
@@ -323,7 +323,7 @@ void process_acc_with_encoder(float current_dist_cm)
         float i_term = KI_SPEED * g_speed_integral;
         
         // 정규화된 duty 계산 (0~1)
-        float normalized_duty = 0.25f + p_term + i_term;  // 25% 기본 (부하 고려)
+        float normalized_duty = 0.10f + p_term + i_term;  // 10% 기본 (부하 고려)
         
         // 범위 제한 (10% ~ 85%)
         if (normalized_duty > 0.85f) normalized_duty = 0.85f;
