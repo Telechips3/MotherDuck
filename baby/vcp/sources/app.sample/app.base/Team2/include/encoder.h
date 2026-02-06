@@ -18,7 +18,7 @@ extern volatile int32 s_encCnt;
 
 /* ===== Encoder → Distance / Speed ===== */
 #define WHEEL_DIAMETER_CM   6.5f // Wheel diameter (cm)
-#define ENCODER_CPR         20.0f      // Pulses per rev (A phase)
+#define ENCODER_CPR         11.0f      // Pulses per rev (A phase)
 #define PI                  3.141592f
 #define ENC_MIN_PULSE_MS    5
 

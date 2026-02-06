@@ -29,6 +29,7 @@
 #include "imu.h"
 #include "pose.h"
 #include "pose_task.h"
+#include "sensor_task.h"
 #include "follow_steer_module.h"
 
 #define ENABLE_IPC_TEST             1
@@ -37,6 +38,7 @@
 #define ENABLE_ENCODER_TASK         0   
 #define ENABLE_ULTRASONIC_TASK      0   
 #define ENABLE_POSE_TASK            0
+#define ENABLE_SENSOR_TASK          1
 #define ENABLE_FOLLOW_STEER_TASK    0
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
@@ -210,6 +212,10 @@ static void Main_StartTask(void *pArg)
 #if (ENABLE_ENCODER_TASK == 1)
     (void)EncoderTaskCreate();
     mcu_printf(">>>encoder enabled\n");
+#endif
+#if (ENABLE_SENSOR_TASK == 1)
+    (void)SensorTaskCreate();
+    mcu_printf(">>>sensor task enabled\n");
 #endif
 #if (ENABLE_ULTRASONIC_TASK == 1)
     (void)UltrasonicTaskCreate();

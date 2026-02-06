@@ -13,6 +13,10 @@ typedef struct {
 /* main.c에서 호출 */
 SALRetCode_t IMUTaskCreate(void);
 
+/* SensorTask에서 사용 */
+void IMU_ModuleInit(void);
+void IMU_ModuleUpdate(void);
+
 /* 다른 Task에서 사용 */
 int IMU_GetData(IMU_Data_t *out);
 

@@ -43,7 +43,7 @@ INCLUDES += -I$(TEAM2_INC_PATH)
 
 SRCS += speed.c
 SRCS += interrupt_example.c
-SRCS += encoder.c
+SRCS += encoder_module.c
 SRCS += spi.c
 
 SRCS += ultrasonic.c
@@ -51,10 +51,11 @@ SRCS += ultrasonic.c
 SRCS += ipc.c
 SRCS += steer.c
 SRCS += mpu_driver.c
-SRCS += imu.c
+SRCS += imu_module.c
 
 SRCS += pose.c
 SRCS += pose_task.c
+SRCS += sensor_task.c
 
 SRCS += Pure_Pursuit.c
 SRCS += follow_steer_module.c
