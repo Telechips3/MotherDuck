@@ -32,14 +32,14 @@
 #include "pose_task.h"
 #include "follow_steer_module.h"
 
-#define ENABLE_IPC_TEST             1
+#define ENABLE_IPC_TEST             0
 #define ENABLE_SPI_TEST             1          
-#define ENABLE_IMU_TASK             1       
-#define ENABLE_ENCODER_TASK         1   
-#define ENABLE_ULTRASONIC_TASK      1 
-#define ENABLE_BUZZER_TASK          1   
+#define ENABLE_IMU_TASK             0       
+#define ENABLE_ENCODER_TASK         0   
+#define ENABLE_ULTRASONIC_TASK      0 
+#define ENABLE_BUZZER_TASK          0   
 #define ENABLE_POSE_TASK            0
-#define ENABLE_FOLLOW_STEER_TASK    1
+#define ENABLE_FOLLOW_STEER_TASK    0
 
 volatile uint32 g_ultraDistanceCm = 0;
 
@@ -193,7 +193,6 @@ static void Main_StartTask(void *pArg)
     mcu_printf(">>>ipc not enabled\n");
 #endif
 
-    mcu_printf(">>>ipc\n");
     /* --- 2. SPI 통신 설정 --- */
 #if (ENABLE_SPI_TEST == 1)
     SPI_Init();
@@ -204,30 +203,30 @@ static void Main_StartTask(void *pArg)
     (void)IMUTaskCreate();
     mcu_printf(">>> IMU_task_init complete\n");
 #endif
-    mcu_printf(">>>imu\n");
 #if (ENABLE_POSE_TASK == 1)
     (void)PoseTaskCreate();
 
     // Debug: fixed yaw override (30 deg) for pose
     Pose_DebugSetYawOverride(30.0f * 3.1415926535f / 180.0f, 1);
+    
+    mcu_printf(">>>pose enabled\n");
 #endif
-    mcu_printf(">>>pose\n");
 #if (ENABLE_ENCODER_TASK == 1)
     (void)EncoderTaskCreate();
+    mcu_printf(">>>encoder enabled\n");
 #endif
-    mcu_printf(">>>encoder\n");
 #if (ENABLE_ULTRASONIC_TASK == 1)
     (void)UltrasonicTaskCreate();
 #endif
-    mcu_printf(">>>ultrasonic\n");
 
 #if (ENABLE_BUZZER_TASK == 1)
     (void)BuzzerTaskCreate();
+    mcu_printf(">>>buzzer enabled\n");
 #endif
 #if (ENABLE_FOLLOW_STEER_TASK == 1)
     (void)follow_steer_TaskCreate();
+    mcu_printf(">>>follow_steer enabled\n");
 #endif
-    mcu_printf(">>>follow_steer\n");
     /* Main task는 여기서 끝 */
     while (1)
     {
