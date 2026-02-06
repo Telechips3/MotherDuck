@@ -21,7 +21,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             control_motor_drive(0); // 비상정지
             control_steering_absolute(0); // 중앙 정렬
             break;
-            
+
         case MODE_STOP_AND_HOLD:
             mcu_printf("   [PARSING] MODE_STOP_AND_HOLD - Holding Position\n");
             control_motor_drive(0); // 정지 및 유지

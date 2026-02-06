@@ -227,8 +227,8 @@ void process_acc_system(float current_dist_cm)
 
     // 4. 결과 출력 (테스트용 상세 로그)
     uint32 duty_percent = (target_duty * 100) / PERIOD_NS;
-    mcu_printf("   >> ACC: Dist=%dcm | %s | Duty=%u%% (%uns)\n", 
-               (int)current_dist_cm, status_msg, duty_percent, target_duty);
+    mcu_printf("   >> ACC: Dist=%dcm | %s | Duty=%d%%\n", 
+               (int)current_dist_cm, status_msg, duty_percent);
 }
 
 // 간단한 PI 제어기 (Proportional + Integral)

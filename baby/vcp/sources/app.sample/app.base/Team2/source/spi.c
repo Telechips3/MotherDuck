@@ -53,7 +53,7 @@ static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
     // mcu_printf("REASON:%d\n", (int)m->vcp_msg.reason);
 
     size_t payload_len = sizeof(to_vcp_spi_msg_t) - sizeof(uint16_t);
-    uint16_t calculated_crc = crc16_ccitt_false((uint8_t *)&m->vcp_msg, payload_len);
+    uint16_t calculated_crc = crc16_ccitt_false((uint8_t *)m, payload_len);
 
     if (m->magic == 165 && m->crc16 == calculated_crc) // 0xA5
     {
