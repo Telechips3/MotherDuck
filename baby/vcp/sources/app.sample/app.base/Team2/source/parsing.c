@@ -10,8 +10,8 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
     to_vcp_msg_t* msg = &(pkt->vcp_msg);
 
     mcu_printf("\n[SPI RX] ════════════════════════════════════════\n");
-    mcu_printf("  Seq: %u | Time: %u ms\n", 
-               msg->seq, msg->cpu_time_ms);
+    mcu_printf("  Magic : 0x%02X | Seq: %u | Time: %u ms\n", 
+               pkt->magic, msg->seq, msg->cpu_time_ms);
     mcu_printf("  Mode: %u ", msg->mode);
 
     switch(msg->mode)
@@ -19,11 +19,13 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
         case MODE_ESTOP:
             mcu_printf("   [PARSING] MODE_ESTOP - Emergency Stop!\n");
             control_motor_drive(0); // 비상정지
+            control_steering_absolute(0); // 중앙 정렬
             break;
             
         case MODE_STOP_AND_HOLD:
             mcu_printf("   [PARSING] MODE_STOP_AND_HOLD - Holding Position\n");
             control_motor_drive(0); // 정지 및 유지
+            control_steering_absolute(0); // 중앙 정렬
             break;
             
         case MODE_FOLLOW_WAYPOINT:
@@ -42,6 +44,11 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
                 int ty_int = (int)(ty * 10);        // 42.4 → 424
                 int angle_int = (int)target_angle_deg;
 
+                if (target_angle_deg < -30.0f) target_angle_deg = -30.0f;
+                if (target_angle_deg > +30.0f) target_angle_deg = +30.0f;
+        
+                int16_t x_norm = (int16_t)(target_angle_deg * 32768.0f / 30.0f);
+
                 mcu_printf("   [PARSING] MODE_FOLLOW_WAYPOINT\n");
                 mcu_printf("   └─ Leader Pos: X=%d.%dcm, Y=%d.%dcm | Angle=%d°\n", 
                            tx_int/10, tx_int%10,      // 800 → 80.0
@@ -49,10 +56,12 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
                            angle_int);
                 
                 process_acc_with_encoder(target_distance);  // ← 엔코더 기반 ACC
+                control_steering_absolute(x_norm); // 조향 제어
             }
             else {
                 mcu_printf("   [PARSING] WAYPOINT INVALID - STOP!\n");
-                control_motor_drive(0xFF);
+                control_motor_drive(0);
+                control_steering_absolute(0); // 중앙 정렬
             }
             break;
             
@@ -77,16 +86,19 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
                            steer_int);
                 
                 process_acc_with_encoder(dist_cm);  // ← 엔코더 기반 ACC
+                control_steering_absolute(msg->aruco_x_norm_q15); // 조향 제어
             }
             else {
                 mcu_printf("   [PARSING] ARUCO INVALID - STOP!\n");
-                control_motor_drive(0xFF);
+                control_motor_drive(0);
+                control_steering_absolute(0); // 중앙 정렬
             }
             break;
             
         default:
             mcu_printf("   [PARSING] UNKNOWN MODE (%d) - STOP!\n", msg->mode);
             control_motor_drive(0);
+            control_steering_absolute(0); // 중앙 정렬
             break;
     }
 }

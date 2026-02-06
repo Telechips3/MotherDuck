@@ -65,6 +65,7 @@ static void vMotorControlTask(void *pParam)
         }
         else{
             // 타임아웃 발생 시 정지 명령 실행
+            mcu_printf("unknown magic number\n");
             control_motor_drive(0xFF);
         }
         SAL_TaskSleep(1);
