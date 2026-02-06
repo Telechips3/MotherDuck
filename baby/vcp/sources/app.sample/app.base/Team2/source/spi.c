@@ -10,6 +10,7 @@ static uint32_t spi_tx_buf[SPI_BYTE] = {0};
 static uint32_t spi_dma_rx_buf[SPI_DMA_BYTE] = {0};
 static uint32_t spi_dma_tx_buf[SPI_DMA_BYTE] = {0};
 
+// spi pkt hex로 출력해주는 코드
 void Dump_Vcp_Hex(to_vcp_spi_msg_t* m)
 {
     uint8_t* p = (uint8_t*)m;
