@@ -5,6 +5,8 @@
 #include "team2_header.h"
 
 /* 전역 변수 */
+
+#define TASK_SLEEP_MS       (50)
 uint32 g_motor_queue_id = 0;
 static uint32 g_motor_task_id = 0;
 
@@ -54,21 +56,22 @@ static void vMotorControlTask(void *pParam)
     while(1)
     {
         ret = SAL_QueueGet(g_motor_queue_id, &received_pkt, &copied_size, 200, SAL_OPT_BLOCKING);
-
+        mcu_printf("[ipc] loop entered\n");
         if(ret == SAL_RET_SUCCESS)
         {
             if(received_pkt.magic == 0xA5)
             {
                 // 유효한 패킷 수신 시 제어 함수 호출
+                mcu_printf("[ipc] PK RX\n");
                 parse_and_excute_control((void*)&received_pkt);
             }
         }
         else{
             // 타임아웃 발생 시 정지 명령 실행
-            mcu_printf("unknown magic number\n");
+            mcu_printf("[ipc] unknown magic number\n");
             control_motor_drive(0xFF);
         }
-        SAL_TaskSleep(1);
+        SAL_TaskSleep(TASK_SLEEP_MS);
     }
 }
 //테스트 코드
