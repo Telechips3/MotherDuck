@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
+#include "../team2_header.h"
 #include "ultrasonic.h"
 #include <app_cfg.h>
 #include <debug.h>
-#include "../team2_header.h"
 
-/* main.c에 있는 전역 변수 사용 */
-extern volatile uint32 g_ultraDistanceCm;
+static void Buzzer_Init(void)
+{
+    GPIO_Config(BUZZER_GPIO,
+        GPIO_OUTPUT | GPIO_NOPULL | GPIO_DS(4) | GPIO_FUNC(0));
+    GPIO_Set(BUZZER_GPIO, 0);
+}
 
 /* 내부 함수 */
 static uint32 Ultrasonic_GetEchoCount(void);
@@ -19,6 +23,7 @@ static void Ultrasonic_Init(void)
         GPIO_INPUT | GPIO_NOPULL | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
 
     GPIO_Set(ULTRA_TRIG_GPIO, 0);
+
 }
 
 static uint32 Ultrasonic_GetDistance_cm(void)
@@ -57,11 +62,43 @@ void UltrasonicTask(void *pArg)
 {
     (void)pArg;
     Ultrasonic_Init();
+    Buzzer_Init();
+    
+    uint32 buz_on = 0;
+    TickType_t next = 0;
 
     while (1)
     {
-        g_ultraDistanceCm = Ultrasonic_GetDistance_cm();
-        vTaskDelay(pdMS_TO_TICKS(50));
+        uint32 d  = Ultrasonic_GetDistance_cm();
+        TickType_t now = xTaskGetTickCount();
+
+        if (d == 0 || d >= 30)
+        {
+            GPIO_Set(BUZZER_GPIO, 0);
+            buz_on = 0;
+            next = 0;
+        }
+        else if (d < 10)
+        {
+            GPIO_Set(BUZZER_GPIO, 1);
+        }
+        else
+        {
+            TickType_t period = (d < 20)
+                ? pdMS_TO_TICKS(100)
+                : pdMS_TO_TICKS(300);
+
+            if (next == 0) next = now;
+
+            if ((int32)(now - next) >= 0)
+            {
+                buz_on ^= 1;
+                GPIO_Set(BUZZER_GPIO, buz_on);
+                next = now + period;
+            }
+        }
+
+        SAL_TaskSleep(500);
     }
 }
 

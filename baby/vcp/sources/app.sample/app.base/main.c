@@ -24,7 +24,6 @@
 #include "encoder.h"
 #include "spi.h"
 #include "ultrasonic.h"
-#include "buzzer.h"
 #include "ipc.h"
 #include "steer.h"
 #include "imu.h"
@@ -36,13 +35,9 @@
 #define ENABLE_SPI_TEST             1          
 #define ENABLE_IMU_TASK             0       
 #define ENABLE_ENCODER_TASK         0   
-#define ENABLE_ULTRASONIC_TASK      0 
-#define ENABLE_BUZZER_TASK          0   
+#define ENABLE_ULTRASONIC_TASK      0   
 #define ENABLE_POSE_TASK            0
 #define ENABLE_FOLLOW_STEER_TASK    0
-
-volatile uint32 g_ultraDistanceCm = 0;
-
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
 #include <spi_eccp.h>
@@ -145,6 +140,8 @@ void cmain(void)
     mcu_printf("-------------------------------\n");
     DisplayOTPInfo();
     mcu_printf("===============================\n\n");
+    
+    PDM_Init(); // pwm 초기화 코드. 우리 코드가 아님.
 
     // create the first app task...
     err = (SALRetCode_t)SAL_TaskCreate(&AppTaskStartID,
@@ -182,7 +179,6 @@ static void Main_StartTask(void *pArg)
     (void)pArg;
     (void)SAL_OsInitFuncs();
 
-    PDM_Init(); // pwm 초기화 코드. 우리 코드가 아님.
     mcu_printf(">>> PDM_Init complete\n");
     // Debug: force motor forward (remove after test)
 
@@ -219,10 +215,6 @@ static void Main_StartTask(void *pArg)
     (void)UltrasonicTaskCreate();
 #endif
 
-#if (ENABLE_BUZZER_TASK == 1)
-    (void)BuzzerTaskCreate();
-    mcu_printf(">>>buzzer enabled\n");
-#endif
 #if (ENABLE_FOLLOW_STEER_TASK == 1)
     (void)follow_steer_TaskCreate();
     mcu_printf(">>>follow_steer enabled\n");
