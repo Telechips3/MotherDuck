@@ -4,9 +4,11 @@
 #include "encoder.h"
 #include "../team2_header.h"
 
-#define SPI_PKT_SIZE_WORDS 8 // 32바이트 = 8 x uint32_t
-static volatile uint32_t spi_rx_buf[SPI_PKT_SIZE_WORDS] = {0};
-static uint32_t spi_tx_buf[SPI_PKT_SIZE_WORDS] = {0};
+static volatile uint32_t spi_rx_buf[SPI_BYTE] = {0};
+static uint32_t spi_tx_buf[SPI_BYTE] = {0};
+
+static uint32_t spi_dma_rx_buf[SPI_DMA_BYTE] = {0};
+static uint32_t spi_dma_tx_buf[SPI_DMA_BYTE] = {0};
 
 static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 {
@@ -89,9 +91,9 @@ void SPI_Init(void)
         .uiSdi = SPI_MISO_GPIO,
         .uiSclk = SPI_SCLK_GPIO,
         .uiIsSlave = GPSB_SLAVE_MODE,
-        .uiDmaBufSize = 0,
-        .pDmaAddrTx = NULL,
-        .pDmaAddrRx = NULL,
+        .uiDmaBufSize = SPI_DMA_BYTE,
+        .pDmaAddrTx = spi_dma_tx_buf,
+        .pDmaAddrRx = spi_dma_rx_buf,
         .fbCallback = (GPSBCallback)(spi_receive),
         .pArg = NULL};
 
