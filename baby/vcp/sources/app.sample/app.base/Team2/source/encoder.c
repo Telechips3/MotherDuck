@@ -208,3 +208,18 @@ void Encoder_ResetCount(void)
     s_speedCms = 0.0f;
     (void)SAL_CoreCriticalExit();
 }
+
+float Encoder_GetDeltaDistanceCm(void)
+{
+    static int32 prevCnt_local = 0;
+    int32 cnt;
+    (void)SAL_CoreCriticalEnter();
+    cnt = s_encCnt;
+    (void)SAL_CoreCriticalExit();
+
+    int32 diff = cnt - prevCnt_local;
+    prevCnt_local = cnt;
+
+    float cm_per_count = (PI * WHEEL_DIAMETER_CM) / ENCODER_CPR;
+    return diff * cm_per_count;
+}
