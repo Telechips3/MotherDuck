@@ -55,7 +55,7 @@ static void IPC_Task(void *pParam)
 
     while(1)
     {
-        ret = SAL_QueueGet(g_motor_queue_id, &received_pkt, &copied_size, 200, SAL_OPT_BLOCKING);
+        ret = SAL_QueueGet(IPC_queue_id, &received_pkt, &copied_size, 200, SAL_OPT_BLOCKING);
         mcu_printf("[ipc] loop entered\n");
         if(ret == SAL_RET_SUCCESS)
         {
