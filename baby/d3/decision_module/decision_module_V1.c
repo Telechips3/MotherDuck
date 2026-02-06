@@ -7,6 +7,8 @@
 #include <inttypes.h>
 
 #include "decide_mode.h"
+#include "ArUco_RX.h"
+#include "Waypoint_RX.h"
 
 
 // ===== Payload msg ==============
@@ -32,24 +34,13 @@ uint32_t GetTickCount(void)
     return (uint32_t)ms; // 여기서만 32비트로 잘라서 roll-over 자연스럽게
 }
 
-uint8_t RX_waypoint(to_vcp_msg_t *msg){
-
-    return 0;
-}
-
-uint8_t RX_aruco_marker(to_vcp_msg_t *msg){
-
-
-    return 0;
-}
-
-
-
-int main(void){
+int main(int argc, char** argv){
     uint32_t seq = 0;
     init_decide_mode_msg();
-    static uint32_t last_aruco_rx_time;
-    static uint32_t last_wp_rx_time;
+
+    aruco_rx_init();    // ArUco 소켓 통신 초기화 호출
+    const char* wp_path = (argc >= 2) ? argv[1] : NULL;
+    waypoint_rx_init(wp_path); // Waypoint UDS 수신 초기화
 
     while(1){
     uint8_t ret = 0;        // Handler
@@ -61,38 +52,31 @@ int main(void){
     msg.seq = seq++;
     
     //aruco marker input
-    ret = RX_aruco_marker(&msg);
-    if(ret){
-        fprintf(stderr,"[seq : %u| time : %u] Failed to receive aruco marker data\n",msg.seq, time_now);
+    uint8_t aruco_ret = RX_aruco_marker(&msg);
+    if (aruco_ret == 0) {
+        // 새로운 데이터를 성공적으로 받은 경우
+    } else {
+        // 데이터를 못 받았거나 연결에 문제가 있는 경우
     }
-
-    if(!ret){
-        msg.aruco_valid = !ret;
-        last_aruco_rx_time = time_now;
-    }
-    msg.aruco_age_ms = (uint16_t)(time_now - last_aruco_rx_time);   // timeout check , 16bit casting
     
     // waypoint input
     ret = RX_waypoint(&msg);
     if(ret){
         fprintf(stderr,"[seq : %u| time : %u] Failed to receive waypoint data\n",msg.seq, time_now);
     }
-    if(!ret){
-        msg.wp_valid = !ret;
-        last_wp_rx_time = time_now;
-    }
-    msg.wp_age_ms = (uint16_t)(time_now - last_wp_rx_time);         // timeout check , 16bit casting
 
     ret = decide_mode_step(&msg);
 
     time_now = GetTickCount();
     printf("[seq : %u| time : %u] mode=%u reason=%u leader_state : %u\n", 
             msg.seq, time_now, msg.mode, msg.reason, msg.leader_state);
-    printf("[ArUco status] aruco_valid : %u, aruco_age_ms : %u, aruco_dist_mm : %d, aruco_x_norm_q15 : %d",
+    printf("[ArUco status] aruco_valid : %u, aruco_age_ms : %u, aruco_dist_mm : %d, aruco_x_norm_q15 : %d\n",
           msg.aruco_valid, msg.aruco_age_ms, msg.aruco_dist_mm, msg.aruco_x_norm_q15);
-    printf("[Waypoint status] wp_valid: %u, wp_age_ms : %u, leader_x_mm : %d, leader_y_mm : %d",
+    printf("[Waypoint status] wp_valid: %u, wp_age_ms : %u, leader_x_mm : %d, leader_y_mm : %d\n",
           msg.wp_valid, msg.wp_age_ms, msg.leader_x_mm, msg.leader_y_mm);
     
+    // 실제 통신 인터페이스 모듈(SPI)
+
     usleep(50000); // 50ms delay
     }
 
