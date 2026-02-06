@@ -43,7 +43,7 @@ static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 
     if (m->magic == 165 && m->crc16 == calculated_crc) // 0xA5
     {
-        SAL_QueuePut(g_motor_queue_id, (void *)m, sizeof(to_vcp_spi_msg_t), 0, SAL_OPT_NON_BLOCKING);
+        SAL_QueuePut(IPC_queue_id, (void *)m, sizeof(to_vcp_spi_msg_t), 0, SAL_OPT_NON_BLOCKING);
     }
     else
     {
