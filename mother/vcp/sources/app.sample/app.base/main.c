@@ -15,7 +15,7 @@
 
 #define MCU_BSP_SUPPORT_APP_BASE 1
 
-#if ( MCU_BSP_SUPPORT_APP_BASE == 1 )
+#if (MCU_BSP_SUPPORT_APP_BASE == 1)
 
 #include <main.h>
 
@@ -25,37 +25,40 @@
 #include <bsp.h>
 #include "Team2/include/spi.h"
 #include "Team2/include/speed.h"
+#include "Team2/include/encoder.h"
+
+#define ENABLE_ENCODER_TASK 1
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
-    #include <spi_eccp.h>
+#include <spi_eccp.h>
 #endif
 #if (APLT_LINUX_SUPPORT_POWER_CTRL == 1)
-    #include <power_app.h>
+#include <power_app.h>
 #endif
-#if ( MCU_BSP_SUPPORT_APP_KEY == 1)
-    #include <key.h>
-#endif  // ( MCU_BSP_SUPPORT_APP_KEY == 1 )
+#if (MCU_BSP_SUPPORT_APP_KEY == 1)
+#include <key.h>
+#endif // ( MCU_BSP_SUPPORT_APP_KEY == 1 )
 
-#if ( MCU_BSP_SUPPORT_APP_CONSOLE == 1 )
-    #include <console.h>
-#endif  // ( MCU_BSP_SUPPORT_APP_CONSOLE == 1 )
+#if (MCU_BSP_SUPPORT_APP_CONSOLE == 1)
+#include <console.h>
+#endif // ( MCU_BSP_SUPPORT_APP_CONSOLE == 1 )
 
-#if ( MCU_BSP_SUPPORT_CAN_DEMO == 1 )
-    #include <can_demo.h>
-#endif  // ( MCU_BSP_SUPPORT_CAN_DEMO == 1 )
+#if (MCU_BSP_SUPPORT_CAN_DEMO == 1)
+#include <can_demo.h>
+#endif // ( MCU_BSP_SUPPORT_CAN_DEMO == 1 )
 
-#if ( MCU_BSP_SUPPORT_APP_IDLE == 1 )
-    #include <idle.h>
-#endif  // ( MCU_BSP_SUPPORT_APP_IDLE == 1 )
+#if (MCU_BSP_SUPPORT_APP_IDLE == 1)
+#include <idle.h>
+#endif // ( MCU_BSP_SUPPORT_APP_IDLE == 1 )
 
-#if ( MCU_BSP_SUPPORT_APP_SPI_LED == 1 )
-    #include <spi_led.h>
-#endif  // ( MCU_BSP_SUPPORT_APP_SPI_LED == 1 )
+#if (MCU_BSP_SUPPORT_APP_SPI_LED == 1)
+#include <spi_led.h>
+#endif // ( MCU_BSP_SUPPORT_APP_SPI_LED == 1 )
 
-#if ( MCU_BSP_SUPPORT_APP_FW_UPDATE == 1 )
-    #include "fwupdate.h"
-#elif ( MCU_BSP_SUPPORT_APP_FW_UPDATE_ECCP == 1 )
-    #include "fwupdate.h"
+#if (MCU_BSP_SUPPORT_APP_FW_UPDATE == 1)
+#include "fwupdate.h"
+#elif (MCU_BSP_SUPPORT_APP_FW_UPDATE_ECCP == 1)
+#include "fwupdate.h"
 #endif
 
 /*
@@ -63,8 +66,8 @@
 *                                         GLOBAL VARIABLES
 ***************************************************************************************************
 */
-uint32                                  gALiveMsgOnOff;
-static uint32                           gALiveCount;
+uint32 gALiveMsgOnOff;
+static uint32 gALiveCount;
 
 /*
 ***************************************************************************************************
@@ -72,26 +75,17 @@ static uint32                           gALiveCount;
 ***************************************************************************************************
 */
 
-static void Main_StartTask
-(
-    void *                              pArg
-);
+static void Main_StartTask(
+    void *pArg);
 
-static void AppTaskCreate
-(
-    void
-);
+static void AppTaskCreate(
+    void);
 
-static void DisplayAliveLog
-(
-    void
-);
+static void DisplayAliveLog(
+    void);
 
-static void DisplayOTPInfo
-(
-    void
-);
-
+static void DisplayOTPInfo(
+    void);
 
 /*
 ***************************************************************************************************
@@ -110,41 +104,41 @@ static void DisplayOTPInfo
 *
 ***************************************************************************************************
 */
-void cmain (void)
+void cmain(void)
 {
-    static uint32           AppTaskStartID = 0;
-    static uint32           AppTaskStartStk[ACFG_TASK_MEDIUM_STK_SIZE];
-    SALRetCode_t            err;
-    SALMcuVersionInfo_t     versionInfo = {0,0,0,0};
+    static uint32 AppTaskStartID = 0;
+    static uint32 AppTaskStartStk[ACFG_TASK_MEDIUM_STK_SIZE];
+    SALRetCode_t err;
+    SALMcuVersionInfo_t versionInfo = {0, 0, 0, 0};
 
     (void)SAL_Init();
 
     BSP_PreInit(); /* Initialize basic BSP functions */
 
-#if ( MCU_BSP_SUPPORT_CAN_DEMO == 1 )
+#if (MCU_BSP_SUPPORT_CAN_DEMO == 1)
     (void)CAN_DemoInitialize();
-#endif  // ( MCU_BSP_SUPPORT_CAN_DEMO == 1 )
+#endif // ( MCU_BSP_SUPPORT_CAN_DEMO == 1 )
 
     BSP_Init(); /* Initialize BSP functions */
 
     (void)SAL_GetVersion(&versionInfo);
     mcu_printf("\n===============================\n");
     mcu_printf("    MCU BSP Version: V%d.%d.%d\n",
-           versionInfo.viMajorVersion,
-           versionInfo.viMinorVersion,
-           versionInfo.viPatchVersion);
+               versionInfo.viMajorVersion,
+               versionInfo.viMinorVersion,
+               versionInfo.viPatchVersion);
     mcu_printf("-------------------------------\n");
     DisplayOTPInfo();
     mcu_printf("===============================\n\n");
 
     // create the first app task...
     err = (SALRetCode_t)SAL_TaskCreate(&AppTaskStartID,
-                         (const uint8 *)"App Task Start",
-                         (SALTaskFunc) &Main_StartTask,
-                         &AppTaskStartStk[0],
-                         ACFG_TASK_MEDIUM_STK_SIZE,
-                         SAL_PRIO_APP_CFG,
-                         NULL);
+                                       (const uint8 *)"App Task Start",
+                                       (SALTaskFunc)&Main_StartTask,
+                                       &AppTaskStartStk[0],
+                                       ACFG_TASK_MEDIUM_STK_SIZE,
+                                       SAL_PRIO_APP_CFG,
+                                       NULL);
 
     if (err == SAL_RET_SUCCESS)
     {
@@ -169,27 +163,30 @@ void cmain (void)
 ***************************************************************************************************
 */
 
-
-static void Main_StartTask(void * pArg)
+static void Main_StartTask(void *pArg)
 {
-    
-    
+
     (void)pArg;
     (void)SAL_OsInitFuncs();
 
     PDM_Init();
     mcu_printf(">>> Main_StartTask start\n");
-    
+
     ipc_init();
 
     mcu_printf(">>> ipc_StartTask start\n");
     SPI_Init();
 
+#if (ENABLE_ENCODER_TASK == 1)
+    (void)EncoderTaskCreate();
+    mcu_printf(">>>encoder enabled\n");
+#endif
+
     /* ⭐ 메인 루프: 모터 제어 + 로그 출력 */
     while (1)
     {
-        
-        SAL_TaskSleep(20);  // 50Hz 체크 (충분히 빠름)
+
+        SAL_TaskSleep(20); // 50Hz 체크 (충분히 빠름)
     }
 }
 
@@ -197,38 +194,36 @@ static void AppTaskCreate(void)
 {
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
     ECCP_InitSPIManager();
-#endif  
+#endif
 #if (APLT_LINUX_SUPPORT_POWER_CTRL == 1)
     POWER_APP_StartDemo();
 #endif
 
-  
-#if ( MCU_BSP_SUPPORT_APP_CONSOLE == 1 )
+#if (MCU_BSP_SUPPORT_APP_CONSOLE == 1)
     CreateConsoleTask();
-#endif  // ( MCU_BSP_SUPPORT_APP_CONSOLE == 1 )
+#endif // ( MCU_BSP_SUPPORT_APP_CONSOLE == 1 )
 
-#if ( MCU_BSP_SUPPORT_APP_KEY == 1 )
+#if (MCU_BSP_SUPPORT_APP_KEY == 1)
     KEY_AppCreate();
-#endif  // ( MCU_BSP_SUPPORT_APP_KEY == 1 )
+#endif // ( MCU_BSP_SUPPORT_APP_KEY == 1 )
 
-#if ( MCU_BSP_SUPPORT_CAN_DEMO == 1 )
+#if (MCU_BSP_SUPPORT_CAN_DEMO == 1)
     CAN_DemoCreateApp();
-#endif  // ( MCU_BSP_SUPPORT_CAN_DEMO == 1 )
+#endif // ( MCU_BSP_SUPPORT_CAN_DEMO == 1 )
 
-#if ( MCU_BSP_SUPPORT_APP_FW_UPDATE == 1 )
+#if (MCU_BSP_SUPPORT_APP_FW_UPDATE == 1)
     CreateFWUDTask();
-#elif ( MCU_BSP_SUPPORT_APP_FW_UPDATE_ECCP == 1 )
+#elif (MCU_BSP_SUPPORT_APP_FW_UPDATE_ECCP == 1)
     CreateFWUDTask();
 #endif
 
-#if ( MCU_BSP_SUPPORT_APP_IDLE == 1 )
+#if (MCU_BSP_SUPPORT_APP_IDLE == 1)
     IDLE_CreateTask();
-#endif  // ( MCU_BSP_SUPPORT_APP_IDLE == 1 )
+#endif // ( MCU_BSP_SUPPORT_APP_IDLE == 1 )
 
-#if ( MCU_BSP_SUPPORT_APP_SPI_LED == 1)
+#if (MCU_BSP_SUPPORT_APP_SPI_LED == 1)
     SPILED_CreateAppTask();
-#endif  // ( MCU_BSP_SUPPORT_APP_SPI_LED == 1 )
-
+#endif // ( MCU_BSP_SUPPORT_APP_SPI_LED == 1 )
 }
 
 static void DisplayAliveLog(void)
@@ -239,7 +234,7 @@ static void DisplayAliveLog(void)
 
         gALiveCount++;
 
-        if(gALiveCount >= MAIN_UINT_MAX_NUM)
+        if (gALiveCount >= MAIN_UINT_MAX_NUM)
         {
             gALiveCount = 0;
         }
@@ -250,8 +245,8 @@ static void DisplayAliveLog(void)
     }
 }
 
-#define LDT1_AREA_ADDR  0xA1011800U
-#define PMU_REG_ADDR    0xA0F28000U
+#define LDT1_AREA_ADDR 0xA1011800U
+#define PMU_REG_ADDR 0xA0F28000U
 
 static void DisplayOTPInfo(void)
 {
@@ -259,13 +254,13 @@ static void DisplayOTPInfo(void)
     volatile uint32 *chipNameAddr;
     volatile uint32 *remapAddr;
     volatile uint32 *hsmStatusAddr;
-    uint32          chipName = 0;
-    uint32          dualBankVal = 0;
-    uint32          dual_bank = 0;
-    uint32          expandFlashVal = 0;
-    uint32          expand_flash = 0;
-    uint32          remap_mode = 0;
-    uint32          hsm_ready = 0;
+    uint32 chipName = 0;
+    uint32 dualBankVal = 0;
+    uint32 dual_bank = 0;
+    uint32 expandFlashVal = 0;
+    uint32 expand_flash = 0;
+    uint32 remap_mode = 0;
+    uint32 hsm_ready = 0;
 
     //----------------------------------------------------------------
     // OTP LDT1 Read
@@ -282,32 +277,32 @@ static void DisplayOTPInfo(void)
     chipName = *chipNameAddr;
     chipName &= 0x000FFFFF;
 
-    dualBankVal = ldt1Addr[ 0];
-    expandFlashVal = ldt1Addr[ 1];
+    dualBankVal = ldt1Addr[0];
+    expandFlashVal = ldt1Addr[1];
 
-    dualBankVal &= ldt1Addr[ 4];
-    expandFlashVal &= ldt1Addr[ 5];
+    dualBankVal &= ldt1Addr[4];
+    expandFlashVal &= ldt1Addr[5];
 
-    dualBankVal &= ldt1Addr[ 8];
-    expandFlashVal &= ldt1Addr[ 9];
+    dualBankVal &= ldt1Addr[8];
+    expandFlashVal &= ldt1Addr[9];
 
     dualBankVal &= ldt1Addr[12];
     expandFlashVal &= ldt1Addr[13];
 
     dualBankVal = (dualBankVal >> 0) & 0x0FFF;
-    expandFlashVal  = (expandFlashVal >> 16) & 0x0FFF;
+    expandFlashVal = (expandFlashVal >> 16) & 0x0FFF;
 
-    dual_bank = (dualBankVal == 0x0FFF) ? 0 : 1;            // (single_bank : dual_bank)
-    expand_flash  = (expandFlashVal  == 0x0000) ? 0 : 1;    // (only_eFlash : use_extSNOR)
+    dual_bank = (dualBankVal == 0x0FFF) ? 0 : 1;       // (single_bank : dual_bank)
+    expand_flash = (expandFlashVal == 0x0000) ? 0 : 1; // (only_eFlash : use_extSNOR)
 
-    remap_mode = remapAddr[ 0];
+    remap_mode = remapAddr[0];
 
-    mcu_printf("    CHIP   NAME  : %x\n",    chipName);
-    mcu_printf("    DUAL   BANK  : %d\n",    dual_bank);
-    mcu_printf("    EXPAND FLASH : %d\n",    expand_flash);
-    mcu_printf("    REMAP  MODE  : %d\n",    (remap_mode >> 16));
+    mcu_printf("    CHIP   NAME  : %x\n", chipName);
+    mcu_printf("    DUAL   BANK  : %d\n", dual_bank);
+    mcu_printf("    EXPAND FLASH : %d\n", expand_flash);
+    mcu_printf("    REMAP  MODE  : %d\n", (remap_mode >> 16));
 
-    hsm_ready = hsmStatusAddr[ 0];
+    hsm_ready = hsmStatusAddr[0];
     hsm_ready = (hsm_ready >> 2) & 0x0001;
 #if 0
     if(hsm_ready)
@@ -324,9 +319,8 @@ static void DisplayOTPInfo(void)
         }
     }
 #else
-    mcu_printf("    HSM    READY : %d\n",    hsm_ready);
+    mcu_printf("    HSM    READY : %d\n", hsm_ready);
 #endif
 }
 
-#endif  // ( MCU_BSP_SUPPORT_APP_BASE == 1 )
-
+#endif // ( MCU_BSP_SUPPORT_APP_BASE == 1 )

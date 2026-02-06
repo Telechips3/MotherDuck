@@ -2904,6 +2904,7 @@ static void GPSB_Isr(
                 {
                     //(void)SAL_MemCopy(gpsb[uiCh].dAsyncRxBuf, (void *)(gpsb[uiCh].dRxDma.dbAddr), copy_length);
                     (void)SAL_MemCopy(gpsb[uiCh].dAsyncRxBuf, buffaddr, copy_length);
+                    (void)SAL_MemCopy((void *)(gpsb[uiCh].dTxDma.dbAddr), gpsb[uiCh].dAsyncTxBuf, copy_length);
                 }
 
                 if (gpsb[uiCh].dAsyncTxDataSize >= copy_length)
@@ -3833,8 +3834,8 @@ void GPSB_SetSlaveDMAMode(
     // GPSB_BitClear(gpsb[uiCh].dBase + GPSB_DMACTR, BSP_BIT_02);
 
     {
-        copy_length = gpsb[uiCh].dTxDma.dbSize;
-        // copy_length = 8;
+        //copy_length = gpsb[uiCh].dTxDma.dbSize;
+        copy_length = 8;
     }
 
     /* Set DMA TXBASE and RXBASE */

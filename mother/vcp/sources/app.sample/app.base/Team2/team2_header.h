@@ -22,7 +22,18 @@
 // 서보모터 (조향)
 #define SERVO_STEER_CH      7                // 서보모터 (PDM CH2 - GPA12)
 
+#define SPI_CS_GPIO     GPIO_GPB(5)
+#define SPI_SCLK_GPIO   GPIO_GPB(4)
+#define SPI_MOSI_GPIO   GPIO_GPB(6)
+#define SPI_MISO_GPIO   GPIO_GPB(7)
 
+//encoder
+#define ENC_A_GPIO          GPIO_GPA(22)
+#define ENC_B_GPIO          GPIO_GPA(21)
+#define EIT_ENCODER        (GIC_EXT4)
+
+#define ENCODER_TASK_STACK_SIZE 512
+#define ENCODER_TASK_PRIORITY   (SAL_PRIO_APP_CFG)
 
 //Interrupt Example
 #define EIT (GIC_EXT4)
