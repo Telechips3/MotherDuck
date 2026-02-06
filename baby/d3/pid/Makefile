@@ -8,8 +8,8 @@ BUILD_DIR = build
 TARGET = $(BUILD_DIR)/$(TARGET_NAME)
 
 # 소스 및 오브젝트 파일
-SRCS = debug.c
-OBJS = $(BUILD_DIR)/debug.o
+SRCS = debug.c vcp_debug.c
+OBJS = $(BUILD_DIR)/debug.o $(BUILD_DIR)/vcp_debug.o
 
 # 2. 기본 빌드 규칙 (make)
 all: $(BUILD_DIR) $(TARGET)

@@ -3,7 +3,8 @@
 
 #define SPI_CHANNEL     0
 #define SPI_GPIO_FUNC   1
-#define SPI_BYTE        1     
+#define SPI_BYTE        32
+#define SPI_DMA_BYTE    32
 
 void SPI_Init(void);
 

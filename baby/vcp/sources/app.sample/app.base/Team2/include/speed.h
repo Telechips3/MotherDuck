@@ -3,13 +3,14 @@
 
 #include "../team2_header.h"
 
-#define PERIOD_NS           1000000          // 1kHz
+#define PERIOD_NS           5000000          // 5ms 주기
 #define DUTY_SLOW_NS        500000           // 30% 속도
+
 #define DUTY_STOP_NS        0                // 정지
 #define MOTOR_PWM_CH        0                // PDM 채널 0 (GPIO A10)
-#define PERIOD_NS           1000000          // 주기: 1ms (1kHz)
 
-
+void process_acc_system(float current_dist_cm);
+void process_acc_with_encoder(float current_dist_cm);  // ← 엔코더 기반 폐루프
 void control_motor_drive(uint32 cmd);
 
 #endif

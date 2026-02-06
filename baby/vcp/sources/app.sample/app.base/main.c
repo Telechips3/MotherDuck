@@ -32,6 +32,15 @@
 #include "pose_task.h"
 #include "follow_steer_module.h"
 
+#define ENABLE_IPC_TEST             1
+#define ENABLE_SPI_TEST             1          
+#define ENABLE_IMU_TASK             1       
+#define ENABLE_ENCODER_TASK         1   
+#define ENABLE_ULTRASONIC_TASK      1 
+#define ENABLE_BUZZER_TASK          1   
+#define ENABLE_POSE_TASK            1
+#define ENABLE_FOLLOW_STEER_TASK    1
+
 volatile uint32 g_ultraDistanceCm = 0;
 
 
@@ -174,39 +183,43 @@ static void Main_StartTask(void *pArg)
     (void)SAL_OsInitFuncs();
 
     PDM_Init(); // pwm 초기화 코드. 우리 코드가 아님.
-
+    mcu_printf(">>> PDM_Init complete\n");
     // Debug: force motor forward (remove after test)
-    /* pose module 실험용 코드 -> 윤서
-    control_motor_drive(0);     */
 
 #if (ENABLE_IPC_TEST == 1)
     ipc_init();
     mcu_printf(">>> ipc_init complete\n");
+#else
+    mcu_printf(">>>ipc not enabled\n");
 #endif
 
+    mcu_printf(">>>ipc\n");
     /* --- 2. SPI 통신 설정 --- */
 #if (ENABLE_SPI_TEST == 1)
     SPI_Init();
     mcu_printf(">>> SPI_Init complete\n");
 #endif
-
+    mcu_printf(">>>spi\n");
 #if (ENABLE_IMU_TASK == 1)
     (void)IMUTaskCreate();
     mcu_printf(">>> IMU_task_init complete\n");
 #endif
+    mcu_printf(">>>imu\n");
 #if (ENABLE_POSE_TASK == 1)
     (void)PoseTaskCreate();
 
     // Debug: fixed yaw override (30 deg) for pose
     Pose_DebugSetYawOverride(30.0f * 3.1415926535f / 180.0f, 1);
 #endif
+    mcu_printf(">>>pose\n");
 #if (ENABLE_ENCODER_TASK == 1)
     (void)EncoderTaskCreate();
 #endif
-
+    mcu_printf(">>>encoder\n");
 #if (ENABLE_ULTRASONIC_TASK == 1)
     (void)UltrasonicTaskCreate();
 #endif
+    mcu_printf(">>>ultrasonic\n");
 
 #if (ENABLE_BUZZER_TASK == 1)
     (void)BuzzerTaskCreate();
@@ -214,6 +227,7 @@ static void Main_StartTask(void *pArg)
 #if (ENABLE_FOLLOW_STEER_TASK == 1)
     (void)follow_steer_TaskCreate();
 #endif
+    mcu_printf(">>>follow_steer\n");
     /* Main task는 여기서 끝 */
     while (1)
     {

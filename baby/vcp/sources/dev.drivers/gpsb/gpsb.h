@@ -820,6 +820,8 @@ void GPSB_ClearDMABuffer
     uint8                               uiCh, 
     uint32                              size
 );
+void abcd(uint8 uiCh);
+void zxcv(uint8 uiCh);
 #endif  // ( MCU_BSP_SUPPORT_DRIVER_GPSB == 1 )
 
 #endif  // MCU_BSP_GPSB_HEADER
