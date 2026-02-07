@@ -1,6 +1,10 @@
 #include "steer.h"
 #include "../team2_header.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265f
+#endif
+
 static PDMModeConfig_t g_steer_pwm_cfg;
 static uint8 g_steer_initialized = 0;
 
@@ -25,6 +29,7 @@ static void steer_init(void)
 
 void Control_Steering_Custom(float steering_rad)
 {
+    if (!g_steer_initialized) steer_init();
     // 1. 입력값 안전장치 (Clamping)
     // 물리적 한계 이상으로 값이 들어오면 잘라냄
     if (steering_rad > MAX_STEER_RAD)  steering_rad = MAX_STEER_RAD;
@@ -38,12 +43,12 @@ void Control_Steering_Custom(float steering_rad)
     
     // 3. 최종 듀티값 계산
     // 만약 방향이 반대면 '+ duty_offset'을 '- duty_offset'으로 변경
-    int32_t calc_ns = (int32_t)SERVO_CENTER_NS + (int32_t)duty_offset;
+    int32_t calc_ns = (int32_t)STEER_NEUTRAL_NS + (int32_t)duty_offset;
 
     // 4. 서보 하드웨어 리미트 방어 (최종 안전빵)
     // 계산된 값이 서보 허용 범위를 넘으면 모터가 타버릴 수 있음
-    if (calc_ns < (int32_t)SERVO_MIN_NS) calc_ns = (int32_t)SERVO_MIN_NS;
-    if (calc_ns > (int32_t)SERVO_MAX_NS) calc_ns = (int32_t)SERVO_MAX_NS;
+    if (calc_ns < (int32_t)STEER_MIN_NS) calc_ns = (int32_t)STEER_MIN_NS;
+    if (calc_ns > (int32_t)STEER_MAX_NS) calc_ns = (int32_t)STEER_MAX_NS;
 
     // 5. [핵심] 커스텀 드라이버 호출 (PWM 안 끄고 즉시 적용!)
     // PDM_Disable -> PDM_SetConfig -> PDM_Enable (X) -> 이제 안녕!

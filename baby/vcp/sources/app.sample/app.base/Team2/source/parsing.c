@@ -29,7 +29,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             //정책 -> 긴급정지(pwm 출력 0)
 
             control_motor_drive(0); // 비상정지
-            control_steering_absolute(0); // 중앙 정렬
+            Control_Steering_Custom(0); // 중앙 정렬
             break;
 
         case MODE_STOP_AND_HOLD:
@@ -37,7 +37,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             //아예 exception 처리에서 처리하면 좋을듯
             //정책 -> 천천히 정지
             control_motor_drive(0); // 정지 및 유지
-            control_steering_absolute(0); // 중앙 정렬
+            Control_Steering_Custom(0); // 중앙 정렬
             break;
             
         case MODE_FOLLOW_WAYPOINT:
@@ -84,7 +84,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             if (ret != 0){
                 mcu_printf("[PARSING] getting steering rad failed\n");
             }
-            // steering(steering_rad);
+            Control_Steering_Custom(steering_rad);
 
 
             /* ============= legacy code ==================*/
@@ -119,7 +119,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
         default:
             mcu_printf("[PARSING] UNKNOWN MODE (%d) - STOP!\n", msg->mode);
             control_motor_drive(0);
-            control_steering_absolute(0); // 중앙 정렬
+            Control_Steering_Custom(0); // 중앙 정렬
             break;
     }
 }
