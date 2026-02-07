@@ -6,11 +6,12 @@
 #include "parsing.h"
 
 
-
+static float steering_rad;
 // 제어 명령 처리 함수
 void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
 {
     to_vcp_msg_t* msg = &(pkt->vcp_msg);
+    int ret = 0;
 
     mcu_printf("\n[SPI RX] ════════════════════════════════════════\n");
     mcu_printf("  Magic : 0x%02X | Seq: %d | Time: %d ms\n", 
@@ -38,7 +39,17 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             
         case MODE_FOLLOW_WAYPOINT:
             // 웨이포인트 추종 로직
-
+            if(msg->wp_valid){
+                ret = update_follower_steer(msg);
+                if (ret != 0){
+                    mcu_printf("[PARSING] update_follower_steer failed\n");
+                }
+                ret = follow_steer_Get_steer_rad(&steering_rad);
+                if (ret != 0){
+                    mcu_printf("[PARSING] getting steering rad failed\n");
+                }
+            }
+            /*============= legecy code ===============
             if(msg->wp_valid)
             {
                 float tx = (float)msg->leader_x_mm / 10.0f;  // mm → cm
@@ -66,9 +77,9 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
                 
                 process_acc_with_encoder(target_distance);  // ← 엔코더 기반 ACC
                 control_steering_absolute(x_norm); // 조향 제어
-            }
+            }*/
             else {
-                mcu_printf("   [PARSING] WAYPOINT INVALID - STOP!\n");
+                mcu_printf("[PARSING] WAYPOINT INVALID - STOP!\n");
                 control_motor_drive(0);
                 control_steering_absolute(0); // 중앙 정렬
             }

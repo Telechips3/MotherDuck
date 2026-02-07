@@ -42,7 +42,7 @@ static rx_msg_t lc_rx_t = {0};
 // 정보 받아올 구조체 포인터 및 핸들러 선언
 static float steer_angle_rad;
 
-void update_follower_steer(to_vcp_msg_t* msg){
+int update_follower_steer(to_vcp_msg_t* msg){
     pp_init(&pp_handler, NULL);
     Pose_Init(0.0f, 0.0f, 0.0f);  // ★ pose 모듈 초기화
 
@@ -53,6 +53,7 @@ void update_follower_steer(to_vcp_msg_t* msg){
     ret = Pose_Get(&pose);
     if(ret != 0){
         mcu_printf("[follow_steer] pose value get error = %d\n", ret);
+        return 1;
     }
 
     mcu_printf("[follow_steer] calculated pose (%d, %d, %d)\n ",(int)(1000*pose.x), (int)(1000*pose.y), (int)(1000*pose.yaw));
@@ -71,9 +72,24 @@ void update_follower_steer(to_vcp_msg_t* msg){
         ret = (uint8_t)pp_compute_steer(&pp_handler, &pose, wps, NUM_WAYPOINTS, &steer_angle_rad);
         if(ret != 0){
             mcu_printf("[follow_steer] pp_compute_steer error: %d\n", ret);
+            return 2;
         }
     }   
+    
+    else if(msg->mode == MODE_FOLLOW_VISION){
+        ret = steer_from_aruco_q15(lc_rx.aruco_x_norm_q15, lc_rx.aruco_dist_mm, &steer_angle_rad);
 
+    }
+
+
+    mcu_printf("[follow_steer] yaw=%d steer=%d\n",
+               (int)(pose.yaw * 1000), (int)((RAD2DEG(steer_angle_rad))*1000));
+    mcu_printf("[follow_steer] selected waypoint (%d, %d)", 
+        (int)(pp_handler.last_target_x*1000),(int)(pp_handler.last_target_y*1000) );
+    mcu_printf("[floow_steer] last_target_idx = %d , last_target_x_v = %d, last_target_y_v = %d, last_ld2 = %d\n",
+                pp_handler.last_target_idx, (int)(pp_handler.last_target_x_d*1000), (int)(pp_handler.last_target_y_d*1000), (int)(pp_handler.last_ld2*1000));
+    
+    return 0;
 }
 
 static void follow_steer_Task(void* pArg)

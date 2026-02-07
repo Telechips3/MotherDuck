@@ -83,6 +83,7 @@ typedef enum {
 #pragma pack(push, 1)
 
 // 핵심 데이터 구조체 (29 byte)
+// valid -> D3에서 해당 데이터가 신뢰성 없다고 판단될 때 0으로 내려서 보내줌
 typedef struct {
     uint32_t seq;
     uint32_t cpu_time_ms;
