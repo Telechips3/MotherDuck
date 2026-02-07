@@ -21,7 +21,7 @@
 //static IMU_Data_t imu_data;
 
 // Pure_Pursuit structures
-static PP_Pose pose;
+static Pose pose;
 static PP_Waypoint wps[NUM_WAYPOINTS];
 static PP_Handle pp_handler;
 
@@ -42,6 +42,39 @@ static rx_msg_t lc_rx_t = {0};
 // 정보 받아올 구조체 포인터 및 핸들러 선언
 static float steer_angle_rad;
 
+void update_follower_steer(to_vcp_msg_t* msg){
+    pp_init(&pp_handler, NULL);
+    Pose_Init(0.0f, 0.0f, 0.0f);  // ★ pose 모듈 초기화
+
+    uint8_t ret;    
+    Pose_Update();
+
+    // pose에 update된 pose 받아옴
+    ret = Pose_Get(&pose);
+    if(ret != 0){
+        mcu_printf("[follow_steer] pose value get error = %d\n", ret);
+    }
+
+    mcu_printf("[follow_steer] calculated pose (%d, %d, %d)\n ",(int)(1000*pose.x), (int)(1000*pose.y), (int)(1000*pose.yaw));
+
+    if(msg->mode == MODE_FOLLOW_WAYPOINT){
+        #if (TEST == 1)
+        if (dx_base > dx_max || dx_base < dx_min) dx_step = -dx_step; // 왕복 스윕
+        for(int i=0;i<NUM_WAYPOINTS;i++){
+            float dx = dx_base * (float)(i+1);
+            wps[i].x = dx;
+            wps[i].y = pose.y + 0.08f; // y는 고정 오프셋(직관적)
+             
+
+        }
+        #endif
+        ret = (uint8_t)pp_compute_steer(&pp_handler, &pose, wps, NUM_WAYPOINTS, &steer_angle_rad);
+        if(ret != 0){
+            mcu_printf("[follow_steer] pp_compute_steer error: %d\n", ret);
+        }
+    }   
+
+}
 
 static void follow_steer_Task(void* pArg)
 {
@@ -75,6 +108,9 @@ static void follow_steer_Task(void* pArg)
             SAL_TaskSleep(FOLLOW_STEER_TASK_SLEEP_MS);
             continue;
         }
+        // 현재 pose(PP_pose type)과 p(pose type) 은 동일 포멧 구조체인데 불필요하게 한번 더 복사해서 사용하고 있음
+        // Pose type으로 p라는 구조체에 받아와서 그대로 사용하는 구조로 수정 필요함
+
         pose.x   = p.x;
         pose.y   = p.y;
         pose.yaw = p.yaw;
