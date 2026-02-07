@@ -38,14 +38,14 @@ typedef struct {
 	uint8_t leader_state;
 
 	// ArUco
-	uint8_t  aruco_valid;   // aruco 마커 감지 됐는지 안됐는지 
-	uint16_t aruco_age_ms;  // 받은지 얼마나 됐는지(신선도) -> age로 timeout 판단
+	uint8_t  aruco_valid;   // aruco 마커 감지 됐는지 안됐는지 | 변경주체 : RX 모듈
+	uint16_t aruco_age_ms;  // 받은지 얼마나 됐는지(신선도) -> age로 timeout 판단|decide module에서 변경
 	int16_t  aruco_dist_mm; // 정수 추천 (mm)
 	int16_t  aruco_x_norm_q15; // -32768~32767 (=-1.0~+1.0)
 
 	// Waypoint
-	uint8_t  wp_valid;      // waypoint 수신 됐는지
-	uint16_t wp_age_ms;     // waypoint 얼마나 됐는지
+	uint8_t  wp_valid;      // waypoint 수신 됐는지 | 변경주체 : RX 모듈
+	uint16_t wp_age_ms;     // waypoint 얼마나 됐는지|decide module에서 변경
 	int32_t  leader_x_mm;   // mm (정수표현 위해 mm단위)
 	int32_t  leader_y_mm;
 
