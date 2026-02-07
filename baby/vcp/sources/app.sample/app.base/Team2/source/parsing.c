@@ -2,12 +2,15 @@
 #include "steer.h"
 #include <math.h>
 #include <stdlib.h>
+#include "follow_steer_module.h"
 #include "../team2_header.h"
 #include "parsing.h"
 
 
 static float steering_rad;
 // 제어 명령 처리 함수
+// parse에서는 패킷 까서 mode만 확인하고 던져줌. 의사결정 X
+// parse에서 해줘야 할 건 exception에 대한 처리 (ESTOP, STOP_AND_HOLD)
 void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
 {
     to_vcp_msg_t* msg = &(pkt->vcp_msg);
@@ -39,16 +42,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             
         case MODE_FOLLOW_WAYPOINT:
             // 웨이포인트 추종 로직
-            if(msg->wp_valid){
-                ret = update_follower_steer(msg);
-                if (ret != 0){
-                    mcu_printf("[PARSING] update_follower_steer failed\n");
-                }
-                ret = follow_steer_Get_steer_rad(&steering_rad);
-                if (ret != 0){
-                    mcu_printf("[PARSING] getting steering rad failed\n");
-                }
-            }
+            
             /*============= legecy code ===============
             if(msg->wp_valid)
             {
@@ -78,45 +72,52 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
                 process_acc_with_encoder(target_distance);  // ← 엔코더 기반 ACC
                 control_steering_absolute(x_norm); // 조향 제어
             }*/
-            else {
-                mcu_printf("[PARSING] WAYPOINT INVALID - STOP!\n");
-                control_motor_drive(0);
-                control_steering_absolute(0); // 중앙 정렬
-            }
-            break;
             
         case MODE_FOLLOW_VISION:
-            // 비전 기반 추종 로직
-            if(msg->aruco_valid)
-            {
-                float dist_cm = (float)msg->aruco_dist_mm / 10.0f;
-                float steer_norm = (float)msg->aruco_x_norm_q15 / 32768.0f;  // -1.0 ~ +1.0
-                float steer_rad = steer_norm * 0.5236F; // ±30도
-                float steer_deg = steer_rad * 180.0f / 3.14159f;
+            // 모드가 wp냐 vision이냐는 안중요 -> follow_steer 모듈에서 알아서 모드 읽어서 추종해줌
 
-                // float → int 변환
-                int dist_int = (int)(dist_cm * 10);       // 30.5 → 305
-                int norm_int = (int)(steer_norm * 100);   // 0.15 → 15
-                int steer_int = (int)steer_deg;
+            ret = update_follower_steer(msg);
+            if (ret != 0){
+                mcu_printf("[PARSING] update_follower_steer failed\n");
+            }
+            ret = follow_steer_Get_steer_rad(&steering_rad);
+            if (ret != 0){
+                mcu_printf("[PARSING] getting steering rad failed\n");
+            }
+            // steering(steering_rad);
 
-                mcu_printf("   [PARSING] MODE_FOLLOW_VISION\n");
-                mcu_printf("   └─ ArUco: Dist=%d.%dcm | X_norm=%d.%02d (Steer=%d°)\n",
-                           dist_int/10, dist_int%10,        // 305 → 30.5
-                           norm_int/100, abs(norm_int%100), // 15 → 0.15
-                           steer_int);
+
+            /* ============= legacy code ==================*/
+            // if(msg->aruco_valid)
+            // {
+            //     float dist_cm = (float)msg->aruco_dist_mm / 10.0f;
+            //     float steer_norm = (float)msg->aruco_x_norm_q15 / 32768.0f;  // -1.0 ~ +1.0
+            //     float steer_rad = steer_norm * 0.5236F; // ±30도
+            //     float steer_deg = steer_rad * 180.0f / 3.14159f;
+
+            //     // float → int 변환
+            //     int dist_int = (int)(dist_cm * 10);       // 30.5 → 305
+            //     int norm_int = (int)(steer_norm * 100);   // 0.15 → 15
+            //     int steer_int = (int)steer_deg;
+
+            //     mcu_printf("   [PARSING] MODE_FOLLOW_VISION\n");
+            //     mcu_printf("   └─ ArUco: Dist=%d.%dcm | X_norm=%d.%02d (Steer=%d°)\n",
+            //                dist_int/10, dist_int%10,        // 305 → 30.5
+            //                norm_int/100, abs(norm_int%100), // 15 → 0.15
+            //                steer_int);
                 
-                process_acc_with_encoder(dist_cm);  // ← 엔코더 기반 ACC
-                control_steering_absolute(msg->aruco_x_norm_q15); // 조향 제어
-            }
-            else {
-                mcu_printf("   [PARSING] ARUCO INVALID - STOP!\n");
-                control_motor_drive(0);
-                control_steering_absolute(0); // 중앙 정렬
-            }
+            //     process_acc_with_encoder(dist_cm);  // ← 엔코더 기반 ACC
+            //     control_steering_absolute(msg->aruco_x_norm_q15); // 조향 제어
+            // }
+            // else {
+            //     mcu_printf("   [PARSING] ARUCO INVALID - STOP!\n");
+            //     control_motor_drive(0);
+            //     control_steering_absolute(0); // 중앙 정렬
+            // }
             break;
             
         default:
-            mcu_printf("   [PARSING] UNKNOWN MODE (%d) - STOP!\n", msg->mode);
+            mcu_printf("[PARSING] UNKNOWN MODE (%d) - STOP!\n", msg->mode);
             control_motor_drive(0);
             control_steering_absolute(0); // 중앙 정렬
             break;

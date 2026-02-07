@@ -77,7 +77,7 @@ int update_follower_steer(to_vcp_msg_t* msg){
     }   
     
     else if(msg->mode == MODE_FOLLOW_VISION){
-        ret = steer_from_aruco_q15(lc_rx.aruco_x_norm_q15, lc_rx.aruco_dist_mm, &steer_angle_rad);
+        ret = steer_from_aruco_q15(msg->aruco_x_norm_q15, msg->aruco_dist_mm, &steer_angle_rad);
 
     }
 
