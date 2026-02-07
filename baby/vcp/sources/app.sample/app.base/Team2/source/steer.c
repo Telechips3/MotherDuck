@@ -23,6 +23,38 @@ static void steer_init(void)
     g_steer_initialized = 1;
 }
 
+void Control_Steering_Custom(float steering_rad)
+{
+    // 1. 입력값 안전장치 (Clamping)
+    // 물리적 한계 이상으로 값이 들어오면 잘라냄
+    if (steering_rad > MAX_STEER_RAD)  steering_rad = MAX_STEER_RAD;
+    if (steering_rad < -MAX_STEER_RAD) steering_rad = -MAX_STEER_RAD;
+
+    // 2. Radian -> PWM(ns) 변환 로직
+    // 비율 계산: (입력 각도 / 서보 전체 각도(PI))
+    // MG998R은 180도(PI) 범위에서 동작
+    
+    float duty_offset = (steering_rad / M_PI) * SERVO_RANGE_NS;
+    
+    // 3. 최종 듀티값 계산
+    // 만약 방향이 반대면 '+ duty_offset'을 '- duty_offset'으로 변경
+    int32_t calc_ns = (int32_t)SERVO_CENTER_NS + (int32_t)duty_offset;
+
+    // 4. 서보 하드웨어 리미트 방어 (최종 안전빵)
+    // 계산된 값이 서보 허용 범위를 넘으면 모터가 타버릴 수 있음
+    if (calc_ns < (int32_t)SERVO_MIN_NS) calc_ns = (int32_t)SERVO_MIN_NS;
+    if (calc_ns > (int32_t)SERVO_MAX_NS) calc_ns = (int32_t)SERVO_MAX_NS;
+
+    // 5. [핵심] 커스텀 드라이버 호출 (PWM 안 끄고 즉시 적용!)
+    // PDM_Disable -> PDM_SetConfig -> PDM_Enable (X) -> 이제 안녕!
+    SALRetCode_t ret = PDM_UpdateDutyNano(STEER_PWM_CH, (uint32)calc_ns);
+
+    if (ret != SAL_RET_SUCCESS)
+    {
+        // 에러 처리 (로그 출력 등)
+        // mcu_printf("Steering Update Failed!\n");
+    }
+}
 void control_steering_step(uint32 cmd)
 {
     if (!g_steer_initialized) steer_init();
