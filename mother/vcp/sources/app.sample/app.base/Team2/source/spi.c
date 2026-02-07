@@ -44,7 +44,7 @@ static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
     SAL_QueuePut(g_motor_queue_id, (void *)m, SPI_BYTE, 0, SAL_OPT_NON_BLOCKING);
 
     SAL_CoreCriticalEnter();
-    spi_tx_buf[0] = g_enc_count;
+    spi_tx_buf[0] = s_encCnt;
     SAL_CoreCriticalExit();
 
     spi_tx_buf[1] = 0;

@@ -5,7 +5,7 @@
 #include <debug.h>
 
 /* ===== Internal Variable ===== */
-static volatile int32 g_enc_count = 0;
+static volatile int32 s_encCnt = 0;
 
 /* ===== Encoder Init ===== */
 void Encoder_Init(void)
@@ -45,7 +45,7 @@ void EncoderTask(void *pArg)
                 case 0b0111:
                 case 0b1110:
                 case 0b1000:
-                    g_enc_count++;
+                    s_encCnt++;
                     break;
 
                 // CCW
@@ -53,7 +53,7 @@ void EncoderTask(void *pArg)
                 case 0b1011:
                 case 0b1101:
                 case 0b0100:
-                    g_enc_count--;
+                    s_encCnt--;
                     break;
 
                 default:
@@ -64,7 +64,7 @@ void EncoderTask(void *pArg)
             prev_state = state;
         }
 
-        mcu_printf("[ENC] A=%d B=%d CNT=%d\n", a, b, (int)g_enc_count);
+        mcu_printf("[ENC] A=%d B=%d CNT=%d\n", a, b, (int)s_encCnt);
         SAL_TaskSleep(5);
     }
 }
@@ -72,10 +72,10 @@ void EncoderTask(void *pArg)
 /* ===== Getter / Setter ===== */
 int32 Encoder_GetCount(void)
 {
-    return g_enc_count;
+    return s_encCnt;
 }
 
 void Encoder_ResetCount(void)
 {
-    g_enc_count = 0;
+    s_encCnt = 0;
 }

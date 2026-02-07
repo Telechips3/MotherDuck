@@ -6,7 +6,7 @@
 #include <debug.h>
 
 /* ===== Internal Variable ===== */
-volatile int32 g_enc_count = 0;
+volatile int32 s_encCnt = 0;
 static uint8_t s_prev_state = 0;
 
 static uint32 encTaskID;
@@ -30,7 +30,7 @@ static void Encoder_ISR_Handler(void *args)
     case 0b0111:
     case 0b1110:
     case 0b1000:
-        g_enc_count++;
+        s_encCnt++;
         break;
 
     // 역회전 케이스 (00->10, 10->11, 11->01, 01->00)
@@ -38,7 +38,7 @@ static void Encoder_ISR_Handler(void *args)
     case 0b1011:
     case 0b1101:
     case 0b0100:
-        g_enc_count--;
+        s_encCnt--;
         break;
 
     default:
@@ -46,31 +46,31 @@ static void Encoder_ISR_Handler(void *args)
     }
 
     //
-    switch (state_transition)
-    {
-    // 1. 정회전(CW) 케이스: A가 먼저 변함
-    case 0b0010: // 00 -> 10 (A Rising)
-    case 0b1011: // 10 -> 11 (B Rising - 이때 A는 High!)
-    case 0b1101: // 11 -> 01 (A Falling)
-    case 0b0100: // 01 -> 00 (B Falling)
-        g_enc_count++;
-        break;
+    // switch (state_transition)
+    // {
+    // // 1. 정회전(CW) 케이스: A가 먼저 변함
+    // case 0b0010: // 00 -> 10 (A Rising)
+    // case 0b1011: // 10 -> 11 (B Rising - 이때 A는 High!)
+    // case 0b1101: // 11 -> 01 (A Falling)
+    // case 0b0100: // 01 -> 00 (B Falling)
+    //     s_encCnt++;
+    //     break;
 
-    // 2. 역회전(CCW) 케이스: B가 먼저 변함
-    case 0b0001: // 00 -> 01 (B Rising)
-    case 0b0111: // 01 -> 11 (A Rising)
-    case 0b1110: // 11 -> 10 (B Falling)
-    case 0b1000: // 10 -> 00 (A Falling)
-        g_enc_count--;
-        break;
+    // // 2. 역회전(CCW) 케이스: B가 먼저 변함
+    // case 0b0001: // 00 -> 01 (B Rising)
+    // case 0b0111: // 01 -> 11 (A Rising)
+    // case 0b1110: // 11 -> 10 (B Falling)
+    // case 0b1000: // 10 -> 00 (A Falling)
+    //     s_encCnt--;
+    //     break;
 
-    default:
-        // 변화 없음 또는 노이즈(00->11 등)
-        break;
+    // default:
+    //     // 변화 없음 또는 노이즈(00->11 등)
+    //     break;
 
-        s_prev_state = cur_state;
-        mcu_printf("encoder Cnt: %d\n", g_enc_count);
-    }
+    // }
+    s_prev_state = cur_state;
+    mcu_printf("encoder Cnt: %d\n", s_encCnt);
 }
 
 /* ===== Init ===== */
@@ -114,10 +114,10 @@ SALRetCode_t EncoderTaskCreate(void)
 /* ===== Getter / Setter ===== */
 int32 Encoder_GetCount(void)
 {
-    return g_enc_count;
+    return s_encCnt;
 }
 
 void Encoder_ResetCount(void)
 {
-    g_enc_count = 0;
+    s_encCnt = 0;
 }

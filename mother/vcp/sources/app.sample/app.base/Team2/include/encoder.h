@@ -6,7 +6,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-extern volatile int32 g_enc_count;
+extern volatile int32 s_encCnt;
 
 /* API */
 void Encoder_Init(void);
