@@ -58,53 +58,31 @@ static void Encoder_ISR_Handler(void *args)
     // [이전A][이전B][현재A][현재B]
     uint8_t state_transition = (s_prev_state << 2) | cur_state;
 
-    // 4. 상태 변화에 따른 카운트 (4체배 로직)
+    
     switch (state_transition)
     {
-    // 정회전 케이스 (00->01, 01->11, 11->10, 10->00)
-    case 0b0001:
-    case 0b0111:
-    case 0b1110:
-    case 0b1000:
+    // 1. 정회전(CW) 케이스: A가 먼저 변함
+    case 0b0010: // 00 -> 10 (A Rising)
+    case 0b1011: // 10 -> 11 (B Rising - 이때 A는 High!)
+    case 0b1101: // 11 -> 01 (A Falling)
+    case 0b0100: // 01 -> 00 (B Falling)
         s_encCnt++;
         break;
 
-    // 역회전 케이스 (00->10, 10->11, 11->01, 01->00)
-    case 0b0010:
-    case 0b1011:
-    case 0b1101:
-    case 0b0100:
+    // 2. 역회전(CCW) 케이스: B가 먼저 변함
+    case 0b0001: // 00 -> 01 (B Rising)
+    case 0b0111: // 01 -> 11 (A Rising)
+    case 0b1110: // 11 -> 10 (B Falling)
+    case 0b1000: // 10 -> 00 (A Falling)
         s_encCnt--;
         break;
 
     default:
+        // 변화 없음 또는 노이즈(00->11 등)
         break;
+
     }
-
-    //
-    // switch (state_transition)
-    // {
-    // // 1. 정회전(CW) 케이스: A가 먼저 변함
-    // case 0b0010: // 00 -> 10 (A Rising)
-    // case 0b1011: // 10 -> 11 (B Rising - 이때 A는 High!)
-    // case 0b1101: // 11 -> 01 (A Falling)
-    // case 0b0100: // 01 -> 00 (B Falling)
-    //     s_encCnt++;
-    //     break;
-
-    // // 2. 역회전(CCW) 케이스: B가 먼저 변함
-    // case 0b0001: // 00 -> 01 (B Rising)
-    // case 0b0111: // 01 -> 11 (A Rising)
-    // case 0b1110: // 11 -> 10 (B Falling)
-    // case 0b1000: // 10 -> 00 (A Falling)
-    //     s_encCnt--;
-    //     break;
-
-    // default:
-    //     // 변화 없음 또는 노이즈(00->11 등)
-    //     break;
-
-    // }
+    
     s_prev_state = cur_state;
     mcu_printf("encoder Cnt: %d\n", s_encCnt);
 }
@@ -112,13 +90,17 @@ static void Encoder_ISR_Handler(void *args)
 /* ===== Init ===== */
 void Encoder_Init(void)
 {
-    GPIO_Config(ENC_A_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
+    PIO_Config(ENC_A_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
     GPIO_Config(ENC_B_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
 
-    GPIO_IntExtSet(EIT_ENCODER, ENC_A_GPIO);
-    (void)GIC_IntVectSet(EIT_ENCODER, GIC_PRIORITY_NO_MEAN, GIC_INT_TYPE_EDGE_FALLING, (GICIsrFunc)(Encoder_ISR_Handler), (void *)0);
-    (void)GIC_IntSrcEn(EIT_ENCODER);
-
+    GPIO_IntExtSet(EIT_ENCODER_A, ENC_A_GPIO);
+    GPIO_IntExtSet(EIT_ENCODER_B, ENC_B_GPIO);
+    
+    (void)GIC_IntVectSet(EIT_ENCODER_A, GIC_PRIORITY_NO_MEAN, GIC_INT_TYPE_EDGE_BOTH, (GICIsrFunc)(Encoder_ISR_Handler), (void *)0);
+    (void)GIC_IntVectSet(EIT_ENCODER_B, GIC_PRIORITY_NO_MEAN, GIC_INT_TYPE_EDGE_BOTH, (GICIsrFunc)(Encoder_ISR_Handler), (void *)0);
+    
+    (void)GIC_IntSrcEn(EIT_ENCODER_A);
+    (void)GIC_IntSrcEn(EIT_ENCODER_B);
     s_encCnt = 0;
     s_prevCnt = 0;
     s_prevTickMs = get_tick_ms();
