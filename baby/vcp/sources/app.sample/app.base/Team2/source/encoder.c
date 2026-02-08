@@ -53,46 +53,12 @@ static void Encoder_ISR_Handler(void *args)
     uint8 curA = GPIO_Get(ENC_A_GPIO);
     uint8 curB = GPIO_Get(ENC_B_GPIO);
 
-<<<<<<< HEAD
-    // 3. 이전 상태와 현재 상태를 조합 (4비트 데이터)
-    // [이전A][이전B][현재A][현재B]
-    uint8_t state_transition = (s_prev_state << 2) | cur_state;
-
-    
-    switch (state_transition)
-    {
-    // 1. 정회전(CW) 케이스: A가 먼저 변함
-    case 0b0010: // 00 -> 10 (A Rising)
-    case 0b1011: // 10 -> 11 (B Rising - 이때 A는 High!)
-    case 0b1101: // 11 -> 01 (A Falling)
-    case 0b0100: // 01 -> 00 (B Falling)
-        s_encCnt++;
-        break;
-
-    // 2. 역회전(CCW) 케이스: B가 먼저 변함
-    case 0b0001: // 00 -> 01 (B Rising)
-    case 0b0111: // 01 -> 11 (A Rising)
-    case 0b1110: // 11 -> 10 (B Falling)
-    case 0b1000: // 10 -> 00 (A Falling)
-        s_encCnt--;
-        break;
-
-    default:
-        // 변화 없음 또는 노이즈(00->11 등)
-        break;
-
-    }
-    
-    s_prev_state = cur_state;
-    //mcu_printf("encoder Cnt: %d\n", s_encCnt);
-=======
     // A falling edge에서만 호출된다는 전제
     if (curA == curB) {
         s_encCnt++;
     } else {
         s_encCnt--;
     }
->>>>>>> e7f651d (imu shit)
 }
 
 /* 4체배 */
