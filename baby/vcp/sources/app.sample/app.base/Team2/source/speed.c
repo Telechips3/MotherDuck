@@ -68,7 +68,7 @@ void control_motor_drive(uint32 cmd)
         wait_cnt = 0;
         while (PDM_GetChannelStatus(MOTOR_PWM_CH))
         {
-            // SAL_TaskSleep(1); <- 이걸 지우세요!
+            SAL_TaskSleep(1); //<- 이걸 지우세요!
             for (volatile int i = 0; i < 1000; i++)
                 ; // 단순 루프로 아주 짧게 대기
 

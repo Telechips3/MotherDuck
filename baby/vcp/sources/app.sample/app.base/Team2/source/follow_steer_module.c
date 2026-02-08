@@ -45,10 +45,10 @@ static float steer_angle_rad;
 int update_follower_steer(to_vcp_msg_t* msg){
     pp_init(&pp_handler, NULL);
     Pose_Init(0.0f, 0.0f, 0.0f);  // ★ pose 모듈 초기화
-
+    mcu_printf("[follow_steer] update init\n");
     uint8_t ret;    
     Pose_Update();
-
+    
     // pose에 update된 pose 받아옴
     ret = Pose_Get(&pose);
     if(ret != 0){

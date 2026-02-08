@@ -28,7 +28,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             //아예 exception 처리에서 처리하면 좋을듯
             //정책 -> 긴급정지(pwm 출력 0)
 
-            control_motor_drive(0); // 비상정지
+            //control_motor_drive(0); // 비상정지
             Control_Steering_Custom(0); // 중앙 정렬
             break;
 
@@ -36,7 +36,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             mcu_printf("   [PARSING] MODE_STOP_AND_HOLD - Holding Position\n");
             //아예 exception 처리에서 처리하면 좋을듯
             //정책 -> 천천히 정지
-            control_motor_drive(0); // 정지 및 유지
+            //control_motor_drive(0); // 정지 및 유지
             Control_Steering_Custom(0); // 중앙 정렬
             break;
             
@@ -118,7 +118,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             
         default:
             mcu_printf("[PARSING] UNKNOWN MODE (%d) - STOP!\n", msg->mode);
-            control_motor_drive(0);
+            //control_motor_drive(0);
             Control_Steering_Custom(0); // 중앙 정렬
             break;
     }

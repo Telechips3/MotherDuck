@@ -49,14 +49,15 @@ static void IPC_Task(void *pParam)
     //     }
     //     SAL_TaskSleep(1);
     // }
+    
     to_vcp_spi_msg_t received_pkt; // 구조체 패킷 수신
     uint32 copied_size = 0; // 수신 크기
     SALRetCode_t ret;
 
     while(1)
     {
-        ret = SAL_QueueGet(IPC_queue_id, &received_pkt, &copied_size, 200, SAL_OPT_BLOCKING);
         mcu_printf("[ipc] loop entered\n");
+        ret = SAL_QueueGet(IPC_queue_id, &received_pkt, &copied_size, 200, SAL_OPT_BLOCKING);
         if(ret == SAL_RET_SUCCESS)
         {
             if(received_pkt.magic == 0xA5)
@@ -69,7 +70,7 @@ static void IPC_Task(void *pParam)
         else{
             // 타임아웃 발생 시 정지 명령 실행
             mcu_printf("[ipc] unknown magic number\n");
-            control_motor_drive(0xFF);
+            //control_motor_drive(0xFF);
         }
         SAL_TaskSleep(IPC_TASK_SLEEP_MS);
     }
