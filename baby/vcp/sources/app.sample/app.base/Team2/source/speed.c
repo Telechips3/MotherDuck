@@ -72,7 +72,7 @@ void control_motor_drive(uint32 cmd)
             for (volatile int i = 0; i < 1000; i++)
                 ; // 단순 루프로 아주 짧게 대기
 
-            if (++wait_cnt > 1000)
+            if (++wait_cnt > 100)
                 break; // 카운트를 좀 더 늘려주세요
         }
     }
