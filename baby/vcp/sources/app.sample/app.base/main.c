@@ -39,7 +39,7 @@
 #define ENABLE_ULTRASONIC_TASK      0   
 #define ENABLE_POSE_TASK            0
 #define ENABLE_SENSOR_TASK          1
-#define ENABLE_FOLLOW_STEER_TASK    1
+#define ENABLE_FOLLOW_STEER_TASK    0
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
 #include <spi_eccp.h>

@@ -84,7 +84,7 @@ static void Encoder_ISR_Handler(void *args)
     }
     
     s_prev_state = cur_state;
-    mcu_printf("encoder Cnt: %d\n", s_encCnt);
+    //mcu_printf("encoder Cnt: %d\n", s_encCnt);
 }
 
 /* ===== Init ===== */
