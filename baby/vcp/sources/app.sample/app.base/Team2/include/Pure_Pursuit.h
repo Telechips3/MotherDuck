@@ -1,6 +1,7 @@
 // Pure_Pursuit.h
 #pragma once
 #include <stddef.h>
+#include "pose.h"
 
 typedef struct {
     float x;    // meters (global frame)
@@ -38,12 +39,12 @@ void  pp_set_config(PP_Handle* h, const PP_Config* cfg);
 
 // compute steering angle (rad)
 // returns 0 on success, nonzero on error (e.g., invalid inputs)
-int   pp_compute_steer(
-          PP_Handle* h,
-          const PP_Pose* pose,
-          const PP_Waypoint* wps, size_t n,
-          float* out_steer_rad  // output
-      );
+int pp_compute_steer(
+    PP_Handle* h,
+    const Pose* pose,
+    const PP_Waypoint* wps, size_t n,
+    float* out_steer_rad
+);
 
 
 

@@ -357,6 +357,8 @@ SALRetCode_t PDM_SetConfig
     PDMModeConfig_t *                   pModeConfig
 );
 
+SALRetCode_t PDM_UpdateDutyNano(uint32 uiChannel, uint32 uiDutyNanoSec);
+
 #endif  // ( MCU_BSP_SUPPORT_DRIVER_PDM == 1 )
 
 #endif  // MCU_BSP_PDM_HEADER

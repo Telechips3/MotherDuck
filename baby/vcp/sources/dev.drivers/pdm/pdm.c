@@ -2199,5 +2199,85 @@ SALRetCode_t PDM_SetConfig
     return ret;
 }
 
+/*
+***************************************************************************************************
+* PDM_UpdateDutyNano (Custom)
+*
+* 동작 중인 PDM을 끄지 않고 듀티(High 구간)만 즉시 변경함.
+* (Phase Mode 1 기준, Period는 변경 안 함)
+***************************************************************************************************
+*/
+SALRetCode_t PDM_UpdateDutyNano(uint32 uiChannel, uint32 uiDutyNanoSec)
+{
+    uint32 uiClockFreq = 0;
+    uint32 uiClockDivide = 0;
+    uint32 uiClockTns = 0;
+    uint32 uiPeriodNanoSec = 0;
+    uint32 uiPosition1 = 0; // Low 구간 길이 (Start ~ Duty Start)
+    uint32 uiPosition2 = 0; // High 구간 길이 (Duty)
+    
+    uint32 uiModuleId = 0;
+    uint32 uiChannelId = 0;
+    uint32 uiPstn1Reg = 0;
+    uint32 uiPstn2Reg = 0;
+    uint32 uiRegOpEn = 0;
+    uint32 uiVal = 0;
+
+    // 1. 채널 유효성 검사
+    if(uiChannel >= PDM_OUT_CH_MAX) return SAL_RET_FAILED;
+
+    uiModuleId  = PDMHandler[uiChannel].chModuleId;
+    uiChannelId = PDMHandler[uiChannel].chChannelId;
+
+    // 2. 현재 설정된 정보 가져오기 (기존 Period 유지)
+    // PDMHandler에 저장된 이전 설정값을 믿고 간다.
+    uiPeriodNanoSec = PDMHandler[uiChannel].chModeCfgInfo.mcPeriodNanoSec1;
+    uiClockDivide   = PDMHandler[uiChannel].chModeCfgInfo.mcClockDivide; 
+
+    // 3. 클럭 계산 (기존 PDM_ConfigPhase1Pstn 로직 참고)
+    // 현재 페리페럴 클럭 가져오기
+    uiClockFreq = CLOCK_GetPeriRate((sint32)CLOCK_PERI_PWM0); // PWM0/1/2가 같다고 가정
+    
+    // 분주비 적용
+    uiClockFreq = (uiClockFreq >> (uiClockDivide + 1UL));
+    if(uiClockFreq == 0) return SAL_RET_FAILED;
+
+    // 1틱당 나노초(ns) 계산
+    uiClockTns = (PDM_ONE_SECOND_TO_NANO / uiClockFreq);
+    if(uiClockTns == 0) return SAL_RET_FAILED;
+
+    // 4. 새로운 Position 값 계산 (핵심 로직)
+    // Phase Mode 1: Position1(Low구간) -> Position2(High구간)
+    // Low 구간 = 전체 Period - Duty
+    uiPosition1 = ((uiPeriodNanoSec - uiDutyNanoSec) / uiClockTns);
+    // High 구간 = Duty
+    uiPosition2 = (uiDutyNanoSec / uiClockTns);
+
+    // 하드웨어 리미트 보정 (Telechips 로직 그대로)
+    uiPosition1 = (uiPosition1 > PDM_HW_LIMIT_VALUE_2) ? (uiPosition1 - PDM_HW_LIMIT_VALUE_2) : 0UL;
+    uiPosition2 = (uiPosition2 > PDM_HW_LIMIT_VALUE_2) ? (uiPosition2 - PDM_HW_LIMIT_VALUE_2) : 0UL;
+
+    // 5. 레지스터에 값 쓰기 (PSTN1, PSTN2)
+    uiPstn1Reg = PDM_BASE + (uiModuleId * PDM_MODULE_OFFSET) + PDM_GetPSTN1Reg(uiChannelId);
+    uiPstn2Reg = PDM_BASE + (uiModuleId * PDM_MODULE_OFFSET) + PDM_GetPSTN2Reg(uiChannelId);
+
+    SAL_WriteReg(uiPosition1, uiPstn1Reg);
+    SAL_WriteReg(uiPosition2, uiPstn2Reg);
+
+    // 6. Value Update (VUP) 비트 쏘기 -> 이게 있어야 적용됨!
+    uiRegOpEn = PDM_BASE + PDM_OP_EN_REG_OFFSET + (uiModuleId * PDM_MODULE_OFFSET);
+    
+    // 기존 값 읽어서 VUP 비트만 1로 세팅
+    uiVal = SAL_ReadReg(uiRegOpEn) | ((uint32)0x1U << (PDM_GetOPENValueUpReg(uiChannelId)));
+    SAL_WriteReg(uiVal, uiRegOpEn);
+
+    // 7. 핸들러 정보 업데이트 (다음을 위해)
+    PDMHandler[uiChannel].chModeCfgInfo.mcDutyNanoSec1 = uiDutyNanoSec;
+    PDMHandler[uiChannel].chModeCfgInfo.mcPosition1 = uiPosition1;
+    PDMHandler[uiChannel].chModeCfgInfo.mcPosition2 = uiPosition2;
+
+    return SAL_RET_SUCCESS;
+}
+
 #endif  // ( MCU_BSP_SUPPORT_DRIVER_PDM == 1 )
 

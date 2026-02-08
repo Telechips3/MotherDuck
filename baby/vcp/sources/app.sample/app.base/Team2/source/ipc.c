@@ -62,7 +62,7 @@ static void IPC_Task(void *pParam)
             if(received_pkt.magic == 0xA5)
             {
                 // 유효한 패킷 수신 시 제어 함수 호출
-                mcu_printf("[ipc] PK RX\n");
+                mcu_printf("[ipc] PKT RX Successed\n");
                 parse_and_excute_control((void*)&received_pkt);
             }
         }
@@ -74,7 +74,7 @@ static void IPC_Task(void *pParam)
         SAL_TaskSleep(IPC_TASK_SLEEP_MS);
     }
 }
-//테스트 코드
+/* 테스트 코드 ==================================================================
 typedef struct {
     const char* scenario_name;      // 시나리오 이름
     ctrl_mode_t mode;               // 제어 모드
@@ -87,7 +87,7 @@ typedef struct {
     uint16_t duration_ms;           // 시나리오 지속 시간
 } test_scenario_t;
 
-/* 📋 테스트 시나리오 배열 (실제 주행 상황 시뮬레이션)
+📋 테스트 시나리오 배열 (실제 주행 상황 시뮬레이션)
 static const test_scenario_t test_scenarios[] = {
     // === 시나리오 1: ESTOP (비상정지) ===
     {
@@ -364,7 +364,7 @@ static void vDummyProducerTask(void *pParam)
         }
     }
 }
-*/
+=========================================================================================*/
 void ipc_init(void)
 {
     //(void)SAL_QueueCreate(&g_motor_queue_id, (const uint8 *)"MotorQ", QUEUE_LENGTH, sizeof(uint32));

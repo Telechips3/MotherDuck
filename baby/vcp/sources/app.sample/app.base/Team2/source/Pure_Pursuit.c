@@ -3,6 +3,8 @@
 #include "Pure_Pursuit.h"
 #include "imu.h"
 #include "follow_steer_module.h"
+#include "pose.h"
+
 #include <math.h>
 #include <debug.h>
 #include <app_cfg.h>
@@ -50,7 +52,7 @@ void pp_set_config(PP_Handle* h, const PP_Config* cfg){
 
 int pp_compute_steer(
     PP_Handle* h,
-    const PP_Pose* pose,
+    const Pose* pose,
     const PP_Waypoint* wps, size_t n,
     float* out_steer_rad
 ){

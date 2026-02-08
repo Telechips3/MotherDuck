@@ -11,6 +11,11 @@
 #define STEER_NEUTRAL_NS      1500000   // 1.5ms가 국룰입니다!
 #define STEER_MAX_NS          2000000   
 
+#define SERVO_RANGE_NS    (STEER_MAX_NS - STEER_MIN_NS) // 2,000,000ns
+#define MAX_STEER_RAD     0.6f       // 약 34도
+
+
+
 // 조향 감도 (0.01ms씩 이동)
 // 너무 느리면 이 값을 20000~50000으로 키우세요.
 #define STEER_STEP_NS         10000
@@ -19,5 +24,6 @@
 
 void control_steering_step(uint32 cmd);
 void control_steering_absolute(int16_t x_norm_q15);
+void Control_Steering_Custom(float steering_rad);
 
-#endif
+#endif /* _STEER_H_ */

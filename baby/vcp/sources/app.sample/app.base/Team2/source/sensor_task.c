@@ -31,6 +31,7 @@ static void SensorTask(void *pArg)
 
     while (1)
     {
+        uint8_t ret = 0;
         IMU_ModuleUpdate();
 
         uint32 nowMs = get_tick_ms();
@@ -41,7 +42,10 @@ static void SensorTask(void *pArg)
         }
 
         Pose_Update();
-        (void)Pose_Get(&s_sensor_pose);
+        ret = Pose_Get(&s_sensor_pose);
+        if(ret != 0){
+            mcu_printf("[SensorTask] Getting Pose Failed \n");
+        }
         SAL_TaskSleep(SENSOR_TASK_PERIOD_MS);
     }
 }
