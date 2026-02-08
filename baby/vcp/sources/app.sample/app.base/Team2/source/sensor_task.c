@@ -14,7 +14,7 @@
 #define DEG2RAD(deg) ((deg) * (PI_F / 180.0f))
 #define RAD2DEG(rad) ((rad) * (180.0f / PI_F))
 
-#define ENC_CALC_PERIOD_MS        500
+#define ENC_CALC_PERIOD_MS        10
 
 static Pose s_sensor_pose;
 
@@ -28,7 +28,7 @@ static inline uint32 get_tick_ms(void)
 static void SensorTask(void *pArg)
 {
     (void)pArg;
-    mcu_printf("[SensorTask] task entered \n");    
+    mcu_printf("[SensorTask] task entered at %d ms\n", get_tick_ms()); 
     
     Encoder_Init();
     IMU_ModuleInit();

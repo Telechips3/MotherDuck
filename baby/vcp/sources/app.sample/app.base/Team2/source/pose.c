@@ -25,18 +25,21 @@ void Pose_Init(float x0, float y0, float yaw0)
  */
 void Pose_Update(void)
 {
+    int ret = 0;
     // 1️⃣ 현재 방향 (IMU or debug override)
-    if (s_yaw_override_enabled) {
-        s_pose.yaw = s_yaw_override_rad;
-    } else {
+
         IMU_Data_t imu;
-        if (IMU_GetData(&imu) == 0) {
+        ret = IMU_GetData(&imu);
+        // mcu_printf("[pose] ret = %d",ret);
+        if (ret == 0) {
+
             //단위변환 angle->rad
             s_pose.yaw = imu.yaw * (3.1415926535f / 180.0f);
+            // mcu_printf("[pose] %d\n",(int)(s_pose.yaw*100));
         }
-    }
-
+    
     // 2️⃣ 이번 루프 이동 거리 (Encoder, cm -> m)
+    // mcu_printf("[pose] ret = %d",ret);
     float d_m = Encoder_GetDeltaDistanceCm() * 0.01f;
 
     // 3️⃣ 좌표 적분 (핵심)

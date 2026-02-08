@@ -65,7 +65,7 @@ void IMU_ModuleUpdate(void)
                          &ax, &ay, &az, &gx, &gy, &gz) == 0)
     {
         MPU6050_Update_Filter(&s_mpu, ax, ay, az, gx, gy, gz, dt);
-         //mcu_printf("[IMU] raw ok ax=%d ay=%d az=%d gx=%d gy=%d gz=%d\n", ax, ay, az, gx, gy, gz);
+        //mcu_printf("[IMU] raw ok ax=%d ay=%d az=%d gx=%d gy=%d gz=%d\n", ax, ay, az, gx, gy, gz);
         s_imu.roll  = s_mpu.roll;
         s_imu.pitch = s_mpu.pitch;
         s_imu.yaw   = s_mpu.yaw;
@@ -109,7 +109,7 @@ SALRetCode_t IMUTaskCreate(void)
 int IMU_GetData(IMU_Data_t *out)
 {
     if (!out)
-        return -1;
+        return 1;
 
     *out = s_imu;
     return 0;

@@ -19,7 +19,8 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
     mcu_printf("\n[SPI RX] ════════════════════════════════════════\n");
     mcu_printf("  Magic : 0x%02X | Seq: %d | Time: %d ms\n", 
                pkt->magic, msg->seq, msg->cpu_time_ms);
-    mcu_printf("  Mode: %d ", msg->mode);
+    mcu_printf("  Mode: %d \n", msg->mode);
+    
 
     switch(msg->mode)
     {
