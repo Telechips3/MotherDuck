@@ -59,6 +59,7 @@ static void Encoder_ISR_Handler(void *args)
     } else {
         s_encCnt--;
     }
+    
 }
 
 // static void Encoder_ISR_Handler(void *args)

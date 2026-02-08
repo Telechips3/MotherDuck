@@ -41,9 +41,9 @@ static void SensorTask(void *pArg)
         mcu_printf("[SensorTask] loop entered\n");
         uint8_t ret = 0;
         IMU_Data_t imu;
-        if (IMU_GetData(&imu) == 0) {
-            mcu_printf("[IMU] yaw=%d deg\n", (int)(100*imu.yaw));
-        }
+        // if (IMU_GetData(&imu) == 0) {
+        //     mcu_printf("[IMU] yaw=%d deg\n", (int)(100*imu.yaw));
+        // }
         IMU_ModuleUpdate();
         uint32 nowMs = get_tick_ms();
         if ((nowMs - lastEncCalcMs) >= ENC_CALC_PERIOD_MS)
