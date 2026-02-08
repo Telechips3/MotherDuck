@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <decide_mode.h>
+#include "../../decision_module/decide_mode/decide_mode.h"
 // proto_spi.h
 // 32-bit 정렬된 SPI용 메시지 정의
 

@@ -7,18 +7,19 @@
 #include <linux/spi/spidev.h>
 #include <arpa/inet.h>
 #include <stdint.h>
+#include "../common/Proto/proto_spi.h"
 
 #define PORT 8080
 #define SPI_DEVICE "/dev/spidev0.0"
 
 // --- [리더님 요청 1: 전역 배열 선언] ---
 // 1바이트만 쓰더라도 배열로 관리하면 추후 프로토콜 확장이 유리합니다.
-static uint8_t tx_buf[1] = {0x00};
-static uint8_t rx_buf[1] = {0x00};
+static uint32_t tx_buf[16] = {0x00};
+static uint32_t rx_buf[16] = {0x00};
 
 static uint8_t mode = 0;
 static uint8_t bits = 8;
-static uint32_t speed = 500000;
+static uint32_t speed = 1000000;
 
 int spi_init(const char *device)
 {
@@ -42,7 +43,7 @@ void spi_send_byte(int fd, uint8_t val)
     struct spi_ioc_transfer tr = {
         .tx_buf = (unsigned long)tx_buf,
         .rx_buf = (unsigned long)rx_buf,
-        .len = 1,
+        .len = 32,
         .delay_usecs = 0,
         .speed_hz = speed,
         .bits_per_word = bits,
@@ -50,11 +51,20 @@ void spi_send_byte(int fd, uint8_t val)
 
     printf("[SPI 송신] tx_buf[0] = %u\n", tx_buf[0]);
 
-    if (ioctl(fd, SPI_IOC_MESSAGE(1), &tr) < 1) {
+    if (ioctl(fd, SPI_IOC_MESSAGE(1), &tr) < 1)
+    {
         perror("[Linux Master] SPI Transfer Failed");
     }
 
-    printf("[SPI] 수신] rx_buf[0] = %u\n", rx_buf[0]);
+    int x = 0;
+
+    x = ((int)rx_buf[3] << 24UL) |
+        ((int)rx_buf[2] << 16UL) |
+        ((int)rx_buf[1] << 8UL) |
+        ((int)rx_buf[0] << 0UL);
+
+    printf("[SPI 수신 완료] x = 0x%08X (%u)\n", x, x);
+    //printf("[SPI 수신 완료] rx_buf[0] = %u\n", rx_buf[0]);
 }
 
 int main()
@@ -77,7 +87,7 @@ int main()
     bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr));
 
     printf("Topst D3-G: 1바이트 전역배열 송신 대기 중...\n");
-
+    spi_send_byte(spi_fd, 0);
     while (1)
     {
         socklen_t len = sizeof(cliaddr);
