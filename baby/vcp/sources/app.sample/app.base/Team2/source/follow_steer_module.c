@@ -19,7 +19,7 @@
 
 // IMU 데이터 저장용 전역 변수
 //static IMU_Data_t imu_data;
-static wps_fifo_t wps;
+
 
 // Pure_Pursuit structures
 static Pose pose;
@@ -59,16 +59,6 @@ int update_follower_steer(to_vcp_msg_t* msg){
     if(ret != 0){
         mcu_printf("[follow_steer] pose value get error = %d\n", ret);
         return 1;
-    }
-    
-    wps_fifo_init(&wps);
-
-    wp_t a = { .x_m = 1.0f, .y_m = 2.0f };
-    (void)wps_fifo_push(&wps, &a);
-
-    wp_t b;
-    if (wps_fifo_pop(&wps, &b) == 0) {
-        // b에 a가 들어있음
     }
 
     mcu_printf("[follow_steer] calculated pose (%d, %d, %d)\n ",(int)(1000*pose.x), (int)(1000*pose.y), (int)(1000*pose.yaw));
