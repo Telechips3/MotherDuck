@@ -30,7 +30,8 @@
 //encoder
 #define ENC_A_GPIO          GPIO_GPA(22)
 #define ENC_B_GPIO          GPIO_GPA(21)
-#define EIT_ENCODER        (GIC_EXT4)
+#define EIT_ENCODER_A        (GIC_EXT4)
+#define EIT_ENCODER_B        (GIC_EXT5)
 
 #define ENCODER_TASK_STACK_SIZE 512
 #define ENCODER_TASK_PRIORITY   (SAL_PRIO_APP_CFG)

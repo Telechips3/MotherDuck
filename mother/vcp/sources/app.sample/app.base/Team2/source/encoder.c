@@ -79,9 +79,14 @@ void Encoder_Init(void)
     GPIO_Config(ENC_A_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
     GPIO_Config(ENC_B_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
 
-    GPIO_IntExtSet(EIT_ENCODER, ENC_A_GPIO);
-    (void)GIC_IntVectSet(EIT_ENCODER, GIC_PRIORITY_NO_MEAN, GIC_INT_TYPE_EDGE_FALLING, (GICIsrFunc)(Encoder_ISR_Handler), (void *)0);
-    (void)GIC_IntSrcEn(EIT_ENCODER);
+    GPIO_IntExtSet(EIT_ENCODER_A, ENC_A_GPIO);
+    GPIO_IntExtSet(EIT_ENCODER_B, ENC_B_GPIO);
+    
+    (void)GIC_IntVectSet(EIT_ENCODER_A, GIC_PRIORITY_NO_MEAN, GIC_INT_TYPE_EDGE_BOTH, (GICIsrFunc)(Encoder_ISR_Handler), (void *)0);
+    (void)GIC_IntVectSet(EIT_ENCODER_B, GIC_PRIORITY_NO_MEAN, GIC_INT_TYPE_EDGE_BOTH, (GICIsrFunc)(Encoder_ISR_Handler), (void *)0);
+    
+    (void)GIC_IntSrcEn(EIT_ENCODER_A);
+    (void)GIC_IntSrcEn(EIT_ENCODER_B);
 
     mcu_printf("[ENC] Init done\n");
 }
