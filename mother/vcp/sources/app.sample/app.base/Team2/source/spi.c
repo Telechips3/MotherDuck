@@ -34,12 +34,12 @@ void Dump_Vcp_Hex(void* m, int32 len)
 
 static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 {
-    mcu_printf("[SPI] Interrupt received: Channel=%d Event=0x%08X\n", uiCh, iEvent);
+    //mcu_printf("[SPI] Interrupt received: Channel=%d Event=0x%08X\n", uiCh, iEvent);
     void* m = (void *)spi_rx_buf;
 
-    Dump_Vcp_Hex(m, SPI_BYTE);
+    //Dump_Vcp_Hex(m, SPI_BYTE);
 
-    size_t payload_len = SPI_BYTE;
+    //size_t payload_len = SPI_BYTE;
     //uint16_t calculated_crc = crc16_ccitt_false((uint8_t *)m, payload_len);
     SAL_QueuePut(g_motor_queue_id, (void *)m, SPI_BYTE, 0, SAL_OPT_NON_BLOCKING);
 
