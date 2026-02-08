@@ -2,6 +2,7 @@
 
 #include "Pure_Pursuit.h"
 #include "imu.h"
+#include "follow_steer_module.h"
 #include <math.h>
 #include <debug.h>
 #include <app_cfg.h>
@@ -12,7 +13,6 @@
 
 #define WHEELBASE      (0.2f)
 #define LOOKAHEAD      (0.6f)
-#define STREER_LIMIT   (0.6f)
 #define MIN_LD_M       (0.2f)
 
 static float clampf(float v, float lo, float hi){
@@ -35,9 +35,11 @@ void pp_init(PP_Handle* h, const PP_Config* cfg){
     };
     h->cfg = cfg ? *cfg : d;
 
-    h->last_target_idx = -1;    
-    h->last_target_x_v = 0.0f;
-    h->last_target_y_v = 0.0f;
+    h->last_target_idx = -1; 
+    h->last_target_x   = 0.0f;
+    h->last_target_y   = 0.0f;
+    h->last_target_x_d = 0.0f;
+    h->last_target_y_d = 0.0f;
     h->last_ld2        = 0.0f;
 }
 
@@ -111,7 +113,12 @@ int pp_compute_steer(
         }
         if(best_LD < 0){
             // all points are behind -> fallback: last point
-            best_LD = (int)(n - 1);
+            *out_steer_rad = 0.0f;
+            h->last_target_idx = -1;
+            h->last_target_x_d = 0.0f;
+            h->last_target_y_d = 0.0f;                
+            h->last_ld2 = 0.0f;
+            return 5; // ERR_NO_FORWARD_POINT
         }
     }
 
@@ -137,8 +144,10 @@ int pp_compute_steer(
 
     // update debug
     h->last_target_idx = best_LD;
-    h->last_target_x_v = x_t;
-    h->last_target_y_v = y_t;
+    h->last_target_x   = wps[best_LD].x;
+    h->last_target_y   = wps[best_LD].y;
+    h->last_target_x_d = x_t;
+    h->last_target_y_d = y_t;
     h->last_ld2        = ld2;
 
     *out_steer_rad = delta;             //넘겨줄 steering 각도

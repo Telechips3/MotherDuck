@@ -14,8 +14,6 @@
 */
 /* Ultrasonic */
 
-
-
 #ifndef MCU_BSP_MAIN_HEADER
 #define MCU_BSP_MAIN_HEADER
 
