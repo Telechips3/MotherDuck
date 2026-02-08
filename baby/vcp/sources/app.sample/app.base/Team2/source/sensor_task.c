@@ -40,6 +40,10 @@ static void SensorTask(void *pArg)
     {
         mcu_printf("[SensorTask] loop entered\n");
         uint8_t ret = 0;
+        IMU_Data_t imu;
+        if (IMU_GetData(&imu) == 0) {
+            mcu_printf("[IMU] yaw=%d deg\n", (int)(100*imu.yaw));
+        }
         IMU_ModuleUpdate();
         uint32 nowMs = get_tick_ms();
         if ((nowMs - lastEncCalcMs) >= ENC_CALC_PERIOD_MS)
@@ -54,7 +58,7 @@ static void SensorTask(void *pArg)
             mcu_printf("[SensorTask] Getting Pose Failed \n");
         }
         mcu_printf("[sensorTask] Current POSE : (%d, %d, %d)\n"
-            ,(int)(100*s_sensor_pose.x), (int)(100*s_sensor_pose.y),(int)(100*RAD2DEG(s_sensor_pose.yaw)));
+            ,(int)(100*s_sensor_pose.x), (int)(100*s_sensor_pose.y),(int)(100*s_sensor_pose.yaw));
         SAL_TaskSleep(SENSOR_TASK_PERIOD_MS);
     }
 }
