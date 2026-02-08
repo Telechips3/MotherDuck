@@ -36,11 +36,12 @@ void MPU6050_Calibrate(uint8 ch, uint8 addr7, MPU6050_Filter_t *pMpu) {
     int32 s_ax = 0, s_ay = 0, s_az = 0, s_gz = 0;
     int16 ax, ay, az, gx, gy, gz;
     const int n = 200;
-
+    //mcu_printf("[MPU_DRIVER] start =========== \n");
     for (int i = 0; i < n; i++) {
         if (MPU6050_Read_Raw(ch, addr7, &ax, &ay, &az, &gx, &gy, &gz) == 0) {
             s_ax += ax; s_ay += ay; s_az += az; s_gz += gz;
         }
+        // mcu_printf("[MPU_DRIVER] loop %d=========== \n",i);
         SAL_TaskSleep(5);
     }
     pMpu->ax_bias = s_ax / n;

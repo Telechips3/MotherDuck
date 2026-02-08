@@ -49,17 +49,41 @@ static void IPC_Task(void *pParam)
     //     }
     //     SAL_TaskSleep(1);
     // }
-    
+
     to_vcp_spi_msg_t received_pkt; // 구조체 패킷 수신
     uint32 copied_size = 0; // 수신 크기
     SALRetCode_t ret;
-
+    mcu_printf("[ipc] task started\n");
     while(1)
     {
         mcu_printf("[ipc] loop entered\n");
         ret = SAL_QueueGet(IPC_queue_id, &received_pkt, &copied_size, 200, SAL_OPT_BLOCKING);
+        ret = SAL_RET_SUCCESS;
         if(ret == SAL_RET_SUCCESS)
         {
+            received_pkt.magic = 0xA5;
+            
+                    received_pkt.vcp_msg.seq = 1;
+                    received_pkt.vcp_msg.cpu_time_ms = 100;
+
+                    received_pkt.vcp_msg.mode = MODE_FOLLOW_VISION;
+
+                    // ArUco 데이터
+                    received_pkt.vcp_msg.aruco_valid = 1;
+                    received_pkt.vcp_msg.aruco_age_ms = 200;
+                    received_pkt.vcp_msg.aruco_dist_mm = 60;
+                    received_pkt.vcp_msg.aruco_x_norm_q15 = 16383;
+
+                    // Waypoint 데이터
+                    received_pkt.vcp_msg.wp_valid = 1;
+                    received_pkt.vcp_msg.wp_age_ms = 200;
+                    received_pkt.vcp_msg.leader_x_mm = 4000;
+                    received_pkt.vcp_msg.leader_y_mm = 3000;
+
+                    received_pkt.vcp_msg.reason = 1;
+
+
+            
             if(received_pkt.magic == 0xA5)
             {
                 // 유효한 패킷 수신 시 제어 함수 호출
@@ -67,11 +91,12 @@ static void IPC_Task(void *pParam)
                 parse_and_excute_control((void*)&received_pkt);
             }
         }
-        else{
+            else
+            {
             // 타임아웃 발생 시 정지 명령 실행
             mcu_printf("[ipc] unknown magic number\n");
-            //control_motor_drive(0xFF);
-        }
+            control_motor_drive(0xFF);
+            }
         SAL_TaskSleep(IPC_TASK_SLEEP_MS);
     }
 }

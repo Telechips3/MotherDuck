@@ -31,6 +31,7 @@ void Pose_Update(void)
     } else {
         IMU_Data_t imu;
         if (IMU_GetData(&imu) == 0) {
+            //단위변환 angle->rad
             s_pose.yaw = imu.yaw * (3.1415926535f / 180.0f);
         }
     }

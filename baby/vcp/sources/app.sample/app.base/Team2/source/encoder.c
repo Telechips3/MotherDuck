@@ -90,7 +90,8 @@ static void Encoder_ISR_Handler(void *args)
 /* ===== Init ===== */
 void Encoder_Init(void)
 {
-    PIO_Config(ENC_A_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
+    mcu_printf("[ENC] encoder Init started\n");
+    GPIO_Config(ENC_A_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
     GPIO_Config(ENC_B_GPIO, GPIO_INPUT | GPIO_PULLUP | GPIO_INPUTBUF_EN | GPIO_FUNC(0));
 
     GPIO_IntExtSet(EIT_ENCODER_A, ENC_A_GPIO);

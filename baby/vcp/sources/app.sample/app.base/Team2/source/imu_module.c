@@ -27,13 +27,12 @@ static void IMU_ModuleInitOnce(void)
     if (MPU6050_Init(IMU_I2C_CH, MPU6050_ADDR_7BIT) != 0)
     {
         mcu_printf("[IMU] MPU6050 detection failed\n");
-        while (1)
-            SAL_TaskSleep(1000);
+        //need fail-safe
     }
 
     mcu_printf("[IMU] MPU6050 detected\n");
     MPU6050_Calibrate(IMU_I2C_CH, MPU6050_ADDR_7BIT, &s_mpu);
-
+    mcu_printf("[IMU] MPU6050 cal done\n");
     s_lastTick = 0;
     s_imu_inited = 1;
 }

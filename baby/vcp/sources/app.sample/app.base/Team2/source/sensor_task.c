@@ -8,6 +8,12 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
+
+#define PI_F (3.14159265358979323846f)
+
+#define DEG2RAD(deg) ((deg) * (PI_F / 180.0f))
+#define RAD2DEG(rad) ((rad) * (180.0f / PI_F))
+
 #define ENC_CALC_PERIOD_MS        500
 
 static Pose s_sensor_pose;
@@ -22,7 +28,7 @@ static inline uint32 get_tick_ms(void)
 static void SensorTask(void *pArg)
 {
     (void)pArg;
-
+    mcu_printf("[SensorTask] task entered \n");    
     IMU_ModuleInit();
     Encoder_Init();
     Pose_Init(0.0f, 0.0f, 0.0f);
@@ -31,9 +37,9 @@ static void SensorTask(void *pArg)
 
     while (1)
     {
+        mcu_printf("[SensorTask] loop entered\n");
         uint8_t ret = 0;
         IMU_ModuleUpdate();
-
         uint32 nowMs = get_tick_ms();
         if ((nowMs - lastEncCalcMs) >= ENC_CALC_PERIOD_MS)
         {
@@ -46,6 +52,8 @@ static void SensorTask(void *pArg)
         if(ret != 0){
             mcu_printf("[SensorTask] Getting Pose Failed \n");
         }
+        mcu_printf("[sensorTask] Current POSE : (%d, %d, %d)\n"
+            ,(int)(100*s_sensor_pose.x), (int)(100*s_sensor_pose.y),(int)(100*RAD2DEG(s_sensor_pose.yaw)));
         SAL_TaskSleep(SENSOR_TASK_PERIOD_MS);
     }
 }
