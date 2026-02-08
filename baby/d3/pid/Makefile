@@ -1,32 +1,32 @@
 # 1. 변수 설정
 CC = gcc
-CFLAGS = -Wall
-TARGET_NAME = debug_app
+CFLAGS = -Wall -Wextra -O2
 BUILD_DIR = build
 
-# 실행 파일 경로
-TARGET = $(BUILD_DIR)/$(TARGET_NAME)
+# 소스 파일들
+SRCS = debug.c vcp_debug.c
 
 # 소스 및 오브젝트 파일
-SRCS = debug.c vcp_debug.c
-OBJS = $(BUILD_DIR)/debug.o $(BUILD_DIR)/vcp_debug.o
+# SRCS = debug.c vcp_debug.c
+# OBJS = $(BUILD_DIR)/debug.o $(BUILD_DIR)/vcp_debug.o
 
-# 2. 기본 빌드 규칙 (make)
-all: $(BUILD_DIR) $(TARGET)
+# 소스 파일의 이름에서 확장자를 제거하고 build/ 경로를 붙여 실행 파일 이름을 생성합니다.
+# 예: debug.c -> build/debug, vcp_debug.c -> build/vcp_debug
+TARGETS = $(patsubst %.c, $(BUILD_DIR)/%, $(SRCS))
 
-# 3. 실행 파일 생성 (링킹)
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+# 2. 기본 빌드 규칙 (모든 타겟 생성)
+all: $(BUILD_DIR) $(TARGETS)
 
-# 4. 오브젝트 파일 생성 (컴파일)
-$(BUILD_DIR)/%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# 3. 각 실행 파일 빌드 규칙
+# % 패턴을 사용하여 각 .c 파일을 동일한 이름의 실행 파일로 컴파일합니다.
+$(BUILD_DIR)/%: %.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $< -o $@
 
-# 5. build 디렉터리 생성
+# 4. build 디렉터리 생성
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# 6. 정리 규칙 (make clean)
+# 5. 정리 규칙
 clean:
 	rm -rf $(BUILD_DIR)
 

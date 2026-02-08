@@ -29,6 +29,7 @@ typedef enum {
     REASON_NULL = 11
 } mode_reason_t;
 
+#pragma pack(push, 1)
 typedef struct {
 	uint32_t seq;
 	uint32_t cpu_time_ms;  // CPU monotonic ms -> 메시지 자체의 timestamp를 확인해서 VCP에서 핸들링할 수 있게
@@ -51,6 +52,7 @@ typedef struct {
 	//Debug
 	uint8_t  reason;        // Mode가 왜 바뀌었는지
 } to_vcp_msg_t;
+#pragma pack(pop)
 
 // msg로 핸들링, now_ms 필요시 사용
 uint8_t decide_mode_step(to_vcp_msg_t* msg/*, uint32_t now_ms*/);
