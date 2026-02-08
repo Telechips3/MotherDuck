@@ -69,6 +69,7 @@ void IMU_ModuleUpdate(void)
         s_imu.pitch = s_mpu.pitch;
         s_imu.yaw   = s_mpu.yaw;
     }
+    mcu_printf("[imu] update done\n");
 }
 
 /* ===== Legacy Task Wrapper ===== */

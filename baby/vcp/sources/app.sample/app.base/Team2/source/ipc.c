@@ -63,24 +63,24 @@ static void IPC_Task(void *pParam)
         {
             received_pkt.magic = 0xA5;
             
-                    received_pkt.vcp_msg.seq = 1;
-                    received_pkt.vcp_msg.cpu_time_ms = 100;
+            received_pkt.vcp_msg.seq = 1;
+            received_pkt.vcp_msg.cpu_time_ms = 100;
 
-                    received_pkt.vcp_msg.mode = MODE_FOLLOW_VISION;
+            received_pkt.vcp_msg.mode = MODE_FOLLOW_VISION;
 
                     // ArUco 데이터
-                    received_pkt.vcp_msg.aruco_valid = 1;
-                    received_pkt.vcp_msg.aruco_age_ms = 200;
-                    received_pkt.vcp_msg.aruco_dist_mm = 60;
-                    received_pkt.vcp_msg.aruco_x_norm_q15 = 16383;
+            received_pkt.vcp_msg.aruco_valid = 1;
+            received_pkt.vcp_msg.aruco_age_ms = 200;
+            received_pkt.vcp_msg.aruco_dist_mm = 60;
+            received_pkt.vcp_msg.aruco_x_norm_q15 = 16383;
 
                     // Waypoint 데이터
-                    received_pkt.vcp_msg.wp_valid = 1;
-                    received_pkt.vcp_msg.wp_age_ms = 200;
-                    received_pkt.vcp_msg.leader_x_mm = 4000;
-                    received_pkt.vcp_msg.leader_y_mm = 3000;
+            received_pkt.vcp_msg.wp_valid = 1;
+            received_pkt.vcp_msg.wp_age_ms = 200;
+            received_pkt.vcp_msg.leader_x_mm = 4000;
+            received_pkt.vcp_msg.leader_y_mm = 3000;
 
-                    received_pkt.vcp_msg.reason = 1;
+            received_pkt.vcp_msg.reason = 1;
 
 
             

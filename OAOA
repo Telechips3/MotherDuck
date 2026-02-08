@@ -1,0 +1,191 @@
+[33m0234724[m[33m ([m[1;36mHEAD -> [m[1;32mtest-baby-vcp[m[33m)[m error cleared
+[33m5d1d92a[m[33m ([m[1;31morigin/test-baby-vcp[m[33m)[m shit ipc
+[33m2d4c21a[m speed.c editing
+[33m83d49ae[m Merge branch 'main' into test-baby-vcp
+[33m13cd32a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge branch 'main' of https://github.com/Telechips3/MotherDuck
+[33m2783936[m fix baby pid code
+[33mb1e52e2[m minor change
+[33mabc9345[m add encoder 4 ways
+[33mcb813d3[m Merge branch 'test-baby-vcp' into encoder-vcp
+[33m9936c2f[m Merge branch 'test-baby-vcp' of https://github.com/Telechips3/MotherDuck into test-baby-vcp
+[33mbfa4c75[m edit steer.c, ipc, sensortask
+[33m37c8e5a[m fix encoder in baby
+[33mca972dc[m fix encoder
+[33mb278e4c[m steer.c edit
+[33mc9f18b5[m pdm driver edit
+[33mae9c198[m ipctask edit
+[33m2a7d8ca[m modulifing follower_steer_module
+[33m691379e[m comment update
+[33mf3696ca[m sensor task created resolved all warning unloaded encoder_module from makerules(use encoder.c)
+[33m0d4e744[m team header add sensortask defines
+[33me2a2fe5[m created sensortask
+[33m6c038cc[m many change
+[33m9eaa284[m hi
+[33m16b668f[m refactor code, spi, endcoder
+[33mdac1651[m update parsing.c
+[33m6a3952b[m Merge branch 'test-baby-vcp' of https://github.com/Telechips3/MotherDuck into test-baby-vcp
+[33meecde12[m refactor about task code
+[33m5064d46[m ipc symbol name edit
+[33m0b6286d[m spi.c queue id edit
+[33m9277c86[m delete buzzer, buzzer move to ultra, erase spi comment
+[33mb4d9ece[m sync
+[33m6554298[m test v2 plz
+[33m40f2426[m test v1 plz
+[33md030961[m test all on
+[33m4e7688d[m speed duty fixed
+[33ma7d87c7[m spi parsing code
+[33m6f56bc9[m Merge branch 'test-baby-vcp' of https://github.com/Telechips3/MotherDuck into test-baby-vcp
+[33m474e0d8[m add dma
+[33mcfc984d[m test define edit
+[33mcdea760[m  hi
+[33m51ec1f6[m add debug message for spi
+[33mc215d2d[m minor change
+[33m5b4b387[m add crc16 and mcu_printf
+[33m93faca6[m log print
+[33m11f4e9d[m Merge pull request #27 from Telechips3/Decision_module
+[33mc052b94[m Merge pull request #24 from Telechips3/Pure_Pursuit
+[33md2405d9[m[33m ([m[1;31morigin/Pure_Pursuit[m[33m)[m update
+[33mfb1ef51[m asdf
+[33meb0f4e1[m update to merge main
+[33mad44533[m pull and fix confilct and fix error in parsing.c
+[33m2a400a0[m test start
+[33m7383c40[m minor change
+[33m30b5eb7[m integral task
+[33m614631f[m[33m ([m[1;32mDecision_module[m[33m)[m test dummy files created
+[33mb250cd3[m integration
+[33m914c73f[m decision_module interface complete. need test
+[33med47123[m Merge pull request #26 from Telechips3/Driver-Moter
+[33m46a16d8[m[33m ([m[1;31morigin/Driver-Moter[m[33m)[m encoder inturrupt
+[33macd5de6[m sdf
+[33meb9176c[m pull from mineun to yoon
+[33m4dd479d[m encoder inturrupt start
+[33m47ecb53[m Merge pull request #25 from Telechips3/aruco
+[33m49f59ec[m make common.h create Vision_follow module
+[33mb17fd9c[m[33m ([m[1;31morigin/aruco[m[33m)[m feat: add modular ArUco tracking and IPC bridge
+[33m0ef286f[m Merge branch 'driving' into Driver-Moter
+[33m3f4e739[m follow_steer_module 프로토타입 완성
+[33ma286906[m for hyenjun
+[33mbfba5c1[m Merge branch 'main' into Driver-Moter
+[33mde1920a[m number change
+[33m83724f2[m Merge pull request #23 from Telechips3/driving
+[33mbba741d[m Merge branch 'main' into driving
+[33m1ff98d3[m improve spi
+[33mef97041[m 테스트 코드 추가함
+[33mc7139c2[m Merge pull request #22 from Telechips3/Pure_Pursuit
+[33m87b130d[m Merge branch 'main' into Pure_Pursuit
+[33m256694f[m hello
+[33mf472ac7[m test code
+[33m7de416b[m minor change
+[33me69dc67[m hi
+[33me716041[m transient storage
+[33mfd6b016[m Consolidate Team2 GPIO defines
+[33m50aaba6[m minor change
+[33me8f5650[m create update_pose_test
+[33m7196c6a[m follow_steer_module update
+[33m4dd40cb[m Fix encoder tick calculation
+[33m9eec126[m add pose, task, test
+[33m5f129ca[m Merge pull request #21 from Telechips3/driving
+[33mbe77a3e[m Merge branch 'main' into driving
+[33m74b93d2[m fix spi: n bytes t, rx
+[33m244c76c[m Merge branch 'main' into Pure_Pursuit
+[33m6ff54b6[m V1 commit
+[33mb372145[m Merge pull request #20 from Telechips3/Decision_module
+[33m94b3848[m Merge branch 'main' into Pure_Pursuit
+[33m38d6e12[m decide_mode.h comment edit
+[33m1828ed0[m[33m ([m[1;31morigin/lidar[m[33m)[m Merge pull request #19 from Telechips3/driving
+[33md0bb18d[m[33m ([m[1;31morigin/driving[m[33m)[m Merge branch 'main' into driving
+[33mba378a1[m fix encoder and connect spi
+[33me5607b3[m minor fix
+[33m60f226c[m IMU Task Add
+[33mcd18dd6[m Merge pull request #18 from Telechips3/driving
+[33mb3315cf[m baby vcp refactor
+[33m8aee02b[m follow_steer_module framwork
+[33m2f7d355[m Merge pull request #17 from Telechips3/driving
+[33m4cb5ebd[m Merge branch 'main' into driving
+[33m03bf237[m Merge pull request #16 from Telechips3/ultrasonic-buzzer
+[33m5d5016e[m add critical section
+[33m10e5bb6[m[33m ([m[1;31morigin/ultrasonic-buzzer[m[33m)[m fix: align encoder implementation with main branch
+[33md5e8d82[m decision_module_V1 make
+[33m184d3b4[m fix confict
+[33m430cb1a[m Merge pull request #15 from Telechips3/imu
+[33m8822b95[m Merge branch 'main' into imu
+[33mce7f995[m imu bringup
+[33me6ba8c3[m add g_encoder to Critical section
+[33m020b11a[m Merge pull request #14 from Telechips3/ultrasonic-buzzer
+[33m9660e27[m encoder buzzer ultrasonic
+[33m62f8b2a[m Update Team2 tasks and encoder logic
+[33m9701fdf[m Merge branch 'control-steer'
+[33m80f4ab6[m[33m ([m[1;31morigin/control-steer[m[33m)[m steering && control
+[33m7f2fd0c[m Update encoder task and logging
+[33m540f131[m add steer
+[33m80d5040[m Merge pull request #13 from Telechips3/pid
+[33m29341db[m Merge branch 'mother-spi'
+[33me322969[m motor control logic - need to fix
+[33ma6f85fa[m Pure_Pursuit 알고리즘 구현 및 테스트 코드 작성
+[33m9b5f695[m Merge pull request #12 from Telechips3/driving
+[33ma18ebd4[m Merge branch 'main' into driving
+[33mf613f2f[m add steer
+[33mdbf8eaa[m decision_module 모듈화 (protocol, ArUco_Rx, decide_mode, IPC_RX)
+[33m0af16ed[m add ipc
+[33mfb8cab7[m Implement TCP stream receiver for object detection
+[33m10904c9[m Pure Pursuit algorithm prototype
+[33m57fb7f5[m Merge branch 'main' into ultrasonic-buzzer
+[33mf8c506d[m feat: add ultrasonic and buzzer modules with build integration
+[33m84001f3[m[33m ([m[1;31morigin/pid[m[33m)[m d3-pid-spi-full_duplex
+[33m28f47eb[m 별거없음
+[33m1bf69d7[m hi
+[33m3c65d31[m Merge pull request #11 from Telechips3/pid
+[33m5c996fd[m add mother pid debug code
+[33mc61fb48[m Merge pull request #10 from Telechips3/driving
+[33m6e19a29[m stage vcp_fwdn.rom
+[33mddbfb63[m Merge pull request #9 from Telechips3/driving
+[33m29c2b89[m stage updater.rom
+[33m0e2430b[m Merge pull request #8 from Telechips3/driving
+[33m1a13d57[m init mother vcp
+[33m1649ab4[m Merge pull request #7 from Telechips3/driving
+[33md5489ad[m Merge branch 'main' into driving
+[33m96adaaa[m can driving
+[33mcc502f0[m Merge pull request #6 from Telechips3/driving
+[33m082e8e7[m Merge branch 'main' into driving
+[33m5bad763[m Merge pull request #5 from Telechips3/pid
+[33m525e044[m Merge branch 'main' into driving
+[33m97708a6[m add spi
+[33mbae2f86[m middle save
+[33me35896e[m Delete baby/d3/decision_module directory
+[33m74e15a5[m Add decide_mode.h with control mode definitions
+[33m40c9a13[m Delete decide_mode.h header file
+[33m5ec6350[m Rename decide_mode.c to decide_mode.c
+[33m9dedc2f[m Rename decide_mode to decide_mode.h
+[33mefcb32e[m Rename decision_mode.c to decide_mode.c
+[33meb8aecd[m Add decision module header with mode and state enums
+[33m1b88e14[m Add decision_mode functionality for control logic
+[33mff4df75[m fix debug.c
+[33m52bb4b3[m fix hello => interrupt
+[33m56c2f22[m add debug code for pid
+[33mfe9b5bd[m Merge pull request #4 from Telechips3/driving
+[33mcf1000f[m add interrupt
+[33m1688a63[m Merge pull request #3 from Telechips3/encoder
+[33m73ac174[m feat: add encoder module and create EncoderTask
+[33m0168500[m modify baby/vcp/.gitignore and *.signed
+[33m25591c4[m fix: remove .signed files and add to .gitignore to prevent conflicts
+[33mbf524bb[m Merge pull request #2 from Telechips3/driving
+[33m2f37dfe[m fix vcp_install.sh
+[33m70218d2[m Merge pull request #1 from Telechips3/driving
+[33m3559495[m refactor: reorganize project directory structure
+[33mbd9fdf9[m Add status.sh for process and socket monitoring
+[33ma60836e[m Add stop.sh script for stopping processes and cleanup
+[33m567f318[m Add run.sh script for starting logic and commd services
+[33mb53ec05[m Add logic_latest.c for UNIX socket communication
+[33m6b2c4ff[m Add commd.c for UDP to UDS communication
+[33m740afd8[m Add proto.h for waypoint packet structure and CRC
+[33m4243d09[m [camera] ArUco 마커 포즈 인식 코드 (파이썬)
+[33mf9aa783[m add .bin file
+[33mce09c28[m fix PWM
+[33m2676f2b[m add simple moter controll
+[33m7bfdeed[m add vcp_install
+[33mac8a2fd[m fix .gitignore
+[33mae55704[m refactor baby/vcp
+[33m9646eac[m refactor code
+[33m3ca9fd9[m add FreeRTOS
+[33mb8f2e28[m first commit
+[33md792f99[m Initial commit

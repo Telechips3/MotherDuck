@@ -29,8 +29,9 @@ static void SensorTask(void *pArg)
 {
     (void)pArg;
     mcu_printf("[SensorTask] task entered \n");    
+    
+    //Encoder_Init();
     IMU_ModuleInit();
-    Encoder_Init();
     Pose_Init(0.0f, 0.0f, 0.0f);
 
     uint32 lastEncCalcMs = get_tick_ms();
@@ -43,7 +44,7 @@ static void SensorTask(void *pArg)
         uint32 nowMs = get_tick_ms();
         if ((nowMs - lastEncCalcMs) >= ENC_CALC_PERIOD_MS)
         {
-            Encoder_CalcSpeed();
+            //Encoder_CalcSpeed();
             lastEncCalcMs = nowMs;
         }
 

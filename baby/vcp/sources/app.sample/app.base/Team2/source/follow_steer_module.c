@@ -19,6 +19,7 @@
 
 // IMU 데이터 저장용 전역 변수
 //static IMU_Data_t imu_data;
+static wps_fifo_t wps;
 
 // Pure_Pursuit structures
 static Pose pose;
@@ -44,21 +45,36 @@ static float steer_angle_rad;
 
 int update_follower_steer(to_vcp_msg_t* msg){
     pp_init(&pp_handler, NULL);
-    Pose_Init(0.0f, 0.0f, 0.0f);  // ★ pose 모듈 초기화
+    //Pose_Init(0.0f, 0.0f, 0.0f);  // ★ pose 모듈 초기화 -> senosrtask에서
     mcu_printf("[follow_steer] update init\n");
     uint8_t ret;    
-    Pose_Update();
+    //Pose_Update(); -> sensorTask에서
     
     // pose에 update된 pose 받아옴
     ret = Pose_Get(&pose);
+    pose.x = 0;
+    pose.y = 0;
+    pose.yaw = 0;
+
     if(ret != 0){
         mcu_printf("[follow_steer] pose value get error = %d\n", ret);
         return 1;
+    }
+    
+    wps_fifo_init(&wps);
+
+    wp_t a = { .x_m = 1.0f, .y_m = 2.0f };
+    (void)wps_fifo_push(&wps, &a);
+
+    wp_t b;
+    if (wps_fifo_pop(&wps, &b) == 0) {
+        // b에 a가 들어있음
     }
 
     mcu_printf("[follow_steer] calculated pose (%d, %d, %d)\n ",(int)(1000*pose.x), (int)(1000*pose.y), (int)(1000*pose.yaw));
 
     if(msg->mode == MODE_FOLLOW_WAYPOINT){
+        /*=====================Test=====================*/
         #if (TEST == 1)
         if (dx_base > dx_max || dx_base < dx_min) dx_step = -dx_step; // 왕복 스윕
         for(int i=0;i<NUM_WAYPOINTS;i++){
@@ -69,6 +85,8 @@ int update_follower_steer(to_vcp_msg_t* msg){
 
         }
         #endif
+        
+        /*==============================================*/
         ret = (uint8_t)pp_compute_steer(&pp_handler, &pose, wps, NUM_WAYPOINTS, &steer_angle_rad);
         if(ret != 0){
             mcu_printf("[follow_steer] pp_compute_steer error: %d\n", ret);

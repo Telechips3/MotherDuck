@@ -50,10 +50,10 @@ static inline uint32 get_tick_ms(void)
 
 static void Encoder_ISR_Handler(void *args)
 {
-    uint8_t curA = GPIO_Get(ENC_A_GPIO);
-    uint8_t curB = GPIO_Get(ENC_B_GPIO);
-    uint8_t cur_state = (curA << 1) | curB;
+    uint8 curA = GPIO_Get(ENC_A_GPIO);
+    uint8 curB = GPIO_Get(ENC_B_GPIO);
 
+<<<<<<< HEAD
     // 3. 이전 상태와 현재 상태를 조합 (4비트 데이터)
     // [이전A][이전B][현재A][현재B]
     uint8_t state_transition = (s_prev_state << 2) | cur_state;
@@ -85,7 +85,77 @@ static void Encoder_ISR_Handler(void *args)
     
     s_prev_state = cur_state;
     //mcu_printf("encoder Cnt: %d\n", s_encCnt);
+=======
+    // A falling edge에서만 호출된다는 전제
+    if (curA == curB) {
+        s_encCnt++;
+    } else {
+        s_encCnt--;
+    }
+>>>>>>> e7f651d (imu shit)
 }
+
+/* 4체배 */
+// static void Encoder_ISR_Handler(void *args)
+// {
+//     uint8_t curA = GPIO_Get(ENC_A_GPIO);
+//     uint8_t curB = GPIO_Get(ENC_B_GPIO);
+//     uint8_t cur_state = (curA << 1) | curB;
+
+//     // 3. 이전 상태와 현재 상태를 조합 (4비트 데이터)
+//     // [이전A][이전B][현재A][현재B]
+//     uint8_t state_transition = (s_prev_state << 2) | cur_state;
+
+//     // 4. 상태 변화에 따른 카운트 (4체배 로직)
+//     switch (state_transition)
+//     {
+//     // 정회전 케이스 (00->01, 01->11, 11->10, 10->00)
+//     case 0b0001:
+//     case 0b0111:
+//     case 0b1110:
+//     case 0b1000:
+//         s_encCnt++;
+//         break;
+
+//     // 역회전 케이스 (00->10, 10->11, 11->01, 01->00)
+//     case 0b0010:
+//     case 0b1011:
+//     case 0b1101:
+//     case 0b0100:
+//         s_encCnt--;
+//         break;
+
+//     default:
+//         break;
+//     }
+
+//     //
+//     // switch (state_transition)
+//     // {
+//     // // 1. 정회전(CW) 케이스: A가 먼저 변함
+//     // case 0b0010: // 00 -> 10 (A Rising)
+//     // case 0b1011: // 10 -> 11 (B Rising - 이때 A는 High!)
+//     // case 0b1101: // 11 -> 01 (A Falling)
+//     // case 0b0100: // 01 -> 00 (B Falling)
+//     //     s_encCnt++;
+//     //     break;
+
+//     // // 2. 역회전(CCW) 케이스: B가 먼저 변함
+//     // case 0b0001: // 00 -> 01 (B Rising)
+//     // case 0b0111: // 01 -> 11 (A Rising)
+//     // case 0b1110: // 11 -> 10 (B Falling)
+//     // case 0b1000: // 10 -> 00 (A Falling)
+//     //     s_encCnt--;
+//     //     break;
+
+//     // default:
+//     //     // 변화 없음 또는 노이즈(00->11 등)
+//     //     break;
+
+//     // }
+//     s_prev_state = cur_state;
+//     //mcu_printf("encoder Cnt: %d\n", s_encCnt);
+// }
 
 /* ===== Init ===== */
 void Encoder_Init(void)
@@ -240,6 +310,8 @@ void Encoder_ResetCount(void)
     (void)SAL_CoreCriticalExit();
 }
 
+
+
 float Encoder_GetDeltaDistanceCm(void)
 {
     static int32 prevCnt_local = 0;
@@ -252,5 +324,10 @@ float Encoder_GetDeltaDistanceCm(void)
     prevCnt_local = cnt;
 
     float cm_per_count = (PI * WHEEL_DIAMETER_CM) / ENCODER_CPR;
+    static uint32 cnt1 = 0;
+    cnt1++;
+    if ((cnt1 % 50) == 0) {
+        mcu_printf("[ENC] cnt=%d diff=%d\n", cnt, diff);
+    }
     return diff * cm_per_count;
 }
