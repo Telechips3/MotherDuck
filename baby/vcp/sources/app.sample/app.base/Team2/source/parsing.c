@@ -101,7 +101,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
                 mcu_printf("[STEER_TEST] steering_rad_mrad=%d\n", (int)(steering_rad * 1000));
             }
 #endif
-            Control_Steering_Custom(steering_rad);
+            control_steering_absolute(steering_rad);
             // {
             //     float norm = steering_rad / MAX_STEER_RAD;
             //     if (norm > 1.0f) norm = 1.0f;
