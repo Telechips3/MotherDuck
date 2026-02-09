@@ -156,32 +156,7 @@ void cmain(void)
 
     if (err == SAL_RET_SUCCESS)
     {
-        // start woring os.... never return from this function
-        (void)SAL_OsStart();
-    }
-}
-
-/*
-***************************************************************************************************
-*                                          Main_StartTask
-*
-* This is an example of a startup task.
-*
-* Notes
-*   As mentioned in the book's text, you MUST initialize the ticker only once multitasking has
-*   started.
-*
-*   1) The first line of code is used to prevent a compiler warning because 'pArg' is not used.
-*      The compiler should not generate any code for this statement.
-*
-***************************************************************************************************
-*/
-static void Main_StartTask(void *pArg)
-{
-    (void)pArg;
-    (void)SAL_OsInitFuncs();
-
-    mcu_printf(">>> PDM_Init complete\n");
+            mcu_printf(">>> PDM_Init complete\n");
     // Debug: force motor forward (remove after test)
 
 #if (ENABLE_IPC_TEST == 1)
@@ -225,6 +200,35 @@ static void Main_StartTask(void *pArg)
     (void)follow_steer_TaskCreate();
     mcu_printf(">>>follow_steer enabled\n");
 #endif
+        // start woring os.... never return from this function
+        (void)SAL_OsStart();
+    }
+       
+
+
+}
+
+/*
+***************************************************************************************************
+*                                          Main_StartTask
+*
+* This is an example of a startup task.
+*
+* Notes
+*   As mentioned in the book's text, you MUST initialize the ticker only once multitasking has
+*   started.
+*
+*   1) The first line of code is used to prevent a compiler warning because 'pArg' is not used.
+*      The compiler should not generate any code for this statement.
+*
+***************************************************************************************************
+*/
+    
+ 
+
+static void Main_StartTask(void *pArg)
+{(void)pArg;
+    (void)SAL_OsInitFuncs();
     /* Main task는 여기서 끝 */
     while (1)
     {

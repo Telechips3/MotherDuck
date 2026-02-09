@@ -91,7 +91,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             {
                 static int sweep_dir = 1;
                 static int sweep_cnt = 0;
-                const float sweep_rad = 1.0f; // 약 60도
+                const float sweep_rad = 0.5f; // 약 60도
 
                 steering_rad = (sweep_dir > 0) ? sweep_rad : -sweep_rad;
                 if (++sweep_cnt >= 10) { // 10번마다 방향 전환

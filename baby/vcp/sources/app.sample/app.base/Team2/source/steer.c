@@ -65,18 +65,18 @@ void Control_Steering_Custom(float steering_rad)
 
     // 5. [핵심] 커스텀 드라이버 호출 (PWM 안 끄고 즉시 적용!)
     // PDM_Disable -> PDM_SetConfig -> PDM_Enable (X) -> 이제 안녕!
-   mcu_printf("[csc] steering_pwm : %d\n", (int)(calc_ns));
+//    mcu_printf("[csc] steering_pwm : %d\n", (int)(calc_ns));
     SALRetCode_t ret = PDM_UpdateDutyNano(STEER_PWM_CH, (uint32)calc_ns);
 
     if (ret != SAL_RET_SUCCESS)
     {
         // 에러 처리 (로그 출력 등)
-        mcu_printf("[STEER] UpdateDutyNano FAILED ret=%d\n", (int)ret);
+        // mcu_printf("[STEER] UpdateDutyNano FAILED ret=%d\n", (int)ret);
     }
 
-    mcu_printf("[STEER] status=%d duty=%d\n",
-               (int)PDM_GetChannelStatus(STEER_PWM_CH),
-               (int)calc_ns);
+    // mcu_printf("[STEER] status=%d duty=%d\n",
+    //            (int)PDM_GetChannelStatus(STEER_PWM_CH),
+    //            (int)calc_ns);
     
 }
 void control_steering_step(uint32 cmd)

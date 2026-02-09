@@ -12,7 +12,7 @@
 #define STEER_MAX_NS          2400000      
 
 #define SERVO_RANGE_NS    (STEER_MAX_NS - STEER_MIN_NS) // 2,000,000ns
-#define MAX_STEER_RAD     1.0f       // 약 34도
+#define MAX_STEER_RAD           0.6f       // 약 34도
 
 
 
