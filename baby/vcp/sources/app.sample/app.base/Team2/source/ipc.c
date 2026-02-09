@@ -88,7 +88,7 @@ static void IPC_Task(void *pParam)
             {
                 // 유효한 패킷 수신 시 제어 함수 호출
                 mcu_printf("[ipc] PKT RX Successed\n");
-                parse_and_excute_control((void*)&received_pkt);
+                ((void*)&received_pkt);
             }
         }
             else
