@@ -15,7 +15,7 @@
 #define STEER_MIN_NS          1200000
 #define STEER_NEUTRAL_NS      1500000
 #define STEER_MAX_NS          1800000
-#define STEER_STEP_NS         6000
+#define STEER_STEP_NS         50000
 #define STEER_PWM_CH          PDM_CHANNEL_7
 
 void control_steering_step(uint32 cmd);

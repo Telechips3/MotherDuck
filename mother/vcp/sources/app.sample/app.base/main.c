@@ -130,7 +130,8 @@ void cmain(void)
     mcu_printf("-------------------------------\n");
     DisplayOTPInfo();
     mcu_printf("===============================\n\n");
-
+    
+    PDM_Init();
     // create the first app task...
     err = (SALRetCode_t)SAL_TaskCreate(&AppTaskStartID,
                                        (const uint8 *)"App Task Start",
@@ -169,7 +170,6 @@ static void Main_StartTask(void *pArg)
     (void)pArg;
     (void)SAL_OsInitFuncs();
 
-    PDM_Init();
     mcu_printf(">>> Main_StartTask start\n");
 
     ipc_init();
@@ -185,8 +185,7 @@ static void Main_StartTask(void *pArg)
     /* ⭐ 메인 루프: 모터 제어 + 로그 출력 */
     while (1)
     {
-
-        SAL_TaskSleep(20); // 50Hz 체크 (충분히 빠름)
+        SAL_TaskSleep(200); // 50Hz 체크 (충분히 빠름)
     }
 }
 

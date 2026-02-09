@@ -74,8 +74,6 @@ static void vMotorControlTask(void *pParam)
                 mcu_printf("d\n");
                 control_steering_step(3);
             }
-
-
         }
         else
         {

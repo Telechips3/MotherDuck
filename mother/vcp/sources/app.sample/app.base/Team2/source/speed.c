@@ -3,7 +3,7 @@
 static PDMModeConfig_t g_left_pwm_cfg;
 static PDMModeConfig_t g_right_pwm_cfg;
 static uint8 g_motor_initialized = 0;
-static uint32 g_current_duty = 300000;
+static uint32 g_current_duty = 400000;
 
 static void motor_init(void)
 {

@@ -58,6 +58,8 @@ void control_steering_step(uint32 cmd)
             break;
     }
 
+    mcu_printf("[조향] 현재 펄스: %d ns\n", g_current_steer_ns);
+
     // 범위 제한
     if (g_current_steer_ns < STEER_MIN_NS) g_current_steer_ns = STEER_MIN_NS;
     if (g_current_steer_ns > STEER_MAX_NS) g_current_steer_ns = STEER_MAX_NS;
