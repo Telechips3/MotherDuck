@@ -47,7 +47,7 @@
 #define MY_GPIO (GPIO_GPB(2))
 
 //task delay
-#define IPC_TASK_SLEEP_MS           600
+#define IPC_TASK_SLEEP_MS           50
 #define IMU_TASK_SLEEP_MS           20
 #define POSE_TASK_SLEEP_MS          500
 #define ENCODER_TASK_SLEEP_MS       1000

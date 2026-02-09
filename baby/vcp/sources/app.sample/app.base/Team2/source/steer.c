@@ -30,6 +30,10 @@ static void steer_init(void)
     {
         (void)PDM_Enable(STEER_PWM_CH, PMM_ON);
         mcu_printf("[STEER] enable status=%d\n", (int)PDM_GetChannelStatus(STEER_PWM_CH));
+        mcu_printf("[STEER] cfg period=%d duty=%d clkdiv=%d\n",
+                   (int)g_steer_pwm_cfg.mcPeriodNanoSec1,
+                   (int)g_steer_pwm_cfg.mcDutyNanoSec1,
+                   (int)g_steer_pwm_cfg.mcClockDivide);
     }
 
     g_steer_initialized = 1;
@@ -37,6 +41,7 @@ static void steer_init(void)
 
 void Control_Steering_Custom(float steering_rad)
 {
+    
     if (!g_steer_initialized) steer_init();
     // 1. 입력값 안전장치 (Clamping)
     // 물리적 한계 이상으로 값이 들어오면 잘라냄
@@ -60,12 +65,13 @@ void Control_Steering_Custom(float steering_rad)
 
     // 5. [핵심] 커스텀 드라이버 호출 (PWM 안 끄고 즉시 적용!)
     // PDM_Disable -> PDM_SetConfig -> PDM_Enable (X) -> 이제 안녕!
+   mcu_printf("[csc] steering_pwm : %d\n", (int)(calc_ns));
     SALRetCode_t ret = PDM_UpdateDutyNano(STEER_PWM_CH, (uint32)calc_ns);
 
     if (ret != SAL_RET_SUCCESS)
     {
         // 에러 처리 (로그 출력 등)
-        mcu_printf("Steering Update Failed!\n");
+        mcu_printf("[STEER] UpdateDutyNano FAILED ret=%d\n", (int)ret);
     }
 
     mcu_printf("[STEER] status=%d duty=%d\n",

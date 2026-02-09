@@ -8,6 +8,8 @@
 
 
 static float steering_rad;
+// 조향 강제 스윕 테스트 (1: 활성, 0: 비활성)
+#define STEER_SWEEP_TEST 1
 // 제어 명령 처리 함수
 // parse에서는 패킷 까서 mode만 확인하고 던져줌. 의사결정 X
 // parse에서 해줘야 할 건 exception에 대한 처리 (ESTOP, STOP_AND_HOLD)
@@ -85,13 +87,28 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             if (ret != 0){
                 mcu_printf("[PARSING] getting steering rad failed\n");
             }
+#if (STEER_SWEEP_TEST == 1)
             {
-                float norm = steering_rad / MAX_STEER_RAD;
-                if (norm > 1.0f) norm = 1.0f;
-                if (norm < -1.0f) norm = -1.0f;
-                int16_t x_norm = (int16_t)(norm * 32767.0f);
-                control_steering_absolute(x_norm);
+                static int sweep_dir = 1;
+                static int sweep_cnt = 0;
+                const float sweep_rad = 1.0f; // 약 60도
+
+                steering_rad = (sweep_dir > 0) ? sweep_rad : -sweep_rad;
+                if (++sweep_cnt >= 10) { // 10번마다 방향 전환
+                    sweep_dir = -sweep_dir;
+                    sweep_cnt = 0;
+                }
+                mcu_printf("[STEER_TEST] steering_rad_mrad=%d\n", (int)(steering_rad * 1000));
             }
+#endif
+            Control_Steering_Custom(steering_rad);
+            // {
+            //     float norm = steering_rad / MAX_STEER_RAD;
+            //     if (norm > 1.0f) norm = 1.0f;
+            //     if (norm < -1.0f) norm = -1.0f;
+            //     int16_t x_norm = (int16_t)(norm * 32767.0f);
+            //     control_steering_absolute(x_norm);
+            // }
             
             /* ============= legacy code ==================*/
             // if(msg->aruco_valid)

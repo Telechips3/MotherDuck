@@ -228,7 +228,7 @@ static void Main_StartTask(void *pArg)
     /* Main task는 여기서 끝 */
     while (1)
     {
-        SAL_TaskSleep(5000);
+        SAL_TaskSleep(1);
     }
 }
 

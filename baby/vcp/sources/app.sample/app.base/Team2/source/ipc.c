@@ -72,7 +72,7 @@ static void IPC_Task(void *pParam)
             received_pkt.vcp_msg.aruco_valid = 1;
             received_pkt.vcp_msg.aruco_age_ms = 100;
             received_pkt.vcp_msg.aruco_dist_mm = 70;
-            received_pkt.vcp_msg.aruco_x_norm_q15 = 0;
+            received_pkt.vcp_msg.aruco_x_norm_q15 = -32700;
 
                     // Waypoint 데이터
             received_pkt.vcp_msg.wp_valid = 1;
