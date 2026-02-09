@@ -18,5 +18,5 @@
 #define STEER_PWM_CH          PDM_CHANNEL_4         // PDM CH1
 
 void control_steering_step(uint32 cmd);
-
+void control_steering_absolute(int16_t x_norm_q15);
 #endif
