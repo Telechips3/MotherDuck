@@ -5,7 +5,7 @@
 #include "team2_header.h"
 
 // Vision 더미 패킷 테스트
-#define IPC_VISION_DUMMY_TEST 1
+#define IPC_VISION_DUMMY_TEST 0
 
 /* 전역 변수 */
 uint32 g_motor_queue_id = 0;
