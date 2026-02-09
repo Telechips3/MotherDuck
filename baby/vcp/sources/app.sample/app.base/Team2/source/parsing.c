@@ -76,7 +76,10 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
                        steer_int);
 
             process_acc_with_encoder(dist_cm);  // ← 엔코더 기반 ACC
-            control_steering_absolute(msg->aruco_x_norm_q15);
+            float steer_angle = 0.0f;
+            steer_from_aruco_q15(msg->aruco_x_norm_q15, &steer_angle);
+            Control_Steering_Custom(steer_angle);
+            
             break;
         }
             

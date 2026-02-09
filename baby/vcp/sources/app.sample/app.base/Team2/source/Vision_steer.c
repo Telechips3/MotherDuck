@@ -13,10 +13,8 @@ static inline float clampf(float v, float lo, float hi) {
 // aruco_dist_mm: 사용 안 해도 됨 (인터페이스 유지용)
 // delta_max_rad: 서보가 버티는 최대 조향각(라디안) 예: 20deg = 0.349066f
 int steer_from_aruco_q15(int16 aruco_x_norm_q15,
-                           uint16 aruco_dist_mm,
                           float *steer_angle_rad)
 {
-    (void)aruco_dist_mm; // 현재 요구사항에서는 미사용
 
     // Q15 -> [-1, 1] 근사
     float x = (float)aruco_x_norm_q15 / 32768.0f;

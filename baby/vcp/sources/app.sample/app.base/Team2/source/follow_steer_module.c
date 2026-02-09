@@ -107,7 +107,7 @@ static void follow_steer_Task(void* pArg)
         }   
 
         else if(lc_rx.mode == MODE_FOLLOW_VISION){
-            ret = steer_from_aruco_q15(lc_rx.aruco_x_norm_q15, lc_rx.aruco_dist_mm, &steer_angle_rad);
+            ret = steer_from_aruco_q15(lc_rx.aruco_x_norm_q15, &steer_angle_rad);
 
         }
 
