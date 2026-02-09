@@ -8,8 +8,8 @@
 // 서보 제어 범위 (표준 1.0ms ~ 2.0ms)
 // 만약 각도가 더 필요하면 500000 ~ 2500000까지 늘릴 수 있습니다.
 #define STEER_MIN_NS          1000000   
-#define STEER_NEUTRAL_NS      1500000   // 1.5ms가 국룰입니다!
-#define STEER_MAX_NS          2000000   
+#define STEER_NEUTRAL_NS      1400000   // 1.5ms가 국룰입니다!
+#define STEER_MAX_NS          1800000   
 
 #define SERVO_RANGE_NS    (STEER_MAX_NS - STEER_MIN_NS) // 2,000,000ns
 #define MAX_STEER_RAD     0.6f       // 약 34도
