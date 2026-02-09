@@ -85,7 +85,13 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             if (ret != 0){
                 mcu_printf("[PARSING] getting steering rad failed\n");
             }
-            Control_Steering_Custom(steering_rad);
+            {
+                float norm = steering_rad / MAX_STEER_RAD;
+                if (norm > 1.0f) norm = 1.0f;
+                if (norm < -1.0f) norm = -1.0f;
+                int16_t x_norm = (int16_t)(norm * 32767.0f);
+                control_steering_absolute(x_norm);
+            }
             
             /* ============= legacy code ==================*/
             // if(msg->aruco_valid)

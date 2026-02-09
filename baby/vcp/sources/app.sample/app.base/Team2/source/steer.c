@@ -65,7 +65,7 @@ void Control_Steering_Custom(float steering_rad)
     if (ret != SAL_RET_SUCCESS)
     {
         // 에러 처리 (로그 출력 등)
-        // mcu_printf("Steering Update Failed!\n");
+        mcu_printf("Steering Update Failed!\n");
     }
 
     mcu_printf("[STEER] status=%d duty=%d\n",

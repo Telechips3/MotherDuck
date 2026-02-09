@@ -66,7 +66,7 @@ static void IPC_Task(void *pParam)
             received_pkt.vcp_msg.seq = 1;
             received_pkt.vcp_msg.cpu_time_ms = 100;
 
-            received_pkt.vcp_msg.mode = MODE_FOLLOW_VISION;
+            received_pkt.vcp_msg.mode = 3;
 
                     // ArUco 데이터
             received_pkt.vcp_msg.aruco_valid = 1;
