@@ -154,7 +154,7 @@ void control_motor_drive(uint32 cmd)
             GPIO_Set(MOTOR_RIGHT_IN4, 0);
             left_duty = DUTY_STOP_NS;
             right_duty = DUTY_STOP_NS;
-            mcu_printf("[모터] 정지\n");
+            mcu_printf("[모터] 정지\n");    
             break;
     }
 

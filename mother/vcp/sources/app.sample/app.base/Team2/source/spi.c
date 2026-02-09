@@ -11,7 +11,7 @@ static uint32_t spi_tx_buf[SPI_BYTE] = {0};
 static uint32_t spi_dma_rx_buf[SPI_DMA_BYTE] = {0};
 static uint32_t spi_dma_tx_buf[SPI_DMA_BYTE] = {0};
 
-void Dump_Vcp_Hex(void* m, int32 len)
+static void Dump_Vcp_Hex(void* m, int32 len)
 {
     uint8_t* p = (uint8_t*)m;
     int size = len;
@@ -34,15 +34,12 @@ void Dump_Vcp_Hex(void* m, int32 len)
 
 static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 {
-    //mcu_printf("[SPI] Interrupt received: Channel=%d Event=0x%08X\n", uiCh, iEvent);
+    mcu_printf("[SPI] Interrupt received: Channel=%d Event=0x%08X\n", uiCh, iEvent);
     void* m = (void *)spi_rx_buf;
-
-    //Dump_Vcp_Hex(m, SPI_BYTE);
-
-    //size_t payload_len = SPI_BYTE;
-    //uint16_t calculated_crc = crc16_ccitt_false((uint8_t *)m, payload_len);
+    
+    Dump_Vcp_Hex(m, SPI_BYTE);
     SAL_QueuePut(g_motor_queue_id, (void *)m, SPI_BYTE, 0, SAL_OPT_NON_BLOCKING);
-
+ 
     SAL_CoreCriticalEnter();
     spi_tx_buf[0] = s_encCnt;
     SAL_CoreCriticalExit();

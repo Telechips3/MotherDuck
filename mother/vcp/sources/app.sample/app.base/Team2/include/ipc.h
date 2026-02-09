@@ -3,6 +3,8 @@
 
 #include "sal_api.h"
 
+#define EPSILON 0.1f
+
 /* 전역 큐 ID (SPI 등 다른 파일에서 참조) */
 extern uint32 g_motor_queue_id;
 

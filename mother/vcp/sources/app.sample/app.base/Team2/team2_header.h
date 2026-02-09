@@ -40,4 +40,19 @@
 #define EIT (GIC_EXT4)
 #define MY_GPIO (GPIO_GPB(2))
 
+#pragma pack(push, 1)
+typedef struct 
+{
+    float speed;
+    float steer;
+} motor_data_t;
+
+typedef union {
+    uint8_t raw[8];
+    motor_data_t data;
+} spi_motor_packet_t;
+
+#pragma pack(pop)
+
+
 #endif // _TEAM2_COMMON_H_ 끝
