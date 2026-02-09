@@ -227,8 +227,8 @@ void process_acc_system(float current_dist_cm)
 
     // 4. 결과 출력 (테스트용 상세 로그)
     uint32 duty_percent = (target_duty * 100) / PERIOD_NS;
-    mcu_printf("   >> ACC: Dist=%dcm | %s | Duty=%u%% (%uns)\n", 
-               (int)current_dist_cm, status_msg, duty_percent, target_duty);
+    mcu_printf("   >> ACC: Dist=%dcm | %s | Duty=%d%% (%dns)\n", 
+               (int)current_dist_cm, status_msg, (int)duty_percent, (int)target_duty);
 }
 
 // 간단한 PI 제어기 (Proportional + Integral)
@@ -335,8 +335,12 @@ void process_acc_with_encoder(float current_dist_cm)
         // PI 상태 디버깅 (가끔씩만 출력)
         static int debug_cnt = 0;
         if (++debug_cnt >= 20) {  // 2초마다
-            mcu_printf("   [PI] Err=%.1f P=%.2f I=%.2f Integ=%.1f → Duty=%.0f%%\n",
-                       speed_error, p_term*100, i_term*100, g_speed_integral, normalized_duty*100);
+            mcu_printf("   [PI] Err=%d P=%d I=%d Integ=%d -> Duty=%d%%\n",
+                       (int)speed_error,
+                       (int)(p_term * 100),
+                       (int)(i_term * 100),
+                       (int)g_speed_integral,
+                       (int)(normalized_duty * 100));
             debug_cnt = 0;
         }
     } else {
