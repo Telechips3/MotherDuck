@@ -76,7 +76,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             
         case MODE_FOLLOW_VISION:
             // 모드가 wp냐 vision이냐는 안중요 -> follow_steer 모듈에서 알아서 모드 읽어서 추종해줌
-
+            mcu_printf("[Parsing] VIsion Mode -> Steering\n");
             ret = update_follower_steer(msg);
             if (ret != 0){
                 mcu_printf("[PARSING] update_follower_steer failed\n");
@@ -86,8 +86,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
                 mcu_printf("[PARSING] getting steering rad failed\n");
             }
             Control_Steering_Custom(steering_rad);
-
-
+            
             /* ============= legacy code ==================*/
             // if(msg->aruco_valid)
             // {

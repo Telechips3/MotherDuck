@@ -10,10 +10,11 @@ static uint8 g_steer_initialized = 0;
 
 // [핵심] 현재의 PWM 위치를 기억하는 정적 변수 (BSS 섹션에 위치)
 static uint32 g_current_steer_ns = STEER_NEUTRAL_NS;
+static uint32 g_dbg_cnt = 0;
 
 static void steer_init(void)
 {
-    //GPIO_Config(MOTOR_STEER_PIN, (GPIO_FUNC(1) | GPIO_OUTPUT)); // 조향 핀 설정 확인 필요
+    //GPIO_Config(MOTOR_STEER_PIN, (GPIO_FUNC(2) | GPIO_OUTPUT)); // 조향 핀 설정 확인 필요
 
     g_steer_pwm_cfg.mcPortNumber = GPIO_PERICH_CH1;
     g_steer_pwm_cfg.mcOperationMode = PDM_OUTPUT_MODE_PHASE_1;
@@ -23,6 +24,13 @@ static void steer_init(void)
     g_steer_pwm_cfg.mcOutputCtrl = 0;
     g_steer_pwm_cfg.mcPeriodNanoSec1 = STEER_PERIOD_NS;
     g_steer_pwm_cfg.mcPeriodNanoSec2 = 0;
+    g_steer_pwm_cfg.mcDutyNanoSec1 = STEER_NEUTRAL_NS;
+
+    if (PDM_SetConfig(STEER_PWM_CH, &g_steer_pwm_cfg) == SAL_RET_SUCCESS)
+    {
+        (void)PDM_Enable(STEER_PWM_CH, PMM_ON);
+        mcu_printf("[STEER] enable status=%d\n", (int)PDM_GetChannelStatus(STEER_PWM_CH));
+    }
 
     g_steer_initialized = 1;
 }
@@ -59,6 +67,11 @@ void Control_Steering_Custom(float steering_rad)
         // 에러 처리 (로그 출력 등)
         // mcu_printf("Steering Update Failed!\n");
     }
+
+    mcu_printf("[STEER] status=%d duty=%d\n",
+               (int)PDM_GetChannelStatus(STEER_PWM_CH),
+               (int)calc_ns);
+    
 }
 void control_steering_step(uint32 cmd)
 {
