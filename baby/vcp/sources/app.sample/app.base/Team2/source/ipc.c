@@ -53,10 +53,9 @@ static void vMotorControlTask(void *pParam)
     while(1)
     {
 #if (IPC_VISION_DUMMY_TEST == 1)
-        static int16_t x_norm = -16000;
-        static int16_t step = 2000;
-        static int16_t dist_mm = 400;   // 40cm
-        static int16_t dist_step = 50;  // 5cm
+        static int16_t x_norm = -32767; // 좌우 스윙 시작점
+        static int16_t dist_mm = 400;   // 40cm (고정)
+        static int16_t step = 4096;
         to_vcp_spi_msg_t pkt;
 
         pkt.magic = 0xA5;
@@ -78,17 +77,12 @@ static void vMotorControlTask(void *pParam)
         parse_and_excute_control((void*)&pkt);
 
         x_norm = (int16_t)(x_norm + step);
-        if (x_norm >= 16000 || x_norm <= -16000)
+        if (x_norm >= 32767 || x_norm <= -32767)
         {
             step = (int16_t)-step;
         }
-        dist_mm = (int16_t)(dist_mm + dist_step);
-        if (dist_mm >= 1200 || dist_mm <= 200)
-        {
-            dist_step = (int16_t)-dist_step;
-        }
 
-        SAL_TaskSleep(50);
+        SAL_TaskSleep(500);
 #else
         to_vcp_spi_msg_t received_pkt; // 구조체 패킷 수신
         uint32 copied_size = 0; // 수신 크기
