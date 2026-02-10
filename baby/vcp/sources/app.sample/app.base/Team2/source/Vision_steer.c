@@ -5,6 +5,8 @@
 #include "follow_steer_module.h"
 #include "Vision_steer.h"
 
+#define STEER_GAIN  2.0f
+
 static inline float clampf(float v, float lo, float hi) {
     return (v < lo) ? lo : (v > hi) ? hi : v;
 }
@@ -25,7 +27,7 @@ int steer_from_aruco_q15(int16 aruco_x_norm_q15,
     x = clampf(x, -1.0f, +1.0f);
 
     // 중앙->끝 : 최대조향각으로 선형 매핑 + 포화
-    float delta = x * STREER_LIMIT;
+    float delta = (x * STEER_GAIN) * STREER_LIMIT;
     delta = clampf(delta, -STREER_LIMIT, +STREER_LIMIT);
     *steer_angle_rad = delta;
 

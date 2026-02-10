@@ -284,10 +284,14 @@ float Encoder_GetDeltaDistanceCm(void)
 
     int32 diff = cnt - prevCnt_local;
     prevCnt_local = cnt;
-
+    if (diff > 5000 || diff < -5000) { // 엔코더 틱 기준 (시스템에 맞춰 조절)
+        mcu_printf("[ENC] Glitch detected! diff=%d\n", diff);
+        return 0.0f; 
+    }
     float cm_per_count = (PI * WHEEL_DIAMETER_CM) / ENCODER_CPR;
     static uint32 cnt1 = 0;
     cnt1++;
+    
     if ((cnt1 % 50) == 0) {
         mcu_printf("[ENC] cnt=%d diff=%d\n", cnt, diff);
     }

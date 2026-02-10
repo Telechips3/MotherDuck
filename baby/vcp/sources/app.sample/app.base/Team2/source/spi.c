@@ -34,10 +34,10 @@ void Dump_Vcp_Hex(to_vcp_spi_msg_t* m)
 
 static void spi_receive(uint32 uiCh, uint32 iEvent, void *pArg)
 {
-    mcu_printf("[SPI] Interrupt received: Channel=%d Event=0x%08X\n", uiCh, iEvent);
+    //mcu_printf("[SPI] Interrupt received: Channel=%d Event=0x%08X\n", uiCh, iEvent);
     to_vcp_spi_msg_t *m = (to_vcp_spi_msg_t *)spi_rx_buf;
 
-    Dump_Vcp_Hex(m);
+    //Dump_Vcp_Hex(m);
 
     size_t payload_len = sizeof(to_vcp_spi_msg_t) - sizeof(uint16_t);
     uint16_t calculated_crc = crc16_ccitt_false((uint8_t *)m, payload_len);

@@ -3,10 +3,10 @@
 #include "speed.h" // control_motor_drive 함수 호출용
 #include "steer.h" // control_steering_step 함수 호출용
 #include "parsing.h" // parse_and_excute_control 함수 호출용
+/* TEST */
+#define IPC_VISION_DUMMY_TEST 0
 
 /* 전역 변수 */
-
-
 uint32 IPC_queue_id = 0;
 static uint32 IPC_task_id = 0;
 
@@ -49,48 +49,80 @@ static void IPC_Task(void *pParam)
     //     }
     //     SAL_TaskSleep(1);
     // }
-
     to_vcp_spi_msg_t received_pkt; // 구조체 패킷 수신
     uint32 copied_size = 0; // 수신 크기
     SALRetCode_t ret;
     mcu_printf("[ipc] task started\n");
-    while(1)
-    {
+    while(1){
+#if (IPC_VISION_DUMMY_TEST == 1)
+        static int16_t x_norm = 32000; // 좌우 스윙 시작점
+        static int16_t dist_mm = 1000;  // 100~1000mm 스윙 시작점
+        static int16_t step = 4096;
+        static int16_t dist_step = -100;
+        to_vcp_spi_msg_t pkt;
+        static uint32_t packet_seq = 0;  // static으로 선언해서 값 유지
+
+        pkt.magic = 0xA5;
+        pkt.vcp_msg.seq = ++packet_seq; // 1, 2, 3... 계속 증가
+        pkt.vcp_msg.cpu_time_ms = 100;
+        pkt.vcp_msg.mode = MODE_FOLLOW_VISION;
+
+        pkt.vcp_msg.aruco_valid = 1;
+        pkt.vcp_msg.aruco_age_ms = 0;
+        pkt.vcp_msg.aruco_dist_mm = dist_mm;
+        pkt.vcp_msg.aruco_x_norm_q15 = x_norm;
+
+        pkt.vcp_msg.wp_valid = 0;
+        pkt.vcp_msg.wp_age_ms = 0;
+        pkt.vcp_msg.leader_x_mm = 0;
+        pkt.vcp_msg.leader_y_mm = 0;
+        pkt.vcp_msg.reason = 0;
+
+        parse_and_excute_control((void*)&pkt);
+
+        int32_t temp_val = (int32_t)x_norm + step; // 32비트로 계산해서 오버플로우 방지
+
+        if (temp_val >= 32000) {
+            x_norm = 32000;      // 끝값 고정
+            step = -step;        // 방향 반대로 (감소)
+        } 
+        else if (temp_val <= -32000) {
+            x_norm = -32000;     // 끝값 고정
+            step = -step;        // 방향 반대로 (증가)
+        } 
+        else {
+            x_norm = (int16_t)temp_val; // 범위 안이면 대입
+        }
+
+        int32_t dist_temp = (int32_t)dist_mm + dist_step;
+        if (dist_temp >= 1000) {
+            dist_mm = 1000;
+            dist_step = -dist_step;
+        }
+        else if (dist_temp <= 100) {
+            dist_mm = 100;
+            dist_step = -dist_step;
+        }
+        else {
+            dist_mm = (int16_t)dist_temp;
+        }
+
+        SAL_TaskSleep(500);
+    #else
         mcu_printf("[ipc] loop entered\n");
         ret = SAL_QueueGet(IPC_queue_id, &received_pkt, &copied_size, 200, SAL_OPT_BLOCKING);
-        ret = SAL_RET_SUCCESS;
+        uint32_t tick = 0;
+        SAL_GetTickCount(&tick);
+        mcu_printf("[ipc] PRE PARSE TICK: %d", tick);
         if(ret == SAL_RET_SUCCESS)
-        {
-            received_pkt.magic = 0xA5;
-            
-            received_pkt.vcp_msg.seq = 1;
-            received_pkt.vcp_msg.cpu_time_ms = 100;
-
-            received_pkt.vcp_msg.mode = 3;
-
-                    // ArUco 데이터
-            received_pkt.vcp_msg.aruco_valid = 1;
-            received_pkt.vcp_msg.aruco_age_ms = 100;
-            received_pkt.vcp_msg.aruco_dist_mm = 70;
-            received_pkt.vcp_msg.aruco_x_norm_q15 = -32700;
-
-                    // Waypoint 데이터
-            received_pkt.vcp_msg.wp_valid = 1;
-            received_pkt.vcp_msg.wp_age_ms = 200;
-            received_pkt.vcp_msg.leader_x_mm = 4000;
-            received_pkt.vcp_msg.leader_y_mm = 3000;
-
-            received_pkt.vcp_msg.reason = 1;
-
-
-            
+        {   
             if(received_pkt.magic == 0xA5)
             {
                 // 유효한 패킷 수신 시 제어 함수 호출
                 mcu_printf("[ipc] PKT RX Successed\n");
-                float steer_angle = 17.253f;
-                Control_Steering_Custom(steer_angle);
-                //parse_and_excute_control((void*)&received_pkt);
+                parse_and_excute_control((void*)&received_pkt);
+                SAL_GetTickCount(&tick);
+                mcu_printf("[ipc] POST PARSE TICK: %d", tick);
             }
         }
             else
@@ -99,9 +131,12 @@ static void IPC_Task(void *pParam)
             mcu_printf("[ipc] unknown magic number\n");
             control_motor_drive(0xFF);
             }
+        
         SAL_TaskSleep(IPC_TASK_SLEEP_MS);
+        #endif
     }
 }
+
 /* 테스트 코드 ==================================================================
 typedef struct {
     const char* scenario_name;      // 시나리오 이름

@@ -3,7 +3,7 @@
 
 #include "sal_api.h"
 
-#define QUEUE_LENGTH    10
+#define QUEUE_LENGTH    1
 
 /* 전역 큐 ID (SPI 등 다른 파일에서 참조) */
 extern uint32 IPC_queue_id;

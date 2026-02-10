@@ -6,6 +6,22 @@
 static PDMModeConfig_t g_pwm_cfg;
 static uint8 g_motor_initialized = 0;
 
+#define PERIOD_NS           500000          // 5ms 주기
+#define DUTY_SLOW_NS        50000           // 30% 속도
+
+#define DUTY_STOP_NS        0                // 정지
+#define MOTOR_PWM_CH        0                // PDM 채널 0 (GPIO A10)
+
+#define DUTY_FARFAR         5.0f
+#define DUTY_FAR            4.0f
+#define DUTY_MID            3.0f
+#define DUTY_NEAR           2.0f
+#define DUTY_EMER           1.0f
+
+#define ACC_DIST_FARFAR     100.0f
+#define ACC_DIST_FAR        70.0f
+#define ACC_DIST_MID        50.0f
+#define ACC_DIST_NEAR       20.0f
 
 #define SAFE_DISTANCE_CM  45.0f
 #define ACC_DEAD_ZONE     2.0f
@@ -269,17 +285,17 @@ void process_acc_with_encoder(float current_dist_cm)
     status_msg = "FORWARD";
     direction = 1;
     
-    if (current_dist_cm > 150.0f) {
-        target_speed_cms = 10.0f;  // 매우 멀면: 고속 (20cm/s)
-    } else if (current_dist_cm > 100.0f) {
-        target_speed_cms = 7.0f;  // 멀면: 중속 (15cm/s)
-    } else if (current_dist_cm > 70.0f) {
-        target_speed_cms = 5.0f;  // 접근 중: 감속 시작 (12cm/s)
-    } else if (current_dist_cm > 55.0f) {
-        target_speed_cms = 3.0f;   // 목표 근처: 더 감속 (8cm/s)
+    if (current_dist_cm > ACC_DIST_FARFAR) {
+        target_speed_cms = DUTY_FARFAR;  // 매우 멀면: 고속 (20cm/s)
+    } else if (current_dist_cm > ACC_DIST_FAR) {
+        target_speed_cms = DUTY_FAR;  // 멀면: 중속 (15cm/s)
+    } else if (current_dist_cm > ACC_DIST_MID) {
+        target_speed_cms = DUTY_MID;  // 접근 중: 감속 시작 (12cm/s)
+    } else if (current_dist_cm > ACC_DIST_NEAR) {
+        target_speed_cms = DUTY_NEAR;   // 목표 근처: 더 감속 (8cm/s)
     } else {
         // 52~55cm: 마지막 접근 구간 (매우 느리게)
-        target_speed_cms = 2.0f;   // 저속 접근 (4cm/s)
+        target_speed_cms = DUTY_EMER;   // 저속 접근 (4cm/s)
     }
 }
     else {
@@ -335,7 +351,7 @@ void process_acc_with_encoder(float current_dist_cm)
         // PI 상태 디버깅 (가끔씩만 출력)
         static int debug_cnt = 0;
         if (++debug_cnt >= 20) {  // 2초마다
-            mcu_printf("   [PI] Err=%.1f P=%.2f I=%.2f Integ=%.1f → Duty=%.0f%%\n",
+            mcu_printf("   [PI] Err=%d P=%d I=%d Integ=%d → Duty=%d%%\n",
                        speed_error, p_term*100, i_term*100, g_speed_integral, normalized_duty*100);
             debug_cnt = 0;
         }

@@ -9,6 +9,16 @@
 #define DUTY_STOP_NS        0                // 정지
 #define MOTOR_PWM_CH        0                // PDM 채널 0 (GPIO A10)
 
+#define DUTY_FARFAR         5.0f
+#define DUTY_FAR            4.0f
+#define DUTY_MID            3.0f
+#define DUTY_NEAR           2.0f
+#define DUTY_EMER           1.0f
+
+#define ACC_DIST_FARFAR     100.0f
+#define ACC_DIST_FAR        70.0f
+#define ACC_DIST_MID        50.0f
+#define ACC_DIST_NEAR       20.0f
 void process_acc_system(float current_dist_cm);
 void process_acc_with_encoder(float current_dist_cm);  // ← 엔코더 기반 폐루프
 void control_motor_drive(uint32 cmd);

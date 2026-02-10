@@ -7,7 +7,6 @@
 #include "parsing.h"
 
 
-static float steering_rad;
 // 조향 강제 스윕 테스트 (1: 활성, 0: 비활성)
 #define STEER_SWEEP_TEST 0
 // 제어 명령 처리 함수
@@ -16,13 +15,25 @@ static float steering_rad;
 void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
 {
     to_vcp_msg_t* msg = &(pkt->vcp_msg);
+    static uint8_t prev_mode = 0xFF; // 이전 모드 기억용 (초기값: 없는 모드)
     int ret = 0;
-
+    if(pkt == 0){
+        mcu_printf("PKT NULL\n");
+        return;
+    }
     mcu_printf("\n[SPI RX] ════════════════════════════════════════\n");
     mcu_printf("  Magic : 0x%02X | Seq: %d | Time: %d ms\n", 
                pkt->magic, msg->seq, msg->cpu_time_ms);
     mcu_printf("  Mode: %d \n", msg->mode);
-    
+    if (msg->mode != prev_mode)
+    {
+        mcu_printf("\n[PARSING] Mode Change: %d -> %d\n", prev_mode, msg->mode);
+        
+        // 여기에 Pose_Init이나 pp_init이 있다면 여기서만 실행되어야 함!
+        // (지금은 Pose 리셋을 막아야 하니 아무것도 넣지 마)
+
+        prev_mode = msg->mode; // 현재 모드를 이전 모드로 저장
+    }
 
     switch(msg->mode)
     {
@@ -32,7 +43,6 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             //정책 -> 긴급정지(pwm 출력 0)
 
             control_motor_drive(0); // 비상정지
-            Control_Steering_Custom(0); // 중앙 정렬
             break;
 
         case MODE_STOP_AND_HOLD:
@@ -40,7 +50,6 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             //아예 exception 처리에서 처리하면 좋을듯
             //정책 -> 천천히 정지
             control_motor_drive(0); // 정지 및 유지
-            Control_Steering_Custom(0); // 중앙 정렬
             break;
             
         case MODE_FOLLOW_WAYPOINT:
@@ -83,6 +92,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             if (ret != 0){
                 mcu_printf("[PARSING] update_follower_steer failed\n");
             }
+            float steering_rad = 0;
             ret = follow_steer_Get_steer_rad(&steering_rad);
             if (ret != 0){
                 mcu_printf("[PARSING] getting steering rad failed\n");
@@ -102,6 +112,11 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             }
 #endif
             Control_Steering_Custom(steering_rad);
+            process_acc_system((float)(10*msg->aruco_dist_mm));
+
+
+
+
             // {
             //     float norm = steering_rad / MAX_STEER_RAD;
             //     if (norm > 1.0f) norm = 1.0f;

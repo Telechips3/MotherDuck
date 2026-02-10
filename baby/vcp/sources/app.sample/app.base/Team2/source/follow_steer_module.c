@@ -88,9 +88,10 @@ static uint8_t wps_fifo_snapshot(const wps_fifo_t* q, PP_Waypoint* out, uint8_t 
 int update_follower_steer(to_vcp_msg_t* msg)
 {
     static uint8_t once = 0;
-    if (!once) { wps_fifo_init(&g_wps_fifo); once = 1; }
-
-    pp_init(&pp_handler, NULL);
+    if (!once) { 
+        wps_fifo_init(&g_wps_fifo); once = 1; 
+        pp_init(&pp_handler, NULL);
+    }
 
     mcu_printf("[follow_steer] update init\n");
 

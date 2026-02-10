@@ -47,13 +47,13 @@
 #define MY_GPIO (GPIO_GPB(2))
 
 //task delay
-#define IPC_TASK_SLEEP_MS           50
+#define IPC_TASK_SLEEP_MS           60
 #define IMU_TASK_SLEEP_MS           20
 #define POSE_TASK_SLEEP_MS          500
 #define ENCODER_TASK_SLEEP_MS       1000
 #define ULTRASONIC_TASK_SLEEP_MS    50
 #define FOLLOW_STEER_TASK_SLEEP_MS  50
-#define SENSOR_TASK_PERIOD_MS       200
+#define SENSOR_TASK_PERIOD_MS       30
 
 //task priorities 클수록 좋아요
 #define IPC_TASK_PRIORITY           SAL_PRIO_APP_CFG
