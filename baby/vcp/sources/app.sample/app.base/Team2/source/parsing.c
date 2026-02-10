@@ -9,6 +9,11 @@
 
 // 조향 강제 스윕 테스트 (1: 활성, 0: 비활성)
 #define STEER_SWEEP_TEST 0
+#define SLOW_SPEED_STEP  0.0005f
+
+static float current_speed_ratio = 0.0f;
+
+static uint32_t last_tick = 0;
 // 제어 명령 처리 함수
 // parse에서는 패킷 까서 mode만 확인하고 던져줌. 의사결정 X
 // parse에서 해줘야 할 건 exception에 대한 처리 (ESTOP, STOP_AND_HOLD)
@@ -42,7 +47,29 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             //아예 exception 처리에서 처리하면 좋을듯
             //정책 -> 긴급정지(pwm 출력 0)
 
-            control_motor_drive(0); // 비상정지
+           // mcu_printf(" [PARSING] Soft Stop...\n");
+            getCurrentSpeed(&current_speed_ratio);
+            // 1. 감속 로직 (Ramping Down)
+            // 0.05f씩 줄임 (루프 주기가 0.1초라면 0.1초당 5% 감속 -> 2초 뒤 정지)
+            // 더 천천히 멈추고 싶으면 0.01f ~ 0.02f로 줄이세요.
+            uint32_t now_tick = 0;
+            SAL_GetTickCount(&now_tick);
+            if(now_tick - last_tick > 50){
+                last_tick = now_tick;
+                if (current_speed_ratio > 0.0f) {
+                    current_speed_ratio -= SLOW_SPEED_STEP; 
+                    if (current_speed_ratio < 0.0f) current_speed_ratio = 0.0f;
+                }
+            }
+
+            // 2. 모터 제어 함수 호출
+            // 방향은 1(전진) 유지하면서 속도만 줄임. 
+            // (후진 중이었다면 방향 변수를 따로 관리해야 함)
+            if (current_speed_ratio > 0.0f) {
+                control_motor_manual(current_speed_ratio, 1); // 1: 전진 방향 유지하며 감속
+            } else {
+                control_motor_manual(0.0f, 0); // 완전히 멈춤 (GPIO OFF)
+            }
             break;
 
         case MODE_STOP_AND_HOLD:
@@ -112,7 +139,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
             }
 #endif
             Control_Steering_Custom(steering_rad);
-            process_acc_system((float)(10*msg->aruco_dist_mm));
+            process_acc_system((float)(msg->aruco_dist_mm/10));
 
 
 

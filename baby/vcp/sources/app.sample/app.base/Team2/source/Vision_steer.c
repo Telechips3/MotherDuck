@@ -5,7 +5,6 @@
 #include "follow_steer_module.h"
 #include "Vision_steer.h"
 
-#define STEER_GAIN  2.0f
 
 static inline float clampf(float v, float lo, float hi) {
     return (v < lo) ? lo : (v > hi) ? hi : v;

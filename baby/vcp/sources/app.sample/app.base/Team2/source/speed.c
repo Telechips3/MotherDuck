@@ -5,27 +5,7 @@
 
 static PDMModeConfig_t g_pwm_cfg;
 static uint8 g_motor_initialized = 0;
-
-#define PERIOD_NS           500000          // 5ms 주기
-#define DUTY_SLOW_NS        50000           // 30% 속도
-
-#define DUTY_STOP_NS        0                // 정지
-#define MOTOR_PWM_CH        0                // PDM 채널 0 (GPIO A10)
-
-#define DUTY_FARFAR         5.0f
-#define DUTY_FAR            4.0f
-#define DUTY_MID            3.0f
-#define DUTY_NEAR           2.0f
-#define DUTY_EMER           1.0f
-
-#define ACC_DIST_FARFAR     100.0f
-#define ACC_DIST_FAR        70.0f
-#define ACC_DIST_MID        50.0f
-#define ACC_DIST_NEAR       20.0f
-
-#define SAFE_DISTANCE_CM  45.0f
-#define ACC_DEAD_ZONE     2.0f
-
+static float g_current_speed_ratio;
 static void motor_init(void)
 {
     // 1. GPIO 설정
@@ -44,6 +24,70 @@ static void motor_init(void)
 
     g_motor_initialized = 1;
     mcu_printf("motor_init Finish\n");
+}
+
+// [speed.c] 에 추가
+
+// ratio: 0.0f (정지) ~ 1.0f (최대 속도)
+// direction: 0(정지/브레이크), 1(전진), 2(후진)
+void control_motor_manual(float ratio, uint8_t direction)
+{
+    if (!g_motor_initialized) motor_init();
+
+    // 1. 입력값 안전장치 (0.0 ~ 1.0 제한)
+    if (ratio < 0.0f) ratio = 0.0f;
+    if (ratio > 1.0f) ratio = 1.0f;
+
+    // 2. 하드웨어 보호 (최대 출력 85% 제한)
+    // 모터 드라이버나 배터리 보호용
+    if (ratio > 0.85f) ratio = 0.85f;
+
+    // 3. 목표 Duty 계산
+    uint32 target_duty = (uint32)(PERIOD_NS * ratio);
+
+    // 4. 방향 설정 (GPIO)
+    if (direction == 1) {      // 전진
+        GPIO_Set(MOTOR_IN1, 1);
+        GPIO_Set(MOTOR_IN2, 0);
+    } else if (direction == 2) { // 후진
+        GPIO_Set(MOTOR_IN1, 0);
+        GPIO_Set(MOTOR_IN2, 1);
+    } else {                   // 정지 (Brake/Coast)
+        GPIO_Set(MOTOR_IN1, 0);
+        GPIO_Set(MOTOR_IN2, 0);
+        target_duty = 0;       // 방향이 정지면 PWM도 0
+    }
+
+    // 5. PWM 업데이트 (중복 업데이트 방지 최적화 포함)
+    static uint32 last_duty = 0xFFFFFFFF;
+    static uint8_t last_dir = 0xFF;
+
+    // 값이 똑같으면 하드웨어 건드리지 말고 리턴 (꿀렁임 방지)
+    if (target_duty == last_duty && direction == last_dir) {
+        return; 
+    }
+
+    // 값 적용
+    PDM_Disable(MOTOR_PWM_CH, PMM_ON);
+    
+    // 짧은 대기 (드라이버 안정화)
+    uint32 wait_cnt = 0;
+    while (PDM_GetChannelStatus(MOTOR_PWM_CH)) {
+        for (volatile int i = 0; i < 1000; i++);
+        if (++wait_cnt > 1000) break;
+    }
+
+    g_pwm_cfg.mcDutyNanoSec1 = target_duty;
+    if (PDM_SetConfig(MOTOR_PWM_CH, &g_pwm_cfg) == SAL_RET_SUCCESS) {
+        PDM_Enable(MOTOR_PWM_CH, PMM_ON);
+    }
+
+    // 상태 기억
+    last_duty = target_duty;
+    last_dir = direction;
+
+    // 로그 (필요하면 주석 해제)
+    // mcu_printf(" >> Manual Motor: Dir=%d, Duty=%d%%\n", direction, (int)(ratio * 100));
 }
 
 // 핵심 제어 함수: 외부에서 받은 cmd('w', 's' 등)에 따라 동작
@@ -248,7 +292,7 @@ void process_acc_system(float current_dist_cm)
 }
 
 // 간단한 PI 제어기 (Proportional + Integral)
-#define KP_SPEED  0.08f    // 속도 오차 1cm/s당 12% duty 변화 (부하 고려)
+#define KP_SPEED  0.01f    // 속도 오차 1cm/s당 12% duty 변화 (부하 고려)
 #define KI_SPEED  0.015f   // 적분 게인
 #define MAX_INTEGRAL  50.0f  // 적분 포화 (부하 시 더 큰 적분 필요)
 
@@ -339,11 +383,11 @@ void process_acc_with_encoder(float current_dist_cm)
         float i_term = KI_SPEED * g_speed_integral;
         
         // 정규화된 duty 계산 (0~1)
-        float normalized_duty = 0.10f + p_term + i_term;  // 10% 기본 (부하 고려)
+        float normalized_duty = BASE_SPEED_PWM + p_term + i_term;  // 10% 기본 (부하 고려)
         
         // 범위 제한 (10% ~ 85%)
         if (normalized_duty > 0.85f) normalized_duty = 0.85f;
-        if (normalized_duty < 0.10f) normalized_duty = 0.10f;
+        if (normalized_duty < 0.02f) normalized_duty = 0.02f;
         
         // ns 단위로 변환
         target_duty = (uint32)(PERIOD_NS * normalized_duty);
@@ -361,18 +405,19 @@ void process_acc_with_encoder(float current_dist_cm)
     }
 
     // 5. PWM 업데이트
-    PDM_Disable(MOTOR_PWM_CH, PMM_ON);
-    wait_cnt = 0; 
-    while (PDM_GetChannelStatus(MOTOR_PWM_CH)) {
-        for (volatile int i = 0; i < 1000; i++);
-        if (++wait_cnt > 1000) break;
-    }
+    // PDM_Disable(MOTOR_PWM_CH, PMM_ON);
+    // wait_cnt = 0; 
+    // while (PDM_GetChannelStatus(MOTOR_PWM_CH)) {
+    //     for (volatile int i = 0; i < 1000; i++);
+    //     if (++wait_cnt > 1000) break;
+    // }
 
-    g_pwm_cfg.mcDutyNanoSec1 = target_duty;
-    if (PDM_SetConfig(MOTOR_PWM_CH, &g_pwm_cfg) == SAL_RET_SUCCESS) {
-        PDM_Enable(MOTOR_PWM_CH, PMM_ON);
-    }
-
+    // g_pwm_cfg.mcDutyNanoSec1 = target_duty;
+    // if (PDM_SetConfig(MOTOR_PWM_CH, &g_pwm_cfg) == SAL_RET_SUCCESS) {
+    //     PDM_Enable(MOTOR_PWM_CH, PMM_ON);
+    // }
+    g_current_speed_ratio = (float)target_duty / PERIOD_NS;
+    control_motor_manual(g_current_speed_ratio, 1);
     // 6. 로그 출력
     int dist_int = (int)current_dist_cm;
     int target_speed_int = (int)(target_speed_cms * 10);
@@ -391,4 +436,10 @@ void process_acc_with_encoder(float current_dist_cm)
                actual_speed_int/10, actual_speed_int%10,
                (int)duty_percent,
                enc_dist_int/10, enc_dist_int%10);
+}
+
+void getCurrentSpeed(float* current_speed)
+{
+    *current_speed = g_current_speed_ratio;
+    return;
 }
