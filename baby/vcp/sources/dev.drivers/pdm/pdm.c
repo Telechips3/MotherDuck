@@ -2198,7 +2198,6 @@ SALRetCode_t PDM_SetConfig
 
     return ret;
 }
-
 /*
 ***************************************************************************************************
 * PDM_UpdateDutyNano (Custom)
@@ -2233,7 +2232,17 @@ SALRetCode_t PDM_UpdateDutyNano(uint32 uiChannel, uint32 uiDutyNanoSec)
     // PDMHandler에 저장된 이전 설정값을 믿고 간다.
     uiPeriodNanoSec = PDMHandler[uiChannel].chModeCfgInfo.mcPeriodNanoSec1;
     uiClockDivide   = PDMHandler[uiChannel].chModeCfgInfo.mcClockDivide; 
+    /* 🔥 [형의 긴급 처방] Period가 0이면 20ms(서보 표준)로 강제 설정 🔥 */
+    if (uiPeriodNanoSec == 0) {
+        uiPeriodNanoSec = 20000000; // 20ms = 20,000,000ns
+        
+        // 다음을 위해 핸들러에도 저장해두기 (선택사항)
+        PDMHandler[uiChannel].chModeCfgInfo.mcPeriodNanoSec1 = uiPeriodNanoSec;
+        
+        mcu_printf("[WARNING] Period was 0! Forced to 20ms.\n");
+    }
 
+    mcu_printf("[PDM_Debug] Period: %d, Duty: %d\n", uiPeriodNanoSec, uiDutyNanoSec);
     // 3. 클럭 계산 (기존 PDM_ConfigPhase1Pstn 로직 참고)
     // 현재 페리페럴 클럭 가져오기
     uiClockFreq = CLOCK_GetPeriRate((sint32)CLOCK_PERI_PWM0); // PWM0/1/2가 같다고 가정
@@ -2246,13 +2255,19 @@ SALRetCode_t PDM_UpdateDutyNano(uint32 uiChannel, uint32 uiDutyNanoSec)
     uiClockTns = (PDM_ONE_SECOND_TO_NANO / uiClockFreq);
     if(uiClockTns == 0) return SAL_RET_FAILED;
 
+    
+    if (uiPeriodNanoSec <= uiDutyNanoSec) {
+    mcu_printf("[PDM_Err] Period(%d) <= Duty(%d)\n", uiPeriodNanoSec, uiDutyNanoSec);
+    return SAL_RET_FAILED;
+}
     // 4. 새로운 Position 값 계산 (핵심 로직)
     // Phase Mode 1: Position1(Low구간) -> Position2(High구간)
     // Low 구간 = 전체 Period - Duty
     uiPosition1 = ((uiPeriodNanoSec - uiDutyNanoSec) / uiClockTns);
+
     // High 구간 = Duty
     uiPosition2 = (uiDutyNanoSec / uiClockTns);
-
+    
     // 하드웨어 리미트 보정 (Telechips 로직 그대로)
     uiPosition1 = (uiPosition1 > PDM_HW_LIMIT_VALUE_2) ? (uiPosition1 - PDM_HW_LIMIT_VALUE_2) : 0UL;
     uiPosition2 = (uiPosition2 > PDM_HW_LIMIT_VALUE_2) ? (uiPosition2 - PDM_HW_LIMIT_VALUE_2) : 0UL;
