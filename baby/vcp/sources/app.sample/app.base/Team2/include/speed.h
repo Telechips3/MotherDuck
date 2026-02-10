@@ -11,19 +11,19 @@
 
 #define BASE_SPEED_PWM      0.005f           // 기본 PWM
 
-#define DUTY_FARFAR         5.0f
-#define DUTY_FAR            4.0f
-#define DUTY_MID            3.0f
-#define DUTY_NEAR           2.0f
-#define DUTY_EMER           1.0f
+#define DUTY_FARFAR         5.5f
+#define DUTY_FAR            4.5f
+#define DUTY_MID            3.5f
+#define DUTY_NEAR           2.5f
+#define DUTY_EMER           1.5f
 
 #define ACC_DIST_FARFAR     125.0f
 #define ACC_DIST_FAR        100.0f
-#define ACC_DIST_MID        75.0f
-#define ACC_DIST_NEAR       50.0f
+#define ACC_DIST_MID        70.0f
+#define ACC_DIST_NEAR       40.0f
 
-#define SAFE_DISTANCE_CM    5.0f
-#define ACC_DEAD_ZONE       2.0f
+#define SAFE_DISTANCE_CM    50.0f
+#define ACC_DEAD_ZONE       5.0f
 
 
 void process_acc_system(float current_dist_cm);
