@@ -36,6 +36,7 @@ static void vMotorControlTask(void *pParam)
     spi_motor_packet_t received_cmd = {0};
     //uint8 received_cmd = 0xFF;
     uint32 copied_size = 0;
+    uint32 is_steer_cmd = 0;
     SALRetCode_t ret;
 
     //control_motor_drive(0);
@@ -45,25 +46,10 @@ static void vMotorControlTask(void *pParam)
         ret = SAL_QueueGet(g_motor_queue_id, &received_cmd, &copied_size, 
                            100, SAL_OPT_BLOCKING);
         
-        Dump_Vcp_Hex(&received_cmd, 8);
-        
+        //Dump_Vcp_Hex(&received_cmd, 8);
+        is_steer_cmd = 1;
         if (ret == SAL_RET_SUCCESS)
         {
-            // 속도 명령
-            if (( fabsf(received_cmd.data.speed - 1.0f)) < EPSILON)
-            {
-                mcu_printf("w\n");
-                control_motor_drive(0);
-            }
-            else if( (fabsf(received_cmd.data.speed + 1.0f)) < EPSILON)
-            {
-                mcu_printf("s\n");
-                control_motor_drive(2);
-            }
-            else{
-                control_motor_drive(0xFF);
-            }
-
             if(( fabsf(received_cmd.data.steer - 0.291f)) < EPSILON)
             {
                 mcu_printf("a\n");
@@ -74,10 +60,28 @@ static void vMotorControlTask(void *pParam)
                 mcu_printf("d\n");
                 control_steering_step(3);
             }
+            else{
+                is_steer_cmd = 0;
+            }
+            // 속도 명령
+            if (( fabsf(received_cmd.data.speed - 1.0f)) < EPSILON)
+            {
+                mcu_printf("w\n");
+                control_motor_drive(0, is_steer_cmd);
+            }
+            else if( (fabsf(received_cmd.data.speed + 1.0f)) < EPSILON)
+            {
+                mcu_printf("s\n");
+                control_motor_drive(2, is_steer_cmd);
+            }
+            else{
+                control_motor_drive(0xFF, 0);
+            }
+
         }
         else
         {
-            control_motor_drive(0xFF);
+            control_motor_drive(0xFF, 0);
         }
         
         SAL_TaskSleep(1);

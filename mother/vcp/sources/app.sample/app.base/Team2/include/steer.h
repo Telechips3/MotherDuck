@@ -12,9 +12,9 @@
 #define CMD_BACKWARD_RIGHT  0x07
 
 #define STEER_PERIOD_NS       20000000
-#define STEER_MIN_NS          1200000
+#define STEER_MIN_NS          1000000
 #define STEER_NEUTRAL_NS      1500000
-#define STEER_MAX_NS          1800000
+#define STEER_MAX_NS          1700000
 #define STEER_STEP_NS         50000
 #define STEER_PWM_CH          PDM_CHANNEL_7
 

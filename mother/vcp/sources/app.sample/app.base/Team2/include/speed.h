@@ -35,7 +35,7 @@
 
 #define MOTOR_PWM_CH        0
 
-void control_motor_drive(uint32 cmd);
+void control_motor_drive(uint32 cmd, uint32 is_steer_cmd);
 void control_motor_speed(uint32 speed_level);
 
 #endif

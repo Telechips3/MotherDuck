@@ -27,7 +27,7 @@
 #include "Team2/include/speed.h"
 #include "Team2/include/encoder.h"
 
-#define ENABLE_ENCODER_TASK 1
+#define ENABLE_ENCODER_TASK 0
 
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)
 #include <spi_eccp.h>
