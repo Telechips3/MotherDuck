@@ -34,9 +34,9 @@ static Pose pose;
 static PP_Waypoint wps[NUM_WAYPOINTS];
 static PP_Handle pp_handler;
 
-
-static uint32 FollowsteerTaskID;
-static uint32 FollowsteerTaskStk[FOLLOW_STEER_TASK_STACK_SIZE];
+/*============legcy code (task values)=============*/
+// static uint32 FollowsteerTaskID;
+// static uint32 FollowsteerTaskStk[FOLLOW_STEER_TASK_STACK_SIZE];
 
 
 

@@ -9,7 +9,7 @@
 
 static float steering_rad;
 // 조향 강제 스윕 테스트 (1: 활성, 0: 비활성)
-#define STEER_SWEEP_TEST 1
+#define STEER_SWEEP_TEST 0
 // 제어 명령 처리 함수
 // parse에서는 패킷 까서 mode만 확인하고 던져줌. 의사결정 X
 // parse에서 해줘야 할 건 exception에 대한 처리 (ESTOP, STOP_AND_HOLD)
@@ -101,7 +101,7 @@ void parse_and_excute_control(to_vcp_spi_msg_t* pkt)
                 mcu_printf("[STEER_TEST] steering_rad_mrad=%d\n", (int)(steering_rad * 1000));
             }
 #endif
-            control_steering_absolute(steering_rad);
+            Control_Steering_Custom(steering_rad);
             // {
             //     float norm = steering_rad / MAX_STEER_RAD;
             //     if (norm > 1.0f) norm = 1.0f;

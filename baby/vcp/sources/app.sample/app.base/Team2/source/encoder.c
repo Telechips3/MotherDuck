@@ -16,7 +16,7 @@
 
 /* ===== Internal State ===== */
 volatile int32 s_encCnt = 0;
-static uint8_t s_prev_state = 0;
+//static uint8_t s_prev_state = 0;
 
 static int32 s_prevCnt = 0;
 static uint32 s_prevTickMs = 0;
@@ -194,9 +194,9 @@ void Encoder_CalcSpeed(void)
 
     s_prevCnt = s_encCnt;
     s_prevTickMs = nowMs;
-
-    int dist_x10 = (int)(s_distanceCm * 10.0f);
-    int speed_x10 = (int)(s_speedCms * 10.0f);
+    /*===========debug==============*/
+    // int dist_x10 = (int)(s_distanceCm * 10.0f);
+    // int speed_x10 = (int)(s_speedCms * 10.0f);
     // mcu_printf("[ENC] CNT=%d DIST=%d.%d cm SPEED=%d.%d cm/s A=%d B=%d\n",
     //            s_encCnt,
     //            dist_x10 / 10, dist_x10 % 10,

@@ -66,7 +66,7 @@ static void IPC_Task(void *pParam)
             received_pkt.vcp_msg.seq = 1;
             received_pkt.vcp_msg.cpu_time_ms = 100;
 
-            received_pkt.vcp_msg.mode = 2;
+            received_pkt.vcp_msg.mode = 3;
 
                     // ArUco 데이터
             received_pkt.vcp_msg.aruco_valid = 1;
@@ -88,7 +88,9 @@ static void IPC_Task(void *pParam)
             {
                 // 유효한 패킷 수신 시 제어 함수 호출
                 mcu_printf("[ipc] PKT RX Successed\n");
-                ((void*)&received_pkt);
+                float steer_angle = 17.253f;
+                Control_Steering_Custom(steer_angle);
+                //parse_and_excute_control((void*)&received_pkt);
             }
         }
             else
