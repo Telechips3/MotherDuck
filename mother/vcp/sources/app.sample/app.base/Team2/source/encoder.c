@@ -112,7 +112,7 @@ void EncoderTask(void *pArg)
     while (1)
     {
         //mcu_printf("Encoder Count: %d\n", s_encCnt);
-        SAL_TaskSleep(10);
+        SAL_TaskSleep(10000);
     }
 }
 
