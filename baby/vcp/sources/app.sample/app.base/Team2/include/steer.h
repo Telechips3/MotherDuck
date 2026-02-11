@@ -9,10 +9,10 @@
 // 만약 각도가 더 필요하면 500000 ~ 2500000까지 늘릴 수 있습니다.
 #define STEER_MIN_NS          400000       
 #define STEER_NEUTRAL_NS      1700000      // 1.5ms가 국룰입니다!
-#define STEER_MAX_NS          2000000      
+#define STEER_MAX_NS          2300000      
 
 #define SERVO_RANGE_NS    (STEER_MAX_NS - STEER_MIN_NS) // 2,000,000ns
-#define MAX_STEER_RAD           0.7f       
+#define MAX_STEER_RAD           0.8f       
 
 
 

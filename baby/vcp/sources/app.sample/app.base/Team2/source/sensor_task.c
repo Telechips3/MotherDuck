@@ -43,7 +43,7 @@ static void SensorTask(void *pArg)
     Encoder_Init();
     IMU_ModuleInit();
     Pose_Init(0.0f, 0.0f, 0.0f);
-    Ultrasonic_Init();
+    //Ultrasonic_Init();
     uint32 lastEncCalcMs = get_tick_ms();
 
     while (1)
@@ -54,20 +54,20 @@ static void SensorTask(void *pArg)
         // if (IMU_GetData(&imu) == 0) {
         //     mcu_printf("[IMU] yaw=%d deg\n", (int)(100*imu.yaw));
         // }
-        uint32_t emer_dist = Ultrasonic_GetDistance_cm();
-        mcu_printf("[SensorTask] TEST SONIC Dist : %d\n", emer_dist);
-        if(ULTRA_ECHO_TIMEOUT == emer_dist)
-        {
-            mcu_printf("[SensorTask] SONIC timeout\n");
-        }
-        else{
-            if(emer_dist <= 5){
-                sem_ultra_Init();
-                mcu_printf("[SensorTask] Emergency Dist : %d\n", emer_dist);
-                continue;
-                SAL_TaskSleep(SENSOR_TASK_PERIOD_MS);
-            }
-        }
+        // uint32_t emer_dist = Ultrasonic_GetDistance_cm();
+        // mcu_printf("[SensorTask] TEST SONIC Dist : %d\n", emer_dist);
+        // if(ULTRA_ECHO_TIMEOUT == emer_dist)
+        // {
+        //     mcu_printf("[SensorTask] SONIC timeout\n");
+        // }
+        // else{
+        //     if(emer_dist <= 5){
+        //         sem_ultra_Init();
+        //         mcu_printf("[SensorTask] Emergency Dist : %d\n", emer_dist);
+        //         continue;
+        //         SAL_TaskSleep(SENSOR_TASK_PERIOD_MS);
+        //     }
+        // }
 
         IMU_ModuleUpdate();
         uint32 nowMs = get_tick_ms();

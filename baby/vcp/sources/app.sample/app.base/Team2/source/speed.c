@@ -3,9 +3,19 @@
 #include "encoder.h"
 #include <math.h>
 
+static uint8_t is_kicking = 0;
+static uint32_t kick_start_time = 0;
 static PDMModeConfig_t g_pwm_cfg;
 static uint8 g_motor_initialized = 0;
 static float g_current_speed_ratio;
+
+static uint32 get_tick_ms_1(void)
+{
+    uint32 tick = 0;
+    (void)SAL_GetTickCount(&tick);
+    return tick * portTICK_PERIOD_MS;
+}
+
 static void motor_init(void)
 {
     // 1. GPIO 설정
@@ -225,46 +235,49 @@ void process_acc_system(float current_dist_cm)
     uint32 target_duty = DUTY_STOP_NS;
     uint32 wait_cnt = 0;
     const char* status_msg = "STOP"; // 확인용 문구
-
+    int dir = 0;
     // 1. 거리 기반 제어 로직
-    if (current_dist_cm <= 5.0f) {
-        status_msg = "EMERGENCY STOP";
-        target_duty = DUTY_STOP_NS;
-        GPIO_Set(MOTOR_IN1, 0);
-        GPIO_Set(MOTOR_IN2, 0);
-    }
-    else if (current_dist_cm < (SAFE_DISTANCE_CM - ACC_DEAD_ZONE)) {
-        // 후진 구간 (목표보다 가까움)
+    if (current_dist_cm <= ACC_DIST_EMER) {
+         // 후진 구간 (목표보다 가까움)
         status_msg = "REVERSE";
         GPIO_Set(MOTOR_IN1, 0);
         GPIO_Set(MOTOR_IN2, 1);
-        
-        if(current_dist_cm < 20.0f) {
+        dir = 2;
+        if(current_dist_cm < ACC_DIST_EMER) {
             target_duty = (uint32)(PERIOD_NS * 0.50f);  // 매우 가까우면 50% 후진
         } else {
             target_duty = (uint32)(PERIOD_NS * 0.30f);  // 30% 후진
         }
+    }
+    else if (current_dist_cm < (SAFE_DISTANCE_CM - ACC_DEAD_ZONE)) {
+        status_msg = "EMERGENCY STOP";
+        target_duty = DUTY_SLOW;
+        GPIO_Set(MOTOR_IN1, 0);
+        GPIO_Set(MOTOR_IN2, 0);
+        dir = 1;
+       
     }
     else if (current_dist_cm > (SAFE_DISTANCE_CM + ACC_DEAD_ZONE)) {
         // 전진 구간 (목표보다 멀음)
         status_msg = "FORWARD";
         GPIO_Set(MOTOR_IN1, 1);
         GPIO_Set(MOTOR_IN2, 0);
-        
-        if (current_dist_cm > 150.0f) {
-            target_duty = (uint32)(PERIOD_NS * 0.70f);  // 매우 멀면 70%
-        } else if (current_dist_cm > 80.0f) {
-            target_duty = (uint32)(PERIOD_NS * 0.50f);  // 중간 거리 50%
+        dir = 1;
+        if (current_dist_cm > ACC_DIST_FAR) {
+            target_duty = (uint32)(PERIOD_NS * DUTY_FAR);  // 매우 멀면 70%
+        } else if (current_dist_cm > ACC_DIST_MID) {
+            target_duty = (uint32)(PERIOD_NS * DUTY_MID);  // 중간 거리 50%
         } else {
-            target_duty = (uint32)(PERIOD_NS * 0.35f);  // 근접 시 35%
+            target_duty = (uint32)(PERIOD_NS * DUTY_NEAR);  // 근접 시 35%
         }
     }
     else {
         // Dead-zone (48~52cm)
         status_msg = "HOLDING";
-        target_duty = DUTY_STOP_NS;
+        target_duty = DUTY_SLOW;
         GPIO_Set(MOTOR_IN1, 0);
         GPIO_Set(MOTOR_IN2, 0);
+        dir = 1;
     }
 
     // 2. 하드웨어 보호: 최대 출력 제한
@@ -273,6 +286,62 @@ void process_acc_system(float current_dist_cm)
     }
 
     // 3. PWM 업데이트 (Disable -> Config -> Enable)
+    // [Start Kick 로직 추가]
+    // 현재 모터가 정지 상태이거나 타겟 듀티가 낮은데 새로 시작하는 경우
+// 2. 하드웨어 보호: 최대 출력 제한 (기존 유지)
+    if (target_duty > (uint32)(PERIOD_NS * 0.85f)) {
+        target_duty = (uint32)(PERIOD_NS * 0.85f);
+    }
+    
+    // ====================================================
+    // 🚀 [Start Kick 로직 교체됨] - 스마트 피드백 방식
+    // ====================================================
+    
+    // 현재 속도 확인 (엔코더 값)
+    float current_speed = Encoder_GetSpeedCms();
+    
+    // 차가 앞으로 가야 하는데(FORWARD), 속도가 0에 가깝다면 킥 발동
+    // (후진일 때는 킥 위험하니까 dir == 1 조건 추가 추천)
+    if (target_duty > DUTY_SLOW && dir == 1) 
+    {
+        // 1) 킥 시작 조건: 킥 중 아니고 + 멈춰있을 때
+        if (is_kicking == 0 && (current_speed > -1.0f && current_speed < 1.0f)) 
+        {
+            is_kicking = 1;
+            kick_start_time = get_tick_ms_1(); // 현재 시간 저장
+            // mcu_printf("[KICK] Start!\n"); // 디버깅용
+        }
+
+        // 2) 킥 상태 관리
+        if (is_kicking == 1) 
+        {
+            // 해제 A: 차가 움직이기 시작함 (성공!)
+            if (current_speed > MOVING_THRESHOLD) 
+            {
+                is_kicking = 0; 
+                // mcu_printf("[KICK] Success! Speed detected.\n");
+            }
+            // 해제 B: 시간 초과 (실패 - 모터 보호)
+            else if ((get_tick_ms_1() - kick_start_time) > KICK_TIMEOUT_MS) 
+            {
+                is_kicking = 0; 
+                // mcu_printf("[KICK] Timeout.\n");
+            }
+            else 
+            {
+                // **킥 진행 중: 목표 듀티를 100%로 강제 변경**
+                target_duty = KICK_DUTY_MAX; 
+                status_msg = "KICK START"; // 로그 확인용
+            }
+        }
+    } 
+    else 
+    {
+        // 멈추거나 후진하면 킥 상태 초기화
+        is_kicking = 0;
+    }
+    // 3. PWM 업데이트 (Disable -> Config -> Enable)
+    //control_motor_manual(target_duty, dir);
     PDM_Disable(MOTOR_PWM_CH, PMM_ON);
     wait_cnt = 0; 
     while (PDM_GetChannelStatus(MOTOR_PWM_CH)) {
@@ -290,7 +359,7 @@ void process_acc_system(float current_dist_cm)
     mcu_printf("   >> ACC: Dist=%dcm | %s | Duty=%d%%\n", 
                (int)current_dist_cm, status_msg, duty_percent);
 }
-
+/*====================================*/
 // 간단한 PI 제어기 (Proportional + Integral)
 #define KP_SPEED  0.01f    // 속도 오차 1cm/s당 12% duty 변화 (부하 고려)
 #define KI_SPEED  0.015f   // 적분 게인

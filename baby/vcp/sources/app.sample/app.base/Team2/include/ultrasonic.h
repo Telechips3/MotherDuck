@@ -9,7 +9,7 @@
 #define BUZ_NEAR_LIMIT       10
 #define BUZ_MID_LIMIT        20
 #define BUZ_FAR_LIMIT        30
-#define ULTRA_TIMEOUT_MS     10
+#define ULTRA_TIMEOUT_MS     40
 // --- API 함수 ---
 void Ultrasonic_Init(void);
 void Buzzer_Init(void);

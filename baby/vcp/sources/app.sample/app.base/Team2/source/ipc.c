@@ -4,7 +4,7 @@
 #include "steer.h" // control_steering_step 함수 호출용
 #include "parsing.h" // parse_and_excute_control 함수 호출용
 /* TEST */
-#define IPC_VISION_DUMMY_TEST 1
+#define IPC_VISION_DUMMY_TEST 0
 
 /* 전역 변수 */
 uint32 IPC_queue_id = 0;
