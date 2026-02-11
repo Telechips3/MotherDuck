@@ -6,5 +6,5 @@
 
 SALRetCode_t SensorTaskCreate(void);
 int SensorTask_GetPose(Pose *out);
-
+void sem_ultra_Init(void);
 #endif

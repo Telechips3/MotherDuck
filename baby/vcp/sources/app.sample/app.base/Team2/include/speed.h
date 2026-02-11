@@ -9,21 +9,23 @@
 #define DUTY_STOP_NS        0                // 정지
 #define MOTOR_PWM_CH        0                // PDM 채널 0 (GPIO A10)
 
-#define BASE_SPEED_PWM      0.005f           // 기본 PWM
+#define BASE_SPEED_PWM      0.2f           // 기본 PWM
 
-#define DUTY_FARFAR         5.5f
-#define DUTY_FAR            4.5f
-#define DUTY_MID            3.5f
-#define DUTY_NEAR           2.5f
-#define DUTY_EMER           1.5f
+#define DUTY_FARFAR         5.0f
+#define DUTY_FAR            4.0f
+#define DUTY_MID            3.025f
+#define DUTY_NEAR           2.2f
+#define DUTY_SLOW           1.15f
 
-#define ACC_DIST_FARFAR     125.0f
-#define ACC_DIST_FAR        100.0f
-#define ACC_DIST_MID        70.0f
-#define ACC_DIST_NEAR       40.0f
+#define ACC_DIST_FARFAR     120.0f
+#define ACC_DIST_FAR        90.0f
+#define ACC_DIST_MID        60.0f
+#define ACC_DIST_NEAR       30.0f
 
-#define SAFE_DISTANCE_CM    50.0f
-#define ACC_DEAD_ZONE       5.0f
+#define ACC_DIST_EMER       7.0f            // 후진
+
+#define SAFE_DISTANCE_CM    15.0f           // 차간거리
+#define ACC_DEAD_ZONE       3.0f            // 히스테리스 데드존
 
 
 void process_acc_system(float current_dist_cm);

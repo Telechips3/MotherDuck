@@ -302,29 +302,26 @@ void process_acc_with_encoder(float current_dist_cm)
 {
     if(!g_motor_initialized) motor_init();
 
-    uint32 wait_cnt = 0;
+    //uint32 wait_cnt = 0;
     const char* status_msg = "STOP";
     float target_speed_cms = 0.0f;  // 목표 속도 (cm/s)
     uint8 direction = 0;  // 0: 정지, 1: 전진, 2: 후진
 
     // 1. 거리 기반 목표 속도 설정
-    if (current_dist_cm <= 5.0f) {
+    if (current_dist_cm <= ACC_DIST_EMER) {
         status_msg = "EMERGENCY";
-        target_speed_cms = 0.0f;
-        direction = 0;
+        direction = 2;
+        target_speed_cms = 0.15f;
     }
     else if (current_dist_cm < (SAFE_DISTANCE_CM - ACC_DEAD_ZONE)) {
         // 후진 필요
         status_msg = "REVERSE";
-        direction = 2;
         
-        if(current_dist_cm < 20.0f) {
-            target_speed_cms = 10.0f;  // 10cm/s 후진
-        } else {
-            target_speed_cms = 5.0f;   // 5cm/s 후진
-        }
+        target_speed_cms = 0.0f;
+        direction = 0;
+
     }
-    else if (current_dist_cm > (SAFE_DISTANCE_CM + ACC_DEAD_ZONE)) {
+    else if (current_dist_cm > (SAFE_DISTANCE_CM + ACC_DEAD_ZONE) ) {
     // 전진 필요 (거리 기반 점진적 감속)
     status_msg = "FORWARD";
     direction = 1;
@@ -339,14 +336,14 @@ void process_acc_with_encoder(float current_dist_cm)
         target_speed_cms = DUTY_NEAR;   // 목표 근처: 더 감속 (8cm/s)
     } else {
         // 52~55cm: 마지막 접근 구간 (매우 느리게)
-        target_speed_cms = DUTY_EMER;   // 저속 접근 (4cm/s)
+        target_speed_cms = DUTY_SLOW;   // 저속 접근 (4cm/s)
     }
 }
     else {
         // Dead-zone
         status_msg = "HOLDING";
-        target_speed_cms = 0.0f;
-        direction = 0;
+        target_speed_cms = g_current_speed_ratio;
+        direction = 1;
     }
 
     // 2. 방향 설정
@@ -387,10 +384,10 @@ void process_acc_with_encoder(float current_dist_cm)
         
         // 범위 제한 (10% ~ 85%)
         if (normalized_duty > 0.85f) normalized_duty = 0.85f;
-        if (normalized_duty < 0.02f) normalized_duty = 0.02f;
+        if (normalized_duty < 0.10f) normalized_duty = 0.10f;
         
         // ns 단위로 변환
-        target_duty = (uint32)(PERIOD_NS * normalized_duty);
+        //target_duty = (uint32)(PERIOD_NS * normalized_duty);
         
         // PI 상태 디버깅 (가끔씩만 출력)
         static int debug_cnt = 0;
@@ -416,7 +413,7 @@ void process_acc_with_encoder(float current_dist_cm)
     // if (PDM_SetConfig(MOTOR_PWM_CH, &g_pwm_cfg) == SAL_RET_SUCCESS) {
     //     PDM_Enable(MOTOR_PWM_CH, PMM_ON);
     // }
-    g_current_speed_ratio = (float)target_duty / PERIOD_NS;
+    g_current_speed_ratio = (float)target_duty;
     control_motor_manual(g_current_speed_ratio, 1);
     // 6. 로그 출력
     int dist_int = (int)current_dist_cm;

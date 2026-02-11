@@ -9,7 +9,7 @@
 
 // 조향 강제 스윕 테스트 (1: 활성, 0: 비활성)
 #define STEER_SWEEP_TEST 0
-#define SLOW_SPEED_STEP  0.0005f
+#define SLOW_SPEED_STEP  0.1f
 
 static float current_speed_ratio = 0.0f;
 

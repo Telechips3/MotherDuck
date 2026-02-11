@@ -99,6 +99,8 @@ static void DisplayAliveLog(
 static void DisplayOTPInfo(
     void);
 
+static void SemaTask(void *pArg);
+
 /*
 ***************************************************************************************************
 *                                         FUNCTIONS
@@ -144,7 +146,7 @@ void cmain(void)
     mcu_printf("===============================\n\n");
     
     PDM_Init(); // pwm 초기화 코드. 우리 코드가 아님.
-
+    void Buzzer_Init(void);
     // create the first app task...
     err = (SALRetCode_t)SAL_TaskCreate(&AppTaskStartID,
                                        (const uint8 *)"App Task Start",
@@ -224,7 +226,7 @@ void cmain(void)
 ***************************************************************************************************
 */
     
- 
+
 
 static void Main_StartTask(void *pArg)
 {(void)pArg;
@@ -235,7 +237,46 @@ static void Main_StartTask(void *pArg)
         SAL_TaskSleep(1);
     }
 }
+static void SemaTask(void *pArg) {
+    (void)pArg;
+    
+    mcu_printf("[EmergencyTask] Task Started & Waiting...\n");
 
+    while (1) {
+        // 1. 평소에는 여기서 무한 대기 (CPU 안 씀)
+        // 누군가 Trigger_Emergency_Stop()을 호출할 때까지 영원히 잠듦
+        if (SAL_SemaphoreWait(sem_ultra, 0, SAL_OPT_BLOCKING) == SAL_RET_SUCCESS) {
+            
+            // 2. 세마포어를 받았다! (비상 상황 발생)
+            mcu_printf("\n\n!!! [EMERGENCY] STOP TRIGGERED !!!\n\n");
+
+            // 3. 즉각적인 하드웨어 정지 조치
+            // (1) 모터 전원 차단 (PWM 0)
+            //control_motor_drive(0);        // 드라이브 모드 정지
+            control_motor_manual(0.0f, 0); // 매뉴얼 모드 강제 0
+            
+            // (2) 부저 울림
+            Buzzer_Set(1);
+
+            // (3) 적분 제어기 초기화 (다시 출발할 때 급발진 방지)
+            // (speed.c의 전역변수를 직접 건드리기 어려우니 정지 함수가 해줘야 함)
+            
+            // 4. 후속 처리 (선택 사항)
+            // 여기서 바로 다시 루프를 돌면 또 대기 상태로 감.
+            // 만약 "리셋 버튼 누를 때까지 정지" 하려면 여기서 또 다른 로직이 필요함.
+            
+            // 일단은 계속 정지 상태를 유지하기 위해 짧은 딜레이나 반복 정지 명령
+            for(int i=0; i<10; i++) {
+                 control_motor_drive(0);
+                 SAL_TaskSleep(100);
+             } // 1초간 확실하게 제압
+             Buzzer_Set(0);
+             (void)SAL_SemaphoreRelease(sem_ultra);
+            
+            
+        }
+    }
+}
 static void AppTaskCreate(void)
 {
 #if (APLT_LINUX_SUPPORT_SPI_DEMO == 1)

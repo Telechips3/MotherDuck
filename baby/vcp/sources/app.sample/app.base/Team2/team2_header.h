@@ -47,13 +47,13 @@
 #define MY_GPIO (GPIO_GPB(2))
 
 //task delay
-#define IPC_TASK_SLEEP_MS           60
+#define IPC_TASK_SLEEP_MS           600
 #define IMU_TASK_SLEEP_MS           20
 #define POSE_TASK_SLEEP_MS          500
 #define ENCODER_TASK_SLEEP_MS       1000
 #define ULTRASONIC_TASK_SLEEP_MS    50
 #define FOLLOW_STEER_TASK_SLEEP_MS  50
-#define SENSOR_TASK_PERIOD_MS       30
+#define SENSOR_TASK_PERIOD_MS       300
 
 //task priorities 클수록 좋아요
 #define IPC_TASK_PRIORITY           SAL_PRIO_APP_CFG
@@ -107,6 +107,7 @@ typedef struct {
     uint8_t  reason;
 } to_vcp_msg_t;
 
+extern uint32 sem_ultra;
 // 전체 SPI 패킷 구조체
 typedef struct {
     uint8_t magic;           // 0xA5
@@ -129,5 +130,6 @@ static inline uint16_t crc16_ccitt_false(const uint8_t* data, size_t len)
     }
     return crc;
 }
+
 
 #endif // _TEAM2_COMMON_H_ 끝
