@@ -1,0 +1,5 @@
+CODE      29a00
+WGHT    18c0fc0
+WORK     bb8000
+IACT     12c000
+OACT      c4e00
